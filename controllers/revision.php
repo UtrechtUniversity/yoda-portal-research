@@ -21,6 +21,8 @@ class Revision extends MY_Controller
 
         $this->load->library('module', array(__DIR__));
         $this->load->library('pathlibrary');
+
+        return redirect('research');
     }
 
     /**

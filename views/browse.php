@@ -19,8 +19,6 @@
                 <li><a href="#" data-type="filename">Search by filename</a></li>
                 <li><a href="#" data-type="folder">Search by folder</a></li>
                 <li><a href="#" data-type="metadata">Search by metadata</a></li>
-                <li><a href="#" data-type="status">Search by status</a></li>
-                <li><a href="#" data-type="revision">Search revision by name</a></li>
             </ul>
         </div>
         <div class="search-term">
