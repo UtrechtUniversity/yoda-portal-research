@@ -61,6 +61,31 @@ legend {
 
 .fa.safe {
     color: red;
+    margin-top:4px;
+}
+
+.fa.safe-single {
+    color: red;
+    margin-top:10px;
+}
+
+
+.fa.checkmark-green-top-right {
+    color:#00CC00;
+    margin-left:5px;
+    margin-top:-3px;
+}
+
+.fa.form-required-present {
+    color:#00CC00;
+}
+
+.fa.form-required-missing {
+    color:#F0F0F0;
+}
+
+.add-pointer {
+    cursor: pointer
 }
 
 .panel-heading .input-group-sm {

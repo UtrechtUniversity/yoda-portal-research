@@ -16,7 +16,7 @@
                     <br>
                     When using the 'Delete all metadata' button beware that you will lose all data!
 
-                    <?php if ($userType != 'reader') { ?>
+                    <?php if ($userType == 'normal' || $userType == 'manager') { ?>
                         <button type="button" class="btn btn-danger delete-all-metadata-btn pull-right" data-path="<?php echo $path; ?>">Delete all metadata</button>
                     <?php } ?>
                 </p>
@@ -31,7 +31,7 @@
             <div class="panel panel-default">
                 <div class="panel-heading clearfix">
                     <h3 class="panel-title pull-left">
-                        Metadata form - <?php echo $path; ?>
+                        Metadata form - <?php echo str_replace(' ', '&nbsp;', htmlentities( trim( $path ))); ?>
                     </h3>
                     <div class="input-group-sm has-feedback pull-right">
                         <a class="btn btn-default" href="/research/browse?dir=<?php echo urlencode($path); ?>">Close</a>
@@ -45,31 +45,61 @@
                             When using the 'Delete all metadata' button beware that you will lose all data!
 
 
-                            <?php if ($userType != 'reader' && $metadataExists) { ?>
+                            <?php if ($form->getPermission() == 'write' && $metadataExists) { ?>
                                 <button type="button" class="btn btn-danger delete-all-metadata-btn pull-right" data-path="<?php echo urlencode($path); ?>">Delete all metadata</button>
                             <?php } ?>
                         </p>
                     <?php } else { ?>
+
+                        <?php if ($flashMessage) { ?>
+                            <div class="alert alert-<?php echo $flashMessageType; ?>">
+                                <?php echo $flashMessage; ?>
+                            </div>
+                        <?php } ?>
                         <div class="form-group">
                             <div class="col-sm-12">
                                 <?php if ($form->getPermission() == 'write') { ?>
+
                                     <button type="submit" class="btn btn-primary">Save</button>
+
+                                    <?php if ($metadataCompleteness == 100 && $submitToVaultBtn) { ?>
+                                        <button type="submit" name="vault_submission" value="1" class="btn btn-primary">Submit to vault</button>
+                                    <?php } ?>
+
+                                    <span  class="add-pointer" aria-hidden="true" data-toggle="tooltip" title="Required for the vault:  <?php echo $mandatoryTotal; ?>, currently filled required fields: <?php  echo $mandatoryFilled; ?>">
+                                        <i class="fa fa-check <?php echo $metadataCompleteness>19 ? 'form-required-present': 'form-required-missing'; ?>"></i>
+                                        <i class="fa fa-check <?php echo $metadataCompleteness>39 ? 'form-required-present': 'form-required-missing'; ?>"></i>
+                                        <i class="fa fa-check <?php echo $metadataCompleteness>59 ? 'form-required-present': 'form-required-missing'; ?>"></i>
+                                        <i class="fa fa-check <?php echo $metadataCompleteness>79 ? 'form-required-present': 'form-required-missing'; ?>"></i>
+                                        <i class="fa fa-check <?php echo $metadataCompleteness>99 ? 'form-required-present': 'form-required-missing'; ?>"></i>
+                                    </span>
+
                                 <?php } ?>
-                                <?php if ($userType != 'reader' && $metadataExists) { ?>
+                                <?php if ($form->getPermission() == 'write' && $metadataExists) { ?>
                                     <button type="button" class="btn btn-danger delete-all-metadata-btn pull-right" data-path="<?php echo urlencode($path); ?>">Delete all metadata</button>
                                 <?php } ?>
 
-                                <?php if (($userType != 'reader' && $metadataExists === false) && $cloneMetadata) { ?>
+                                <?php if (($form->getPermission() == 'write' && $metadataExists === false) && $cloneMetadata) { ?>
                                     <button type="button" class="btn btn-primary clone-metadata-btn pull-right" data-path="<?php echo urlencode($path); ?>">Clone from parent folder</button>
                                 <?php } ?>
                             </div>
+                            <div class="col-sm-12">
+
+
+                            </div>
                         </div>
 
-                        <?php foreach ($form->getSections() as $k => $name) { ?>
-                            <fieldset>
-                                <legend><?php echo $name; ?></legend>
-                                <?php echo $form->show($name); ?>
-                            </fieldset>
+                        <?php if ($form->getPermission() == 'read' && $realMetadataExists === false) { ?>
+                            <p>
+                                There is no metadata present for this folder.
+                            </p>
+                        <?php } else { ?>
+                            <?php foreach ($form->getSections() as $k => $name) { ?>
+                                <fieldset>
+                                    <legend><?php echo $name; ?></legend>
+                                    <?php echo $form->show($name); ?>
+                                </fieldset>
+                            <?php } ?>
                         <?php } ?>
 
                         <div class="form-group">
@@ -77,11 +107,11 @@
                                 <?php if ($form->getPermission() == 'write') { ?>
                                     <button type="submit" class="btn btn-primary">Save</button>
                                 <?php } ?>
-                                <?php if ($userType != 'reader' && $metadataExists) { ?>
+                                <?php if ($form->getPermission() == 'write' && $metadataExists) { ?>
                                     <button type="button" class="btn btn-danger delete-all-metadata-btn pull-right" data-path="<?php echo $path; ?>">Delete all metadata</button>
                                 <?php } ?>
 
-                                <?php if (($userType != 'reader' && $metadataExists === false) && $cloneMetadata) { ?>
+                                <?php if (($form->getPermission() == 'write' && $metadataExists === false) && $cloneMetadata) { ?>
                                     <button type="button" class="btn btn-primary clone-metadata-btn pull-right" data-path="<?php echo $path; ?>">Clone from parent folder</button>
                                 <?php } ?>
                             </div>

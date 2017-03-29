@@ -125,12 +125,21 @@ class Metadata_form_model extends CI_Model {
     }
 
 
-    public function getFormElements($rodsaccount, $config) {
+    public function getFormElements($rodsaccount, $config)
+    {
         // load xsd and get all the info regarding restrictions
         $xsdElements = $this->loadXsd($rodsaccount, $config['xsdPath']); // based on element names
 
+        $writeMode = true;
+        if ($config['userType'] == 'reader' || $config['userType'] == 'none') {
+            $writeMode = false; // Distinnction made as readers, in case of no xml-file being present, should  NOT get default values
+        }
+
+        $metadataPresent = false;
+
         $formData = array();
         if ($config['hasMetadataXml'] == 'true') {
+            $metadataPresent = true;
             $formData = $this->loadFormData($rodsaccount, $config['metadataXmlPath']);
 
             if ($formData === false) {
@@ -213,7 +222,7 @@ class Metadata_form_model extends CI_Model {
                                 break;
                             case 'xs:integer':
                                 $type = 'text';
-                                $elementMaxLength = 100; // zelf verzonnen
+                                $elementMaxLength = 1024;
                                 break;
                             case 'xs:anyURI':
                                 $type = 'text';
@@ -246,12 +255,55 @@ class Metadata_form_model extends CI_Model {
                         }
 
                         // frontend value is the value that will be presented in the data field
-                        // If no metadata-file present, it will fall back to its default
-                        $frontendValue = (isset($element['default']) ? $element['default'] : null);
+                        // If no metadata-file present, it will fall back to its default ONLY of in writable mode (i.e NO READER)
+                        $frontendValue = (isset($element['default']) AND $writeMode) ? $element['default'] : null;
 
                         if($config['hasMetadataXml'] == 'true') { // the value in the file supersedes default
-                            $frontendValue = html_entity_decode($keyValue, ENT_XML1);
+                            $frontendValue = htmlspecialchars($keyValue, ENT_QUOTES, 'UTF-8');
+                            $frontendValue = $keyValue;
                         }
+
+/* Possibly for future use
+                        $messagesForUser = array();
+
+                        if (($type == 'text' OR $type == 'textarea')
+                            AND strlen($frontendValue)>$elementMaxLength) {
+
+                            $messagesForUser[] = array('messageNumber' => -200,
+                                'messageText' => 'Value in file is too long, truncated at position ' . $elementMaxLength . '<br>Original value: \'<i>' . $frontendValue . '</i>\'');
+
+                            $frontendValue = substr($frontendValue, 0, $elementMaxLength);
+                        }
+
+                        if (($type == 'select' AND $frontendValue)) {
+                            if(!in_array($frontendValue, $elementOptions)) {
+
+                                $messagesForUser[] = array('messageNumber' => -300,
+                                    'messageText' => 'Value in file is not a valid option: \'<i>' .$frontendValue . '</i>\'');
+
+                                $frontendValue = '';
+                            }
+                        }
+
+                        if (($type == 'date' AND $frontendValue)) {
+                            $date = DateTime::createFromFormat('Y-m-d', $frontendValue);
+                            $date_errors = DateTime::getLastErrors();
+
+                            if ($date_errors['warning_count'] + $date_errors['error_count'] > 0) {
+                                $messagesForUser[] = array('messageNumber' => -400,
+                                    'messageText' => 'Value in file is not a valid date: \'<i>' .$frontendValue . '</i>\'');
+
+                                $frontendValue = '';
+                            }
+
+                        }
+
+                        // mandatory signaling at the last as values could be erroneous and taken out
+                        if($mandatory AND !$frontendValue) {
+                            $messagesForUser[] = array('messageNumber' => -100,
+                                'messageText' => 'Mandatory value missing');
+                        }
+*/
 
                         $presentationElements[$groupName][] = array(
                             'key' => $key,
@@ -261,7 +313,8 @@ class Metadata_form_model extends CI_Model {
                             'type' => $type,
                             'mandatory' => $mandatory,
                             'multipleAllowed' => $multipleAllowed,
-                            'elementSpecifics' => $elementSpecifics
+                            'elementSpecifics' => $elementSpecifics,
+                            //'messagesForUser' => $messagesForUser  //possibly for future use
                         );
                     }
                 }
@@ -369,8 +422,6 @@ class Metadata_form_model extends CI_Model {
             return false;
         }
 
-
-
         $json = json_encode($xmlData);
 
         return json_decode($json,TRUE);
@@ -388,124 +439,5 @@ class Metadata_form_model extends CI_Model {
         $json = json_encode($xmlFormElements);
 
         return json_decode($json,TRUE);
-    }
-
-    function load($rodsaccount, $directoryPath)
-    {
-        // formelements.xml
-
-        /*
-        <?xml version="1.0"?>
-        <Project>
-            <Project_Title>
-                <type>text</type>
-                <label>Project title</label>
-                <mandatory></mandatory>
-            </Project_Title>
-        </Project>
-        */
-        /*
-        $content = '
-            <Form_Elements>
-                <Project>	
-                    <Project_Title>
-                        <type>text</type>
-                        <label>Project title</label>
-                        <mandatory>false</mandatory>
-                    </Project_Title>
-                </Project>    
-            </Form_Elements>
-        ';
-
-        $xml = simplexml_load_string($content);
-        $json = json_encode($xml);
-        $array = json_decode($json,TRUE);
-        */
-
-        $array = array();
-        $array['Eerste groep'][] = array(
-            'key' => 'Project_Title',
-            'value' => 'Een leuk project',
-            'label' => 'Project titel',
-            'helpText' => 'Help!!',
-            'type' => 'text',
-            'mandatory' => true, // zit mss in minOccers/maxOccurs
-            'multipleAllowed' => false
-        );
-
-        $array['Tweede groep'][] = array(
-            'key' => 'Project_Titl',
-            'value' => 'Een leuk',
-            'label' => 'Project',
-            'helpText' => 'Help!!',
-            'type' => 'text',
-            'mandatory' => true, // zit mss in minOccers/maxOccurs
-            'multipleAllowed' => false
-        );
-
-        $array['Tweede groep'][] = array(
-            'key' => 'Project_Titl2',
-            'value' => 'Een leuk2',
-            'label' => 'Project2',
-            'helpText' => 'Help!!',
-            'type' => 'text',
-            'mandatory' => true, // zit mss in minOccers/maxOccurs
-            'multipleAllowed' => false
-        );
-
-        $array['Derde groep'][] = array(
-            'key' => 'project_field',
-            'label' => 'Project Field',
-            'helpText' => 'Help!!',
-            'type' => 'text',
-            'mandatory' => true, // zit mss in minOccers/maxOccurs
-            'multipleAllowed' => false
-        );
-
-        $array['Eerste groep'][] = array(
-            'key' => 'Project_types',
-            'label' => 'Project typeringen',
-            'helpText' => 'Help mij!!',
-            'type' => 'select',
-            'mandatory' => true,
-            'multipleAllowed' => true,
-            'elementSpecifics' => array('options' => array('Type 1', 'Type 2', 'Type 3'))
-        );
-
-        $array['Eerste groep'][] = array(
-            'key' => 'Project_date',
-            'label' => 'Project date',
-            'helpText' => 'Help mij!!',
-            'type' => 'date',
-            'mandatory' => true,
-            'multipleAllowed' => true
-        );
-        /*
-        $array['Eerste groep'][] = array(
-            'key' => 'Project_types',
-            'value' => array('Type 1', 'Type 2'),
-            'label' => 'Project typeringen',
-            'helpText' => 'Help mij!!',
-            'type' => 'select',
-            'mandatory' => true, // zit mss in minOccers/maxOccurs
-            'options' => array( 1=>'Type 1',
-                2 => 'Type 2',
-                3 => 'Type 3'),
-            'multipleAllowed' => true
-        );
-
-        $array['Eerste groep'][] = array(
-            'key' => 'Project_types',
-            'value' => array('Type 1', 'Type 2'),
-            'label' => 'Project typeringen',
-            'helpText' => 'Help mij!!',
-            'type' => 'select',
-            'mandatory' => true,
-            'multipleAllowed' => true,
-            'elementSpecifics' => array('options' => array('Type 1', 'Type 2', 'Type 3'))
-        );
-        */
-
-        return $array;
     }
 }

@@ -128,6 +128,33 @@ RULE;
         }
     }
 
+    static public function submitFolderToVault($iRodsAccount, $path)
+    {
+        $ruleBody = <<<'RULE'
+myRule {
+    iiFolderSubmit(*path);
+}
+RULE;
+        try {
+            $rule = new ProdsRule(
+                $iRodsAccount,
+                $ruleBody,
+                array(
+                    "*path" => $path
+                ),
+                array()
+            );
+
+            $rule->execute();
+            return true;
+
+        } catch(RODSException $e) {
+            return false;
+        }
+    }
+
+
+
     static public function cloneMetadata($iRodsAccount, $path, $parentPath)
     {
         $output = array();
@@ -204,6 +231,8 @@ RULE;
     static public function collectionDetails($iRodsAccount, $path)
     {
         $output = array();
+
+        $path = str_replace("`", "\\`", $path);
 
         $ruleBody = <<<'RULE'
 myRule {
@@ -427,59 +456,52 @@ RULE;
         return array();
     }
 
-    static public function getStudiesInformation($iRodsAccount, $limit = 0, $offset = 0, $search = false) {
+    static public function searchByOrgMetadata($iRodsAccount, $path, $string, $type, $orderBy, $orderSort, $limit, $offset = 0)
+    {
+        $output = array();
+
         $ruleBody = <<<'RULE'
 myRule {
     *l = int(*limit);
     *o = int(*offset);
 
-    uuIiGetStudiesInformation(*l, *o, *searchval, *buffer, *f, *i);
-
-    *total = str(*i);
-    *filtered = str(*f);
+    iiSearchByOrgMetadata(*path, *searchstring, *attrname, *orderby, *ascdesc, *l, *o, *result);
 }
-
-
 RULE;
-        $searchval = "";
-        $searchregex = "";
-
-        if($search !== false && is_array($search)) {
-            if(array_key_exists("value", $search) && $search["value"]) {
-                $searchval = $search["value"];
-            }
-            if(array_key_exists("regex", $search) && $search["regex"]) {
-                $searchregex = $search["regex"];
-            }
-        }
-
         try {
             $rule = new ProdsRule(
                 $iRodsAccount,
                 $ruleBody,
                 array(
-                        "*limit" => sprintf("%d",$limit),
-                        "*offset" => sprintf("%d", $offset),
-                        "*searchval" => $searchval,
-                    ),
-                array("*buffer", "*total", "*filtered")
+                    "*path" => $path,
+                    "*searchstring" => $string,
+                    "*attrname" => $type,
+                    "*orderby" => $orderBy,
+                    "*ascdesc" => $orderSort,
+                    "*limit" => $limit,
+                    "*offset" => $offset
+                ),
+                array("*result")
             );
 
-            $result = $rule->execute();
+            $ruleResult = $rule->execute();
+            $results = json_decode($ruleResult['*result'], true);
 
-            $files = array();
-            if(strlen($result["*buffer"]) > 0) {
-                foreach(explode("++++====++++", $result["*buffer"]) as $file) {
-                    $fexp = explode("+=+", $file);
-                    if(sizeof($fexp) === 6)
-                        $files[] = array("name" => $fexp[0], "size" => $fexp[1], "ndirectories" => $fexp[2],
-                        "nfiles" => $fexp[3], "created" => $fexp[4], "modified" => $fexp[5]);
-                }
-            }
+            $summary = $results[0];
+            unset($results[0]);
 
-            return array("total" => $result["*total"], "filtered" => $result["*filtered"], "data" => $files);
+            $rows = $results;
+            $output = array(
+                'summary' => $summary,
+                'rows' => $rows
+            );
+
+            return $output;
 
         } catch(RODSException $e) {
+            print_r($e->rodsErrAbbrToCode($e->getCodeAbbr()));
+            exit;
+
             echo $e->showStacktrace();
             return array();
         }
@@ -487,135 +509,61 @@ RULE;
         return array();
     }
 
-    static public function getDirsInformation($iRodsAccount, $collection, $limit = 0, $offset = 0, $search = false, $canSnap = false) {
+    static public function protectFolder($iRodsAccount, $path)
+    {
         $ruleBody = <<<'RULE'
 myRule {
-    *l = int(*limit);
-    *o = int(*offset);
-    writeLine("serverLog", "*canSnap");
-    if(*canSnap == "1") {
-        *canSnapb = true;
-    } else {
-        *canSnapb = false;
-    }
-
-    uuIiGetDirInformation(*collection, *l, *o, *searchval, *buffer, *f, *i, *canSnapb);
-
-    *total = str(*i);
-    *filtered = str(*f);
+    iiFolderProtect(*path);
 }
 
 
 RULE;
-        
-        $searchval = "";
-        $searchregex = "";
-
-        if($search !== false && is_array($search)) {
-            if(array_key_exists("value", $search) && $search["value"]) {
-                $searchval = $search["value"];
-            }
-            if(array_key_exists("regex", $search) && $search["regex"]) {
-                $searchregex = $search["regex"];
-            }
-        }
-
         try {
             $rule = new ProdsRule(
                 $iRodsAccount,
                 $ruleBody,
                 array(
-                        "*collection" => $collection,
-                        "*limit" => sprintf("%d",$limit),
-                        "*offset" => sprintf("%d", $offset),
-                        "*searchval" => $searchval,
-                        "*canSnap" => $canSnap ? "1" : "0"
-                    ),
-                array("*buffer", "*total", "*filtered")
+                    "*path" => $path
+                ),
+                array('*result')
             );
 
-            $result = $rule->execute();
-
-            $files = array();
-            if(strlen($result["*buffer"]) > 0) {
-                foreach(explode("++++====++++", $result["*buffer"]) as $file) {
-                    $fexp = explode("+=+", $file);
-                    if(sizeof($fexp) > 7)
-                        $files[] = array("name" => $fexp[0], "size" => $fexp[1], "ndirectories" => $fexp[2],
-                        "nfiles" => $fexp[3], "created" => $fexp[4], "modified" => $fexp[5],
-                        "version" => $fexp[6], "versionUser" => $fexp[7], "versionTime" => $fexp[8]);
-                }
-            }
-
-            return array("total" => $result["*total"], "filtered" => $result["*filtered"], "data" => $files);
+            $rule->execute();
+            return true;
 
         } catch(RODSException $e) {
-            echo $e->showStacktrace();
-            return array();
-        }
+            print_r($e);
+            exit;
 
-        return array();
+            return false;
+        }
     }
 
-    static public function getFilesInformation($iRodsAccount, $collection, $limit = 0, $offset = 0, $search = false) {
+    static public function unprotectFolder($iRodsAccount, $path)
+    {
         $ruleBody = <<<'RULE'
 myRule {
-    *l = int(*limit);
-    *o = int(*offset);
-
-    uuIiGetFilesInformation(*collection, *l, *o, *searchval, *buffer, *f, *i);
-
-    *total = str(*i);
-    *filtered = str(*f);
+    iiFolderUnprotect(*path);
 }
 
 
 RULE;
-        
-        $searchval = "";
-        $searchregex = "";
-
-        if($search !== false && is_array($search)) {
-            if(array_key_exists("value", $search) && $search["value"]) {
-                $searchval = $search["value"];
-            }
-            if(array_key_exists("regex", $search) && $search["regex"]) {
-                $searchregex = $search["regex"];
-            }
-        }
-
         try {
             $rule = new ProdsRule(
                 $iRodsAccount,
                 $ruleBody,
                 array(
-                        "*collection" => $collection,
-                        "*limit" => sprintf("%d",$limit),
-                        "*offset" => sprintf("%d", $offset),
-                        "*searchval" => $searchval
-                    ),
-                array("*buffer", "*total", "*filtered")
+                    "*path" => $path
+                ),
+                array()
             );
 
-            $result = $rule->execute();
-
-            $files = array();
-            if(strlen($result["*buffer"]) > 0) {
-                foreach(explode("++++====++++", $result["*buffer"]) as $file) {
-                    $fexp = explode("+=+", $file);
-                    if(sizeof($fexp) > 1)
-                        $files[] = array("file" => $fexp[1], "size" => $fexp[0], "created" => $fexp[2], "modified" => $fexp[3]);
-                }
-            }
-
-            return array("total" => $result["*total"], "filtered" => $result["*filtered"], "data" => $files);
+            $rule->execute();
+            return true;
 
         } catch(RODSException $e) {
-            echo $e->showStacktrace();
-            return array();
+            return false;
         }
-
-        return array();
     }
 }
 

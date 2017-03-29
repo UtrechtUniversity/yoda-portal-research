@@ -1,7 +1,8 @@
 <script>
     var browsePageItems = <?php echo $items; ?>;
-    var browseStartDir = '<?php echo $dir; ?>';
-    var searchTerm = '<?php echo addslashes($searchTerm); ?>';
+    var browseStartDir = '<?php echo urlencode($dir); ?>';
+    var searchTerm = '<?php echo str_replace('+',' ',addslashes(urlencode( $searchTerm))); ?>';
+    var searchStatusValue = '<?php echo addslashes($searchStatusValue); ?>';
     var searchType = '<?php echo $searchType; ?>';
     var searchStart = <?php echo $searchStart; ?>;
     var searchOrderDir = '<?php echo $searchOrderDir; ?>';
@@ -18,13 +19,21 @@
                 <li><a href="#" data-type="filename">Search by filename</a></li>
                 <li><a href="#" data-type="folder">Search by folder</a></li>
                 <li><a href="#" data-type="metadata">Search by metadata</a></li>
+                <li><a href="#" data-type="status">Search by status</a></li>
+                <li><a href="#" data-type="revision">Search revision by name</a></li>
             </ul>
         </div>
-        <input type="hidden" name="search_param" value="all" id="search_param">
-        <input type="text" class="form-control" id="search-filter" placeholder="Search term..." value="<?php echo $searchTerm; ?>">
-        <span class="input-group-btn">
+        <div class="search-term">
+            <input type="hidden" name="search_param" value="all" id="search_param">
+        </div>
+        <input type="text" class="form-control search-term<?php echo $showStatus ? ' hide' : ''; ?>" id="search-filter" placeholder="Search term..." value="<?php echo htmlentities($searchTerm); ?>">
+        <span class="input-group-btn search-term<?php echo $showStatus ? ' hide' : ''; ?>">
             <button class="btn btn-default search-btn" data-items-per-page="<?php echo $items; ?>" type="button"><span class="glyphicon glyphicon-search"></span></button>
         </span>
+
+        <div class="search-status<?php echo $showTerm ? ' hide' : ''; ?>">
+            <label class="radio-inline"><input type="radio" name="status" value="SUBMITTED"<?php echo $searchStatusValue == 'SUBMITTED' ? ' checked' : ''; ?>>Submitted</label>
+        </div>
     </div>
 
     <div class="panel panel-default search-results">
@@ -58,18 +67,7 @@
 
         <div class="btn-group" role="group">
             <button type="button" class="btn btn-default metadata-form" data-path=""><i class="fa fa-list" aria-hidden="true"></i> Metadata</button>
-
-
-            <!--
-            <button type="button" class="btn btn-default" data-type=""><i class="fa fa-folder-o" aria-hidden="true"></i> Is folder</button>
-            <button class="btn btn-default disabled" href="#">
-                <i class="fa fa-unlock"></i> Unlocked
-            </button>
-            <button type="button" class="btn btn-default disabled">
-                <i class="fa fa-university" aria-hidden="true"></i>
-                Save to vault</button>
-            <button type="button" class="btn btn-default">Edit metadata</button>
-            -->
+            <button type="button" class="btn btn-default folder-status" data-status="" data-path=""></button>
         </div>
     </div>
 
