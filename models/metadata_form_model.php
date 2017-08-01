@@ -239,6 +239,7 @@ class Metadata_form_model extends CI_Model {
                             case 'optionsDatasetAccess':
                             case 'optionsYesNo':
                             case 'optionsOther':
+                            case 'optionsPersonalPersistentIdentifierType':
                             */
                             case (substr($xsdElements[$key]['type'], 0, 7) == 'options'):
                                 $elementOptions = $xsdElements[$key]['simpleTypeData']['options'];
