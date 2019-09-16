@@ -71,7 +71,7 @@ class Metadata extends MY_Controller
                     $transformationText = $formConfig['transformationText'];
                     $transformationButtons = true;
                 } else {
-                    $transformationText = '<p>It is not possible to load this form as the metadata xml file is not in accordance with the form definition.</p>';
+                    $transformationText = '<p>It is not possible to load this form as the yoda-metadata.json file is not in accordance with the form definition.</p>';
                     $transformationButtons = false;
                 }
             }

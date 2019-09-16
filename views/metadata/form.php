@@ -11,8 +11,8 @@
                 </div>
                 <div class="panel-body">
                     <p>
-                        It is not possible to load this form as the metadata xml file is not in accordance with the form definition.<br />
-                        <br />Check the following in your XML file:
+                        It is not possible to load this form as the yoda-metadata.json file is not in accordance with the form definition.<br />
+                        <br />Check the following in your JSON file:
                         <br />
                         <span class="error-fields"></span>
                         <br />
