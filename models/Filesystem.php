@@ -17,21 +17,6 @@ class Filesystem extends CI_Model {
     }
 
     /**
-     * Write XML string to yoda-metadata.xml in iRODS.
-     *
-     * @param $rodsaccount
-     * @param $path
-     * @param $xmlString
-     */
-    function writeXml($rodsaccount, $path, $xmlString)
-    {
-        $metedataFile = new ProdsFile($rodsaccount, $path);
-        $metedataFile->open("w+");
-        $metedataFile->write($xmlString);
-        $metedataFile->close();
-    }
-
-    /**
      * Read a file from iRODS.
      *
      * @param $rodsaccount
@@ -201,6 +186,21 @@ class Filesystem extends CI_Model {
         return true;
     }
 
+    static public function getFormData($iRodsAccount, $path) {
+        try {
+            $rule = new ProdsRule(
+                $iRodsAccount,
+                'myRule { iiMetadataFormLoad(*path); }',
+                array('*path' => $path),
+                array('ruleExecOut')
+            );
+
+            return json_decode($rule->execute()['ruleExecOut']);
+        } catch(RODSException $e) {
+            return false;
+        }
+    }
+
     static public function metadataFormPaths($iRodsAccount, $path) {
         $ruleBody = <<<'RULE'
 myRule {
@@ -230,20 +230,11 @@ RULE;
 
     static public function removeAllMetadata($iRodsAccount, $path)
     {
-        $output = array();
-
-        $ruleBody = <<<'RULE'
-myRule {
-    iiRemoveAllMetadata(*path);
-}
-RULE;
         try {
             $rule = new ProdsRule(
                 $iRodsAccount,
-                $ruleBody,
-                array(
-                    "*path" => $path
-                ),
+                'myRule { iiRemoveAllMetadata(*path); }',
+                array("*path" => $path),
                 array()
             );
 
@@ -256,8 +247,6 @@ RULE;
 
     static public function cloneMetadata($iRodsAccount, $path)
     {
-        $output = array();
-
         $ruleBody = <<<'RULE'
 myRule {
     iiCloneMetadataFile(*coll);
@@ -721,86 +710,6 @@ RULE;
         } catch(RODSException $e) {
             return array();
         }
-        return array();
-    }
-
-    /**
-     * Get the category dependent JSON schema from iRODS.
-     *
-     * @param $iRodsAccount
-     * @param $folder
-     * @return array
-     */
-    function getJsonSchema($iRodsAccount, $folder)
-    {
-        $output = array();
-
-        $ruleBody = <<<'RULE'
-myRule {
-    iiFrontGetJsonSchema(*folder, *result, *status, *statusInfo);
-}
-RULE;
-        try {
-            $rule = new ProdsRule(
-                $iRodsAccount,
-                $ruleBody,
-                array(
-                    "*folder" => $folder
-                ),
-                array("*result", "*status", "*statusInfo")
-            );
-
-            $ruleResult = $rule->execute();
-            $output['*result'] = $ruleResult['*result'];
-            $output['*status'] = $ruleResult['*status'];
-            $output['*statusInfo'] = $ruleResult['*statusInfo'];
-
-            return $output;
-
-        } catch(RODSException $e) {
-            return array();
-        }
-
-        return array();
-    }
-
-    /**
-     * Get the category dependent JSON UI schema from iRODS.
-     *
-     * @param $iRodsAccount
-     * @param $folder
-     * @return array
-     */
-    function getJsonUiSchema($iRodsAccount, $folder)
-    {
-        $output = array();
-
-        $ruleBody = <<<'RULE'
-myRule {
-    iiFrontGetJsonUiSchema(*folder, *result, *status, *statusInfo);
-}
-RULE;
-        try {
-            $rule = new ProdsRule(
-                $iRodsAccount,
-                $ruleBody,
-                array(
-                    "*folder" => $folder
-                ),
-                array("*result", "*status", "*statusInfo")
-            );
-
-            $ruleResult = $rule->execute();
-            $output['*result'] = $ruleResult['*result'];
-            $output['*status'] = $ruleResult['*status'];
-            $output['*statusInfo'] = $ruleResult['*statusInfo'];
-
-            return $output;
-
-        } catch(RODSException $e) {
-            return array();
-        }
-
         return array();
     }
 

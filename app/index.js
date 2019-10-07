@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import axios from 'axios';
 import { render } from "react-dom";
 import Form from "react-jsonschema-form";
 import Select from 'react-select';
@@ -76,7 +75,7 @@ class YodaForm extends React.Component {
     }
 
     onChange(form) {
-        formCompleteness();
+        updateCompleteness();
 
         // Turn save mode off.
         save = false;
@@ -101,16 +100,12 @@ class YodaForm extends React.Component {
     }
 
     transformErrors(errors) {
-        console.log(errors);
-        // Only strip errors when saving.
+        // console.log(errors);
         if (save) {
-            var i = errors.length
-            while (i--) {
-                if (errors[i].name === "required"     ||
-                    errors[i].name === "dependencies") {
-                    errors.splice(i,1);
-                }
-            }
+            // Only strip errors when saving.
+            return errors.filter(function (e) {
+                return e.name !== 'required' && e.name !== 'dependencies';
+            });
         }
 
         return errors;
@@ -201,7 +196,7 @@ class YodaButtons extends React.Component {
     }
 
     renderDeleteButton() {
-        return (<button onClick={this.props.deleteMetadata} type="button" className="btn btn-danger delete-all-metadata-btn pull-right">Delete all metadata </button>);
+        return (<button onClick={deleteMetadata} type="button" className="btn btn-danger delete-all-metadata-btn pull-right">Delete all metadata </button>);
     }
 
     renderCloneButton() {
@@ -283,24 +278,6 @@ class Container extends React.Component {
         this.form.submitButton.click();
     }
 
-    deleteMetadata() {
-        swal({
-            title: "Are you sure?",
-            text: "You will not be able to recover this action!",
-            type: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#DD6B55",
-            confirmButtonText: "Yes, delete all metadata!",
-            closeOnConfirm: false,
-            animation: false
-        },
-        function(isConfirm){
-            if (isConfirm) {
-                window.location.href = '/research/metadata/delete?path=' + path;
-            }
-        });
-    }
-
     cloneMetadata() {
         swal({
             title: "Are you sure?",
@@ -314,7 +291,7 @@ class Container extends React.Component {
         },
         function(isConfirm){
             if (isConfirm) {
-                window.location.href = '/research/metadata/clone_metadata?path=' + path;
+                $('#submit-clone').click();
             }
         });
     }
@@ -325,13 +302,13 @@ class Container extends React.Component {
           <YodaButtons saveMetadata={this.saveMetadata}
                        submitMetadata={this.submitMetadata}
                        unsubmitMetadata={this.unsubmitMetadata}
-                       deleteMetadata={this.deleteMetadata}
+                       deleteMetadata={deleteMetadata}
                        cloneMetadata={this.cloneMetadata} />
           <YodaForm ref={(form) => {this.form=form;}}/>
           <YodaButtons saveMetadata={this.saveMetadata}
                        submitMetadata={this.submitMetadata}
                        unsubmitMetadata={this.unsubmitMetadata}
-                       deleteMetadata={this.deleteMetadata}
+                       deleteMetadata={deleteMetadata}
                        cloneMetadata={this.cloneMetadata} />
         </div>
       );
@@ -339,50 +316,94 @@ class Container extends React.Component {
 };
 
 
-var tokenName = form.dataset.csrf_token_name;
-var tokenHash = form.dataset.csrf_token_hash;
-axios.defaults.headers.common = {
-    'X-Requested-With': 'XMLHttpRequest',
-    'X-CSRF-TOKEN' : tokenHash
-};
-axios.defaults.xsrfCookieName = tokenName;
-axios.defaults.xsrfHeaderName = tokenHash;
-
-axios.get("/research/metadata/data?path=" + path)
-    .then(function (response) {
-        schema            = response.data.schema;
-        uiSchema          = response.data.uiSchema;
-        yodaFormData      = response.data.formData;
-        parentHasMetadata = response.data.parentHasMetadata;
-        metadataExists    = response.data.metadataExists;
-        submitButton      = response.data.submitButton;
-        unsubmitButton    = response.data.unsubmitButton;
-        locked            = response.data.locked;
-        writePermission   = response.data.writePermission;
-        formDataErrors    = response.data.formDataErrors;
-
-        // Check form data errors
-        if (formDataErrors.length > 0) {
-            var text = '';
-            $.each(formDataErrors, function( key, field ) {
-                text +='- ' + field + '<br />';
-            });
-            $('.form-data-errors .error-fields').html(text);
-
-            $('.form-data-errors').removeClass('hide');
-            $('.metadata-form').addClass('hide');
-        } else {
-            render(<Container/>,
-                document.getElementById("form")
-            );
-
-            formCompleteness();
+function deleteMetadata() {
+    swal({
+        title: "Are you sure?",
+        text: "You will not be able to recover this action!",
+        type: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#DD6B55",
+        confirmButtonText: "Yes, delete all metadata!",
+        closeOnConfirm: false,
+        animation: false
+    },
+    function(isConfirm){
+        if (isConfirm) {
+            $('#submit-delete').click();
         }
-    })
-    .catch(function (error) {
-        console.log(error);
+    });
+}
+
+function doOnLoad() {
+    var data = JSON.parse(atob($('#form-data').text()));
+    // console.log('FORM DATA:');
+    // console.log(data);
+
+    // Inhibit "loading" text.
+    formLoaded = true;
+
+    schema                   = data.schema;
+    uiSchema                 = data.uischema;
+    yodaFormData             = data.metadata;
+    parentHasMetadata        = data.can_clone;
+    const transformationText = data.transformation_text;
+    metadataExists           = 'metadata' in data;
+
+    submitButton    = data.is_member && ['SECURED', 'LOCKED', ''].indexOf(data.status) > -1;
+    unsubmitButton  = data.is_member && data.status == 'SUBMITTED';
+    locked          = ['here', 'ancestor'].indexOf(data.lock_type) > -1;
+    writePermission = data.is_member;
+
+    formDataErrors = data.errors;
+
+    if (formDataErrors.length > 0) {
+        // Errors exist - show those instead of loading a form.
+        var text = '';
+        $.each(formDataErrors, function(key, field) {
+            text += '<li>' + $('<div />').text(field.replace('->', '→')).html();
+        });
+        $('#form-errors .error-fields').html(text);
+        $('#form-errors').removeClass('hide');
+
+    } else if (transformationText !== undefined) {
+        // Transformation is necessary. Show transformation prompt.
+        $('#transformation-text').html(transformationText);
+        if (writePermission) {
+            $('#transformation-buttons').removeClass('hide')
+            $('#transformation-text').html(transformationText);
+        } else {
+            $('#transformation .close').removeClass('hide')
+        }
+        $('.transformation-accept').on('click', function() { $('#submit-transform').click(); });
+        $('#transformation').removeClass('hide');
+
+    } else if (!metadataExists && !writePermission) {
+        // No metadata present and no write access. Do not show a form.
+        $('#form').addClass('hide');
+        $('#no-metadata').removeClass('hide');
+
+    } else {
+        // Metadata present, load the form.
+        if (locked || !writePermission)
+            uiSchema['ui:readonly'] = true;
+
+        render(<Container/>,
+            document.getElementById('form')
+        );
+
+        // Form may already be visible (with "loading" text).
+        if ($('#metadata-form').hasClass('hide')) {
+            // Avoid flashing things on screen.
+            $('#metadata-form').fadeIn(220);
+            $('#metadata-form').removeClass('hide');
+        }
+
+        updateCompleteness();
     }
-);
+}
+
+// Run asynchronously.
+window.setTimeout(doOnLoad, 0);
 
 function submitData(data)
 {
@@ -398,26 +419,26 @@ function submitData(data)
     bodyFormData.set(tokenName, tokenHash);
     bodyFormData.set('formData', JSON.stringify(data));
     if (submit) {
-        bodyFormData.set('vault_submission', "1");
+        bodyFormData.set('vault_submission', '1');
     } else if (unsubmit) {
-        bodyFormData.set('vault_unsubmission', "1");
+        bodyFormData.set('vault_unsubmission', '1');
     }
 
     // Store.
-    axios({
-        method: 'post',
-        url: "/research/metadata/store?path=" + path,
+    $.ajax({
+        url: '/research/metadata/store?path=' + path,
+        method: 'POST',
         data: bodyFormData,
-        config: { headers: {'Content-Type': 'multipart/form-data' }}
-        })
-        .then(function (response) {
-            window.location.href = "/research/metadata/form?path=" + path;
-        })
-        .catch(function (error) {
-            //handle error
+        processData: false,
+        contentType: false,
+        success: function (r) {
+            window.location.href = '/research/metadata/form?path=' + path;
+        },
+        error: function (e) {
             console.log('ERROR:');
-            console.log(error);
-        });
+            console.log(e);
+        },
+    });
 }
 
 function CustomFieldTemplate(props) {
@@ -611,7 +632,7 @@ function ArrayFieldTemplate(props) {
 }
 
 
-function formCompleteness()
+function updateCompleteness()
 {
     var mandatoryTotal = $('.fa-lock.safe:visible').length;
     var mandatoryFilled = $('.fa-stack .checkmark-green-top-right:visible').length;
@@ -631,9 +652,5 @@ function formCompleteness()
     $('.form-completeness').attr('title', 'Required for the vault: '+mandatoryTotal+', currently filled required fields: ' + mandatoryFilled);
     $('.form-completeness').html(html);
 
-    if (mandatoryTotal == mandatoryFilled) {
-        return true;
-    }
-
-    return false;
+    return mandatoryTotal == mandatoryFilled;
 }
