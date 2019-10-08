@@ -153,8 +153,9 @@ $( document ).ready(function() {
         toggleSystemMetadata($(this).attr('data-folder'));
     });
 
-    $("body").on("click", ".browse", function() {
-        browse($(this).attr('data-path'));
+    $("body").on("click", ".browse", function(e) {
+        browse($(this).attr('data-path'), true);
+        e.preventDefault();
     });
 
     $("body").on("click", "a.action-go-to-vault", function() {
@@ -162,10 +163,11 @@ $( document ).ready(function() {
     });
 });
 
-function browse(dir)
+function browse(dir, changeHistory)
 {
     makeBreadcrumb(dir);
-    changeBrowserUrl(dir);
+    if (changeHistory)
+        changeBrowserUrl(dir);
     topInformation(dir, true); //only here topInformation should show its alertMessage
     buildFileBrowser(dir);
 }
@@ -304,7 +306,7 @@ function startBrowsing(path, items)
     });
 
     if (path.length > 0) {
-        browse(path);
+        browse(path, true);
     } else {
         browse();
     }
@@ -419,6 +421,17 @@ function toggleSystemMetadata(folder)
     }
 }
 
+window.addEventListener('popstate', function(e) {
+    // Catch forward/backward navigation and reload the view.
+    query = window.location.search.substr(1).split('&').reduce(
+        function(acc, kv) {
+            xy = kv.split('=', 2);
+            acc[xy[0]] = xy.length == 1 || xy[1];
+            return acc;
+        }, {});
+    dir = 'dir' in query ? query.dir : undefined;
+    browse(dir, false);
+});
 function changeBrowserUrl(path)
 {
     var url = window.location.pathname;
@@ -426,7 +439,7 @@ function changeBrowserUrl(path)
         url += "?dir=" +  path;
     }
 
-    history.replaceState({} , {}, url);
+    history.pushState({} , {}, url);
 }
 
 function topInformation(dir, showAlert)
