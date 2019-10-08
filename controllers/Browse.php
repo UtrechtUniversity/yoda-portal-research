@@ -252,7 +252,7 @@ class Browse extends MY_Controller
                             if ($this->_allowRowWhenBrowsing($row, $interveningKeys)) {
                                 $filePath = str_replace($pathStart, '', $row['path']);
                                 $rows[] = array(
-                                    '<span class="browse" data-path="' . rawurlencode($filePath) . '"><i class="fa ' . $icon . '" aria-hidden="true"></i> ' . str_replace(' ', '&nbsp;', htmlentities(trim($row['basename'], '/'))) . '</span>',
+                                    '<a href="?dir=' . rawurlencode($filePath) . '" class="browse" data-path="' . rawurlencode($filePath) . '"><i class="fa ' . $icon . '" aria-hidden="true"></i> ' . str_replace(' ', '&nbsp;', htmlentities(trim($row['basename'], '/'))) . '</a>',
                                     date('Y-m-d H:i:s', $row['modify_time']),
                                     ''
                                 );
