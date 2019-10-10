@@ -130,7 +130,11 @@ button[data-clone*="main"] {
 }
 
 .subproperties > div:not(:first-of-type) {
-    padding-left: 9%;
+    /* padding-left: 5%; */
+}
+
+.form-group {
+    margin-bottom: 10px;
 }
 
 .subproperties legend {
@@ -155,6 +159,11 @@ button[data-clone*="main"] {
     right: 30px;
 }
 
+fieldset + .btn-controls {
+    top:   7px;
+    right: 18px;
+}
+
 .btn-controls.btn-count-2 {
     right: -3px;
 }
@@ -167,7 +176,13 @@ button[data-clone*="main"] {
     width: 100%;
     text-align: left;
 }
-
+:not(form) > fieldset {
+    /* Draw a border around inner fieldsets */
+    border: 1px solid #ffcd00;
+    box-shadow: 0 0 5px 2px rgba(0,0,0,0.1);
+    padding: 15px 10px 5px 10px;
+    margin: 10px 10px 15px 10px;
+}
 .compound-field .form-group {
     margin-bottom: 0px;
 }
