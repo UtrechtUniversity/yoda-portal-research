@@ -90,7 +90,7 @@
             $('#metadata-form').fadeIn(200);
             $('#metadata-form').removeClass('hide');
         }
-    }, 600);
+    }, 800);
 </script>
 <script src="/research/static/js/metadata/form.js" async></script>
 <script id="form-data" type="text/plain"><?php

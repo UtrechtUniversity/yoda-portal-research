@@ -31,6 +31,9 @@ class Metadata extends MY_Controller
         $rodsaccount = $this->rodsuser->getRodsAccount();
 
         $path = $this->input->get('path');
+        if ($path === null)
+            return redirect('research/browse', 'refresh');
+
         $fullPath =  $pathStart . $path;
 
         $flashMessage = $this->session->flashdata('flashMessage');
@@ -61,6 +64,27 @@ class Metadata extends MY_Controller
             'formData'         => $formData,
         );
         loadView('metadata/form', $viewParams);
+    }
+
+    function data() {
+        $this->load->model('Metadata_model');
+        $this->load->model('Metadata_form_model');
+        $this->load->model('Filesystem');
+
+        $pathStart = $this->pathlibrary->getPathStart($this->config);
+        $rodsAccount = $this->rodsuser->getRodsAccount();
+
+        $path = $this->input->get('path');
+        if ($path === null) {
+            // Bad request.
+            set_status_header(400); return;
+        }
+
+        $fullPath = $pathStart . $path;
+
+        $formData = $this->filesystem->getFormData($rodsAccount, $fullPath);
+        $this->output->set_content_type('application/json')
+                     ->set_output(json_encode($formData));
     }
 
     /**

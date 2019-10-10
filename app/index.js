@@ -334,7 +334,12 @@ function deleteMetadata() {
     });
 }
 
-function doOnLoad() {
+function loadForm() {
+    // var r = await fetch('/research/metadata/data?path='
+    //       +$('#form').attr('data-path'),
+    //       {'credentials': 'same-origin'});
+    // var data = await r.json();
+
     var data = JSON.parse(atob($('#form-data').text()));
     // console.log('FORM DATA:');
     // console.log(data);
@@ -402,8 +407,7 @@ function doOnLoad() {
     }
 }
 
-// Run asynchronously.
-window.setTimeout(doOnLoad, 0);
+window.setTimeout(loadForm, 0);
 
 function submitData(data)
 {
