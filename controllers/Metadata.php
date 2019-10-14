@@ -53,8 +53,7 @@ class Metadata extends MY_Controller
                 'css/metadata/leaflet.css',
             ),
             'scriptIncludes' => array(
-                'lib/sweetalert/sweetalert.min.js',
-                'js/metadata/delete.js'
+                'lib/sweetalert/sweetalert.min.js'
             ),
             'path'             => $path,
             'tokenName'        => $tokenName,
