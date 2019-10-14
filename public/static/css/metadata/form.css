@@ -43,7 +43,7 @@
     max-width: 100%;
 }
 
-#form fieldset fieldset:not(.yoda-structure){
+#metadata-form fieldset fieldset:not(.yoda-structure){
     border: solid 1px #DDD !important;
     padding: 0 10px 10px 10px;
     border-bottom: 10px;
@@ -159,7 +159,7 @@ button[data-clone*="main"] {
     right: 30px;
 }
 
-fieldset + .btn-controls {
+#metadata-form fieldset + .btn-controls {
     top:   7px;
     right: 18px;
 }
@@ -176,11 +176,11 @@ fieldset + .btn-controls {
     width: 100%;
     text-align: left;
 }
-:not(form) > fieldset {
+#metadata-form :not(form) > fieldset {
     /* Draw a border around inner fieldsets */
     border: 1px solid #ffcd00;
     box-shadow: 0 0 5px 2px rgba(0,0,0,0.1);
-    padding: 15px 10px 5px 10px;
+    padding: 15px 20px 5px 10px;
     margin: 10px 10px 15px 10px;
 }
 .compound-field .form-group {
