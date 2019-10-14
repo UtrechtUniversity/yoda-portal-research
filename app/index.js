@@ -367,6 +367,7 @@ function loadForm() {
         $.each(formDataErrors, function(key, field) {
             text += '<li>' + $('<div />').text(field.replace('->', '→')).html();
         });
+        $('.delete-all-metadata-btn').on('click', deleteMetadata);
         $('#form-errors .error-fields').html(text);
         $('#form-errors').removeClass('hide');
 
@@ -407,7 +408,7 @@ function loadForm() {
     }
 }
 
-window.setTimeout(loadForm, 0);
+window.addEventListener('load', loadForm);
 
 function submitData(data)
 {
@@ -585,12 +586,14 @@ function ArrayFieldTemplate(props) {
     }
     let output = props.items.map((element, i, array) => {
         // Read only view
-        if (props.readonly) {
+        if (props.readonly || props.disabled) {
             return element.children;
         }
 
         let item = props.items[i];
         if (array.length - 1 === i) {
+            // Render "add" button only on the last item.
+
             let btnCount = 1;
             if (canRemove) {
                 btnCount = 2;
@@ -628,11 +631,10 @@ function ArrayFieldTemplate(props) {
         }
     });
 
-    return (
-        <div>
-            {output}
-        </div>
-    );
+    if (props.disabled)
+        return (<div class="hide">{output}</div>);
+    else
+        return (<div>{output}</div>);
 }
 
 

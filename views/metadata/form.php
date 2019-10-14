@@ -27,7 +27,7 @@
                         <ul class="error-fields"></ul>
                     <p>
                         When using the 'Delete all metadata' button beware that you will lose all data!
-                        <button type="button" onclick="deleteMetadata('<?php echo rawurlencode($path); ?>')" class="btn btn-danger delete-all-metadata-btn pull-right">Delete all metadata</button>
+                        <button type="button" class="btn btn-danger delete-all-metadata-btn pull-right">Delete all metadata</button>
                     </p>
                 </div>
             </div>
@@ -85,7 +85,7 @@
 <script>
     // Show "loading" text if loading the form takes longer than expected.
     var formLoaded = false;
-    window.setTimeout(function(){
+    setTimeout(function(){
         if (!formLoaded) {
             $('#metadata-form').fadeIn(200);
             $('#metadata-form').removeClass('hide');
