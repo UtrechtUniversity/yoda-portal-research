@@ -165,7 +165,7 @@ class Browse extends MY_Controller
         $folderPath = $this->input->get('folder');
         $fullPath = $pathStart . $folderPath;
 
-        $result = $this->filesystem->listSystemMetadata($rodsaccount, $fullPath);
+        $systemMetadata = $this->filesystem->listSystemMetadata($rodsaccount, $fullPath);
 
         $output = array('result' => $systemMetadata);
 
