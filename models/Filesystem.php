@@ -678,39 +678,21 @@ RULE;
      *
      * @param $iRodsAccount
      * @param $folder
-     * @return array
+     * @return mixed
      */
-    function listSystemMetadata($iRodsAccount, $folder)
-    {
-        $output = array();
-
-        $ruleBody = <<<'RULE'
-myRule {
-    iiFrontEndSystemMetadata(*folder, *result, *status, *statusInfo);
-}
-RULE;
+    static public function listSystemMetadata($iRodsAccount, $folder) {
         try {
             $rule = new ProdsRule(
                 $iRodsAccount,
-                $ruleBody,
-                array(
-                    "*folder" => $folder
-                ),
-                array("*result", "*status", "*statusInfo")
+                'myRule { iiResearchSpaceSystemMetadata(*coll); }',
+                array('*coll' => $folder),
+                array('ruleExecOut')
             );
 
-            $ruleResult = $rule->execute();
-
-            $output['*result'] = json_decode($ruleResult['*result'], true);
-            $output['*status'] = $ruleResult['*status'];
-            $output['*statusInfo'] = $ruleResult['*statusInfo'];
-
-            return $output;
-
+            return json_decode($rule->execute()['ruleExecOut']);
         } catch(RODSException $e) {
-            return array();
+            return false;
         }
-        return array();
     }
 
     /**

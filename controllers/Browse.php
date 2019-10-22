@@ -167,17 +167,7 @@ class Browse extends MY_Controller
 
         $result = $this->filesystem->listSystemMetadata($rodsaccount, $fullPath);
 
-        $systemMetadata = array();
-        if ($result['*status'] == 'Success') {
-
-            foreach($result['*result'] as $item){
-                $systemMetadata[] = array($item[0], $item[1]);
-            }
-        }
-
-        $output = array('result' => $systemMetadata,
-	                'status' => $result['*status'],
-			'statusInfo' => $result['*statusInfo']);
+        $output = array('result' => $systemMetadata);
 
         $this->output
             ->set_content_type('application/json')
