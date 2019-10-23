@@ -451,6 +451,7 @@ function topInformation(dir, showAlert)
             }
 
             var icon = '<i class="fa fa-folder-o" aria-hidden="true"></i>';
+            var basename = data.result.basename;
             var metadata = data.result.userMetadata;
             var status = data.result.folderStatus;
             var userType = data.result.userType;
@@ -565,8 +566,7 @@ function topInformation(dir, showAlert)
                 $('a.action-go-to-vault').attr('vault-path', vaultPath);
             }
 
-            // data.basename.replace(/ /g, "&nbsp;")
-            folderName = htmlEncode(data.result.basename).replace(/ /g, "&nbsp;");
+            folderName = htmlEncode(basename).replace(/ /g, "&nbsp;");
 
             // Set status badge.
             statusText = "";

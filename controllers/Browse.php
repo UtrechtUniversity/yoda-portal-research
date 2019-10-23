@@ -156,7 +156,7 @@ class Browse extends MY_Controller
     }
 
     /**
-     * Retrieve system metadata of vault package.
+     * Retrieve system metadata of research folder.
      */
     public function system_metadata()
     {
