@@ -28,7 +28,7 @@ class Metadata_form_model extends CI_Model
     {
         $rule = new ProdsRule(
             $this->rodsuser->getRodsAccount(),
-            'rule { iiMetadataFormSave(*path, *data); }',
+            'rule { rule_uu_meta_form_save(*path, *data); }',
             array('*path' => $path, '*data' => $data),
             array('ruleExecOut')
         );

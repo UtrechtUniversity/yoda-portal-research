@@ -190,7 +190,7 @@ class Filesystem extends CI_Model {
         try {
             $rule = new ProdsRule(
                 $iRodsAccount,
-                'myRule { iiMetadataFormLoad(*path); }',
+                'myRule { rule_uu_meta_form_load(*path); }',
                 array('*path' => $path),
                 array('ruleExecOut')
             );
@@ -233,7 +233,7 @@ RULE;
         try {
             $rule = new ProdsRule(
                 $iRodsAccount,
-                'myRule { iiRemoveAllMetadata(*path); }',
+                'myRule { rule_uu_meta_remove(*path); }',
                 array("*path" => $path),
                 array()
             );
@@ -249,7 +249,7 @@ RULE;
     {
         $ruleBody = <<<'RULE'
 myRule {
-    iiCloneMetadataFile(*coll);
+    rule_uu_meta_clone_file(*coll);
 }
 RULE;
         try {
@@ -684,7 +684,7 @@ RULE;
         try {
             $rule = new ProdsRule(
                 $iRodsAccount,
-                'myRule { iiResearchSpaceSystemMetadata(*coll); }',
+                'myRule { rule_uu_research_system_metadata(*coll); }',
                 array('*coll' => $folder),
                 array('ruleExecOut')
             );
@@ -704,7 +704,7 @@ RULE;
     {
         $rule = new ProdsRule(
             $this->rodsuser->getRodsAccount(),
-            'rule { iiGetPreservableFormatsListsJson(); }',
+            'rule { rule_uu_vault_preservable_formats_lists(); }',
             array(),
             array('ruleExecOut')
         );
@@ -723,7 +723,7 @@ RULE;
     {
         $rule = new ProdsRule(
             $this->rodsuser->getRodsAccount(),
-            'rule { iiGetUnpreservableFilesJson(*folder, *list); }',
+            'rule { rule_uu_vault_unpreservable_files(*folder, *list); }',
             array('*folder' => $fullPath, '*list' => $list),
             array('ruleExecOut')
         );
