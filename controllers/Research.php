@@ -17,6 +17,7 @@ class Research extends MY_Controller
         $this->load->model('rodsuser');
 
         $this->load->library('pathlibrary');
+        $this->load->library('api');
     }
 
     /**
@@ -29,7 +30,6 @@ class Research extends MY_Controller
         $path = $this->input->post('path');
         $fullPath =  $pathStart . $path;
 
-        $this->load->model('Metadata_form_model');
         $this->load->model('Folder_Status_model');
 
         $message = array();
@@ -126,11 +126,9 @@ class Research extends MY_Controller
      */
     public function preservableFormatsLists()
     {
-        $result = $this->filesystem->getPreservableFormatsLists();
-
         $this->output
             ->set_content_type('application/json')
-            ->set_output($result);
+            ->set_output(json_encode($this->api->call('uu_vault_preservable_formats_lists')));
     }
 
     /**
@@ -143,10 +141,10 @@ class Research extends MY_Controller
         $pathStart = $this->pathlibrary->getPathStart($this->config);
         $fullPath =  $pathStart . $path;
 
-        $result = $this->filesystem->getUnpreservableFileFormats($fullPath, $list);
-
         $this->output
             ->set_content_type('application/json')
-            ->set_output($result);
+            ->set_output(
+                json_encode($this->api->call('uu_vault_unpreservable_files',
+                                             ['coll' => $fullPath, 'list_name' => $list])));
     }
 }

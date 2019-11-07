@@ -17,14 +17,14 @@
                         <option value="" disabled selected>Select a file format list</option>
                     </select>
                 </div>
-                <div class="help"></div><br />
-                <div class="advice"></div>
-                <div class="preservable">
+                <p class="help"></p><br />
+                <p class="advice"></p>
+                <p class="checking">Checking files <i class="fa fa-spinner fa-spin fa-fw"></i></p>
+                <p class="preservable">
                     This folder does not contain files that are likely to become unusable in the future.
-                </div>
+                </p>
                 <div class="unpreservable">
-                    Following unpreservable file extensions were found in your dataset:
-                    <br />
+                    <p>The following unpreservable file extensions were found in your dataset:</p>
                     <ul class="list-unpreservable-formats"></ul>
                 </div>
             </div>

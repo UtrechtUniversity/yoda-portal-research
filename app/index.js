@@ -20,7 +20,6 @@ var unsubmit          = false;
 var formDataErrors    = [];
 
 var form = document.getElementById('form');
-var path = form.dataset.path;
 
 const customStyles = {
     control: styles => ({...styles, borderRadius: '0px', minHeight: '15px', height: '33.5px'}),
@@ -412,26 +411,22 @@ window.addEventListener('load', loadForm);
 
 function submitData(data)
 {
-    var path = form.dataset.path;
+    var path = decodeURIComponent(form.dataset.path);
     var tokenName = form.dataset.csrf_token_name;
     var tokenHash = form.dataset.csrf_token_hash;
 
     // Disable buttons.
-    $('.yodaButtons button').attr("disabled", true);
+    $('.yodaButtons button').attr('disabled', true);
 
     // Create form data.
     var bodyFormData = new FormData();
     bodyFormData.set(tokenName, tokenHash);
-    bodyFormData.set('formData', JSON.stringify(data));
-    if (submit) {
-        bodyFormData.set('vault_submission', '1');
-    } else if (unsubmit) {
-        bodyFormData.set('vault_unsubmission', '1');
-    }
+    bodyFormData.set('data', JSON.stringify({ collection: path,
+                                              metadata:   data }));
 
-    // Store.
+    // Save.
     $.ajax({
-        url: '/research/metadata/store?path=' + path,
+        url: '/research/metadata/save',
         method: 'POST',
         data: bodyFormData,
         processData: false,

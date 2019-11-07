@@ -19,14 +19,11 @@ class Metadata extends MY_Controller
         $this->config->load('config');
 
         $this->load->library('pathlibrary');
+        $this->load->library('api');
     }
 
     public function form()
     {
-        $this->load->model('Metadata_model');
-        $this->load->model('Metadata_form_model');
-        $this->load->model('Filesystem');
-
         $pathStart = $this->pathlibrary->getPathStart($this->config);
         $rodsaccount = $this->rodsuser->getRodsAccount();
 
@@ -43,7 +40,7 @@ class Metadata extends MY_Controller
         $tokenName = $this->security->get_csrf_token_name();
         $tokenHash = $this->security->get_csrf_hash();
 
-        $formData = $this->filesystem->getFormData($rodsaccount, $fullPath);
+        $formData = $this->api->call('uu_meta_form_load', ['coll' => $fullPath]);
 
         $viewParams = array(
             'styleIncludes' => array(
@@ -60,16 +57,13 @@ class Metadata extends MY_Controller
             'tokenHash'        => $tokenHash,
             'flashMessage'     => $flashMessage,
             'flashMessageType' => $flashMessageType,
-            'formData'         => $formData,
+            'formData'         => $formData['data'],
         );
         loadView('metadata/form', $viewParams);
     }
 
-    function data() {
-        $this->load->model('Metadata_model');
-        $this->load->model('Metadata_form_model');
-        $this->load->model('Filesystem');
-
+    function data()
+    {
         $pathStart = $this->pathlibrary->getPathStart($this->config);
         $rodsAccount = $this->rodsuser->getRodsAccount();
 
@@ -81,9 +75,34 @@ class Metadata extends MY_Controller
 
         $fullPath = $pathStart . $path;
 
-        $formData = $this->filesystem->getFormData($rodsAccount, $fullPath);
+        $formData = $this->api->call('uu_meta_form_load', ['coll' => $fullPath]);
+
         $this->output->set_content_type('application/json')
                      ->set_output(json_encode($formData));
+    }
+
+    /**
+     * Serves storing of:
+     *
+     * 1) SUBMIT FOR VAULT
+     * 2) UNSUBMIT FOR VAULT
+     * 3) save changes to metadata
+     *
+     * Permitted only for userType in {normal, manager}
+     *
+     */
+    function save()
+    {
+        if ($this->input->server('REQUEST_METHOD') !== 'POST') {
+            header('Allow: POST'); set_status_header(405); return;
+        }
+
+        $result = $this->api->call('uu_meta_form_save', $this->input->post('data'));
+
+        $this->output->set_content_type('application/json')
+                     ->set_output(json_encode($result));
+
+        /* return redirect('research/metadata/form?path=' . rawurlencode($path), 'refresh'); */
     }
 
     /**
@@ -105,8 +124,9 @@ class Metadata extends MY_Controller
         $pathStart = $this->pathlibrary->getPathStart($this->config);
         $rodsaccount = $this->rodsuser->getRodsAccount();
 
-        $this->load->model('Metadata_form_model');
-        $this->load->model('Metadata_model');
+        // TODO: Move all logic to backend api_uu_meta_form_save
+        // ("(un)submit" become boolean arguments).
+
         $this->load->model('Folder_Status_model');
         $this->load->model('Filesystem');
 
@@ -210,11 +230,11 @@ class Metadata extends MY_Controller
         $pathStart = $this->pathlibrary->getPathStart($this->config);
         $rodsaccount = $this->rodsuser->getRodsAccount();
 
-        $this->load->model('filesystem');
         $path = $this->input->post('path');
         $fullPath = $pathStart . $path;
 
-        $result = $this->filesystem->removeAllMetadata($rodsaccount, $fullPath);
+        $this->api->call('uu_meta_remove', ['coll' => $fullPath]);
+
         return redirect('research/metadata/form?path=' . rawurlencode($path), 'refresh');
     }
 
@@ -227,11 +247,10 @@ class Metadata extends MY_Controller
         $pathStart = $this->pathlibrary->getPathStart($this->config);
         $rodsaccount = $this->rodsuser->getRodsAccount();
 
-        $this->load->model('filesystem');
         $path = $this->input->post('path');
         $fullPath =  $pathStart . $path;
 
-        $result = $this->filesystem->cloneMetadata($rodsaccount, $fullPath);
+        $this->api->call('uu_meta_clone_file', ['target_coll' => $fullPath]);
 
         return redirect('research/metadata/form?path=' . rawurlencode($path), 'refresh');
     }
@@ -242,18 +261,16 @@ class Metadata extends MY_Controller
             header('Allow: POST'); set_status_header(405); return;
         }
 
-        $this->load->model('Metadata_model');
-
         $pathStart = $this->pathlibrary->getPathStart($this->config);
         $path = $this->input->post('path');
         $fullPath =  $pathStart . $path;
 
-        $result = $this->Metadata_model->transform($fullPath);
+        $result = $this->api->call('uu_transform_metadata', ['coll' => $fullPath]);
 
-        if ($result['*status'] == 'Success') {
+        if ($result['status'] === 'ok') {
             return redirect('research/metadata/form?path=' . rawurlencode($path), 'refresh');
         } else {
-            setMessage('error', $result['*statusInfo']);
+            setMessage('error', $result['status_info']);
             return redirect('research/browse?dir=' . rawurlencode($path), 'refresh');
         }
     }

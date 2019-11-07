@@ -42,6 +42,5 @@ $module = 'research';
 $route[$module]                        = 'browse';
 $route[$module. '/revision']           = 'revision';
 
-
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

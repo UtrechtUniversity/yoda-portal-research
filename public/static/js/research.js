@@ -7,6 +7,8 @@ $(document).ajaxSend(function(e, request, settings) {
     }
 });
 
+let preservableFormatsLists = null;
+
 $( document ).ready(function() {
     if ($('#file-browser').length) {
         startBrowsing(browseStartDir, browsePageItems);
@@ -65,61 +67,64 @@ $( document ).ready(function() {
         // Check for unpreservable file formats.
         // If present, show extensions to user.
         folder = $(this).attr('data-folder');
+        $("#file-formats-list").val('');
 
-        // Retrieve preservable file format lists.
-        $.getJSON("research/preservableFormatsLists", function (data) {
-            if (Object.keys(data.lists).length > 0) {
-                lists = data.lists
-                $('#file-formats-list').html("<option value='' disabled selected>Select a file format list</option>");
-                for (var list in lists) {
-                    if (lists.hasOwnProperty(list)) {
-                        $("#file-formats-list").append(new Option(lists[list]["name"], list));
+        $('#showUnpreservableFiles .help').hide();
+        $('#showUnpreservableFiles .preservable').hide();
+        $('#showUnpreservableFiles .advice').hide();
+        $('#showUnpreservableFiles .unpreservable').hide();
+        $('#showUnpreservableFiles .checking').hide();
+
+        const show = () => $('#showUnpreservableFiles').modal('show');
+
+        if (preservableFormatsLists === null) {
+            // Retrieve preservable file format lists.
+            $.getJSON("research/preservableFormatsLists", function (data) {
+                if (data.data !== null && Object.keys(data.data).length > 0) {
+                    lists = data.data;
+                    $('#file-formats-list').html("<option value='' disabled selected>Select a file format list</option>");
+                    for (var list in lists) {
+                        if (lists.hasOwnProperty(list)) {
+                            $("#file-formats-list").append(new Option(lists[list]['name'], list));
+                        }
                     }
+                    preservableFormatsLists = lists;
+                    show();
+                } else {
+                    setMessage('error', "Something went wrong while checking for compliance with policy.");
                 }
-                $('#showUnpreservableFiles .help').hide();
-                $('#showUnpreservableFiles .preservable').hide();
-                $('#showUnpreservableFiles .advice').hide();
-                $('#showUnpreservableFiles .unpreservable').hide();
-                $('#showUnpreservableFiles').modal('show');
-            } else {
-                setMessage('error', "Something went wrong while checking for compliance with policy.");
-            }
-        });
+            });
+        } else {
+            show();
+        }
     });
 
     $("#file-formats-list").change(function() {
         list = $("#file-formats-list option:selected").val();
+        if (!(list in preservableFormatsLists))
+            return;
 
-        // Retrieve preservable file format lists.
-        $.getJSON("research/preservableFormatsLists", function (data) {
-            if (Object.keys(data.lists).length > 0) {
-                lists = data.lists
-                if (lists.hasOwnProperty(list)) {
-                        $('#showUnpreservableFiles .help').text(lists[list]["help"]);
-                        $('#showUnpreservableFiles .advice').text(lists[list]["advice"]);
-                }
-            } else {
-                setMessage('error', "Something went wrong while checking for compliance with policy.");
-            }
-        });
+        $('#showUnpreservableFiles .checking').show();
+        $('#showUnpreservableFiles .unpreservable').hide();
+        $('#showUnpreservableFiles .preservable').hide();
+        $('#showUnpreservableFiles .advice').hide();
+        $('#showUnpreservableFiles .help'  ).hide();
+
+        $('#showUnpreservableFiles .help'  ).text(preservableFormatsLists[list]["help"]);
+        $('#showUnpreservableFiles .advice').text(preservableFormatsLists[list]["advice"]);
 
         // Retrieve unpreservable files in folder.
-        $.getJSON("research/checkForUnpreservableFiles?path=" + folder + "&list=" + list, function (data) {
-            if (data.formats) {
-                $('#showUnpreservableFiles .help').hide();
-                $('#showUnpreservableFiles .preservable').hide();
-                $('#showUnpreservableFiles .advice').hide();
-                $('#showUnpreservableFiles .unpreservable').hide();
-                if(data.formats.length > 0) {
-                    $('#showUnpreservableFiles .list-unpreservable-formats').html("");
-                    for (var i = 0; i < data.formats.length; i++) {
-                        $('#showUnpreservableFiles .list-unpreservable-formats').append("<li>" + htmlEncode(data.formats[i]) + "</li>");
-                    }
-                    $('#showUnpreservableFiles .help').show();
+        $.getJSON(`research/checkForUnpreservableFiles?path=${folder}&list=${list}`, function (data) {
+            if (data.status === 'ok') {
+                $('#showUnpreservableFiles .checking').hide();
+                $('#showUnpreservableFiles .help').show();
+                if (data.data.length > 0) {
+                    $('#showUnpreservableFiles .list-unpreservable-formats').html('');
+                    for (let ext of data.data)
+                        $('#showUnpreservableFiles .list-unpreservable-formats').append(`<li>${htmlEncode(ext)}</li>`);
                     $('#showUnpreservableFiles .advice').show();
                     $('#showUnpreservableFiles .unpreservable').show();
                 } else {
-                    $('#showUnpreservableFiles .help').show();
                     $('#showUnpreservableFiles .preservable').show();
                 }
                 $('#showUnpreservableFiles').modal('show');

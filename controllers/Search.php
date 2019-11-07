@@ -152,16 +152,6 @@ class Search extends MY_Controller
                         $matchParts = array();
                         $i = 1;
 
-                        // Addition to get the correct labels from formelements.xml
-                        // And do this in an efficient way for each category only once!
-                        $formConfig = $this->filesystem->metadataFormPaths($rodsaccount, $row['path']);
-
-                        $pathCategory = $formConfig['category'];
-
-                        // Was used when formElements was still in use.
-                        // Left the path for possible later use when labels are taken from JSONS
-                        // Labels are category dependent
-
                         foreach ($row['matches'] as $match) {
                             foreach ($match as $k => $value) {
 

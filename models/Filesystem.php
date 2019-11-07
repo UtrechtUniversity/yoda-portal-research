@@ -186,21 +186,6 @@ class Filesystem extends CI_Model {
         return true;
     }
 
-    static public function getFormData($iRodsAccount, $path) {
-        try {
-            $rule = new ProdsRule(
-                $iRodsAccount,
-                'myRule { rule_uu_meta_form_load(*path); }',
-                array('*path' => $path),
-                array('ruleExecOut')
-            );
-
-            return json_decode($rule->execute()['ruleExecOut']);
-        } catch(RODSException $e) {
-            return false;
-        }
-    }
-
     static public function metadataFormPaths($iRodsAccount, $path) {
         $ruleBody = <<<'RULE'
 myRule {
@@ -228,53 +213,11 @@ RULE;
         return array();
     }
 
-    static public function removeAllMetadata($iRodsAccount, $path)
-    {
-        try {
-            $rule = new ProdsRule(
-                $iRodsAccount,
-                'myRule { rule_uu_meta_remove(*path); }',
-                array("*path" => $path),
-                array()
-            );
-
-            $rule->execute();
-            return true;
-        } catch(RODSException $e) {
-            return false;
-        }
-    }
-
-    static public function cloneMetadata($iRodsAccount, $path)
-    {
-        $ruleBody = <<<'RULE'
-myRule {
-    rule_uu_meta_clone_file(*coll);
-}
-RULE;
-        try {
-            $rule = new ProdsRule(
-                $iRodsAccount,
-                $ruleBody,
-                array(
-                    "*coll" => $path,
-                ),
-                array()
-            );
-
-            $rule->execute();
-            return true;
-        } catch(RODSException $e) {
-            print_r($e);
-            exit;
-            return false;
-        }
-    }
-
     static public function collectionDetails($iRodsAccount, $path)
     {
         $output = array();
 
+        // XXX
         $path = str_replace("`", "\\`", $path);
 
         $ruleBody = <<<'RULE'
@@ -693,42 +636,5 @@ RULE;
         } catch(RODSException $e) {
             return false;
         }
-    }
-
-    /**
-     * Retrieve lists of preservable file formats.
-     *
-     * @return array
-     */
-    function getPreservableFormatsLists()
-    {
-        $rule = new ProdsRule(
-            $this->rodsuser->getRodsAccount(),
-            'rule { rule_uu_vault_preservable_formats_lists(); }',
-            array(),
-            array('ruleExecOut')
-        );
-        $result = $rule->execute();
-
-        return $result['ruleExecOut'];
-    }
-
-    /**
-     * Retrieve extensions of unpreservable file formats in this folder.
-     *
-     * @param $fullPath
-     * @return array
-     */
-    function getUnpreservableFileFormats($fullPath, $list)
-    {
-        $rule = new ProdsRule(
-            $this->rodsuser->getRodsAccount(),
-            'rule { rule_uu_vault_unpreservable_files(*folder, *list); }',
-            array('*folder' => $fullPath, '*list' => $list),
-            array('ruleExecOut')
-        );
-        $result = $rule->execute();
-
-        return $result['ruleExecOut'];
     }
 }
