@@ -4,22 +4,15 @@ import Form from "react-jsonschema-form";
 import Select from 'react-select';
 import Geolocation from "./Geolocation"
 
-var schema = {};
-var uiSchema = {};
-var yodaFormData = {};
+let schema       = {};
+let uiSchema     = {};
+let yodaFormData = {};
 
-var parentHasMetadata = false;
-var metadataExists    = false;
-var submitButton      = false;
-var unsubmitButton    = false;
-var locked            = false;
-var writePermission   = false;
-var save              = false;
-var submit            = false;
-var unsubmit          = false;
-var formDataErrors    = [];
+let formProperties;
 
-var form = document.getElementById('form');
+let saving = false;
+
+let form = document.getElementById('form');
 
 const customStyles = {
     control: styles => ({...styles, borderRadius: '0px', minHeight: '15px', height: '33.5px'}),
@@ -27,26 +20,22 @@ const customStyles = {
 };
 
 const enumWidget = (props) => {
-	var enumArray = props["schema"]["enum"];
-	var enumNames = props["schema"]["enumNames"];
+    let enumArray = props['schema']['enum'];
+    let enumNames = props['schema']['enumNames'];
 
-	if (enumNames == null) {
+    if (enumNames == null)
         enumNames = enumArray;
-    }
 
-	var i = enumArray.indexOf(props["value"]);
-	var placeholder = enumNames[i] == null ? " " : enumNames[i];
+    let i = enumArray.indexOf(props['value']);
+    let placeholder = enumNames[i] == null ? ' ' : enumNames[i];
 
-	return (
-		<Select
-		className={"select-box"}
-		placeholder={placeholder}
-		required={props.required}
-		isDisabled={props.readonly}
-		onChange={(event) => props.onChange(event.value)}
-		options={props["options"]["enumOptions"]}
-		styles={customStyles} />
-	);
+    return (<Select className={'select-box'}
+                    placeholder={placeholder}
+                    required={props.required}
+                    isDisabled={props.readonly}
+                    onChange={(event) => props.onChange(event.value)}
+                    options={props['options']['enumOptions']}
+                    styles={customStyles} />);
 };
 
 const widgets = {
@@ -64,8 +53,7 @@ class YodaForm extends React.Component {
         super(props);
 
         const formContext = {
-            submit: false,
-            save: false
+            saving: false
         };
         this.state = {
             formData: yodaFormData,
@@ -77,11 +65,8 @@ class YodaForm extends React.Component {
         updateCompleteness();
 
         // Turn save mode off.
-        save = false;
-        const formContext = {
-            submit: false,
-            save: false
-        };
+        saving = false;
+        const formContext = { saving: false };
 
         this.setState({
             formData: form.formData,
@@ -91,42 +76,26 @@ class YodaForm extends React.Component {
 
     onError(form) {
         let formContext = {...this.state.formContext};
-        formContext.submit = submit;
-        formContext.save = save;
-        this.setState({
-            formContext: formContext
-        });
+        formContext.saving = saving;
+        this.setState({ formContext: formContext });
     }
 
     transformErrors(errors) {
-        // console.log(errors);
-        if (save) {
-            // Only strip errors when saving.
-            return errors.filter(function (e) {
-                return e.name !== 'required' && e.name !== 'dependencies';
-            });
-        }
-
+        // Strip errors when saving.
+        if (saving)
+            return errors.filter((e) => e.name !== 'required' && e.name !== 'dependencies');
         return errors;
     }
 
     ErrorListTemplate(props) {
-        const {errors, formContext} = props;
-        if (!submit) {
-            var i = errors.length
-            while (i--) {
-                if (errors[i].name === "required"     ||
-                    errors[i].name === "dependencies") {
-                    errors.splice(i,1);
-                }
-            }
-        }
+        let {errors, formContext} = props;
+        errors = errors.filter((e) => e.name !== 'required' && e.name !== 'dependencies');
 
         if (errors.length === 0) {
             return(<div></div>);
         } else {
-            // Show error list only on save or submit.
-            if (formContext.save || formContext.submit) {
+            // Show error list only on save.
+            if (formContext.saving) {
                 return (
                   <div className="panel panel-warning errors">
                     <div className="panel-heading">
@@ -186,14 +155,6 @@ class YodaButtons extends React.Component {
         return (<button onClick={this.props.saveMetadata} type="submit" className="btn btn-primary">Save</button>);
     }
 
-    renderSubmitButton() {
-        return (<button onClick={this.props.submitMetadata} type="submit" className="btn btn-primary">Submit</button>);
-    }
-
-    renderUnsubmitButton() {
-        return (<button onClick={this.props.unsubmitMetadata} type="submit" className="btn btn-primary">Unsubmit</button>);
-    }
-
     renderDeleteButton() {
         return (<button onClick={deleteMetadata} type="button" className="btn btn-danger delete-all-metadata-btn pull-right">Delete all metadata </button>);
     }
@@ -207,34 +168,19 @@ class YodaButtons extends React.Component {
     }
 
     renderButtons() {
-        if (writePermission) {
-            // Write permission in Research space.
-            if (!metadataExists && locked) {
-                // Show no buttons.
-                return (<div></div>);
-            } else if (!metadataExists && parentHasMetadata) {
-                // Show 'Save' and 'Clone from parent folder' buttons.
-                return (<div>{this.renderSaveButton()} {this.renderFormCompleteness()} {this.renderCloneButton()}</div>);
-            } else if (!metadataExists) {
-                // Show 'Save' and 'Clone from parent folder' buttons.
-                return (<div>{this.renderSaveButton()} {this.renderFormCompleteness()}</div>);
-            } else if (!locked && submitButton) {
-                // Show 'Save', 'Submit' and 'Delete all metadata' buttons.
-                return (<div> {this.renderSaveButton()} {this.renderSubmitButton()} {this.renderFormCompleteness()} {this.renderDeleteButton()}</div>);
-            } else if (locked && submitButton) {
-                // Show 'Submit' button.
-                return (<div>{this.renderSubmitButton()}</div>);
-            } else if (!locked && !submitButton) {
-                // Show 'Save' and 'Delete all metadata' buttons.
-                return (<div>{this.renderSaveButton()} {this.renderFormCompleteness()} {this.renderDeleteButton()}</div>);
-            } else if (unsubmitButton) {
-                // Show 'Unsubmit' button.
-                return (<div>{this.renderUnsubmitButton()}</div>);
-            }
-        } else {
-            // Show no buttons.
-            return (<div></div>);
+        let buttons = [];
+
+        if (formProperties.data.can_edit) {
+            buttons.push(this.renderSaveButton());
+            buttons.push(this.renderFormCompleteness());
+
+            // Delete and clone are mutually exclusive.
+            if (formProperties.data.metadata !== null)
+                buttons.push(this.renderDeleteButton());
+            else if (formProperties.data.can_clone)
+                buttons.push(this.renderCloneButton());
         }
+        return (<div>{buttons}</div>);
     }
 
     render() {
@@ -255,25 +201,10 @@ class Container extends React.Component {
     constructor(props) {
         super(props);
         this.saveMetadata = this.saveMetadata.bind(this);
-        this.submitMetadata = this.submitMetadata.bind(this);
-        this.unsubmitMetadata = this.unsubmitMetadata.bind(this);
     }
 
     saveMetadata() {
-        save = true
-        submit = unsubmit = false;
-        this.form.submitButton.click();
-    }
-
-    submitMetadata() {
-        submit = true;
-        save = unsubmit = false;
-        this.form.submitButton.click();
-    }
-
-    unsubmitMetadata() {
-        unsubmit = true;
-        save = submit = false;
+        saving = true;
         this.form.submitButton.click();
     }
 
@@ -299,14 +230,10 @@ class Container extends React.Component {
         return (
         <div>
           <YodaButtons saveMetadata={this.saveMetadata}
-                       submitMetadata={this.submitMetadata}
-                       unsubmitMetadata={this.unsubmitMetadata}
                        deleteMetadata={deleteMetadata}
                        cloneMetadata={this.cloneMetadata} />
           <YodaForm ref={(form) => {this.form=form;}}/>
           <YodaButtons saveMetadata={this.saveMetadata}
-                       submitMetadata={this.submitMetadata}
-                       unsubmitMetadata={this.unsubmitMetadata}
                        deleteMetadata={deleteMetadata}
                        cloneMetadata={this.cloneMetadata} />
         </div>
@@ -318,7 +245,7 @@ class Container extends React.Component {
 function deleteMetadata() {
     swal({
         title: "Are you sure?",
-        text: "You will not be able to recover this action!",
+        text: "You will not be able to undo this action.",
         type: "warning",
         showCancelButton: true,
         confirmButtonColor: "#DD6B55",
@@ -339,62 +266,60 @@ function loadForm() {
     //       {'credentials': 'same-origin'});
     // var data = await r.json();
 
-    var data = JSON.parse(atob($('#form-data').text()));
-    // console.log('FORM DATA:');
-    // console.log(data);
+    formProperties = JSON.parse(atob($('#form-properties').text()));
+
+    console.log('Form properties:', formProperties);
 
     // Inhibit "loading" text.
     formLoaded = true;
 
-    schema                   = data.schema;
-    uiSchema                 = data.uischema;
-    yodaFormData             = data.metadata;
-    parentHasMetadata        = data.can_clone;
-    const transformationText = data.transformation_text;
-    metadataExists           = 'metadata' in data;
+    if (formProperties.data !== null) {
+        // These ary only present when there is a form to show (i.e. no
+        // validation errors, and no transformation needed).
+        schema       = formProperties.data.schema;
+        uiSchema     = formProperties.data.uischema;
+        yodaFormData = formProperties.data.metadata === null ? undefined : formProperties.data.metadata;
+    }
 
-    submitButton    = data.is_member && ['SECURED', 'LOCKED', ''].indexOf(data.status) > -1;
-    unsubmitButton  = data.is_member && data.status == 'SUBMITTED';
-    locked          = ['here', 'ancestor'].indexOf(data.lock_type) > -1;
-    writePermission = data.is_member;
+    if (formProperties.status === 'error_transformation_needed') {
+        // Transformation is necessary. Show transformation prompt.
+        $('#transformation-text').html(formProperties.data.transformation_html);
+        if (formProperties.data.can_edit) {
+            $('#transformation-buttons').removeClass('hide')
+            $('#transformation-text').html(formProperties.data.transformation_html);
+        } else {
+            $('#transformation .close-button').removeClass('hide')
+        }
+        $('.transformation-accept').on('click', () => $('#submit-transform').click());
+        $('#transformation').removeClass('hide');
 
-    formDataErrors = data.errors;
-
-    if (formDataErrors.length > 0) {
+    } else if (formProperties.status !== 'ok') {
         // Errors exist - show those instead of loading a form.
-        var text = '';
-        $.each(formDataErrors, function(key, field) {
-            text += '<li>' + $('<div />').text(field.replace('->', '→')).html();
-        });
+        let text = '';
+        if (formProperties.status === 'error_validation') {
+            // Validation errors? show a list.
+            $.each(formProperties.data.errors, (key, field) => {
+                text += '<li>' + $('<div>').text(field.replace('->', '→')).html();
+            });
+        } else {
+            // Structural / misc error? Show status info.
+            text += '<li>' + $('<div>').text(formProperties.status_info).html();
+        }
         $('.delete-all-metadata-btn').on('click', deleteMetadata);
         $('#form-errors .error-fields').html(text);
         $('#form-errors').removeClass('hide');
 
-    } else if (transformationText !== undefined) {
-        // Transformation is necessary. Show transformation prompt.
-        $('#transformation-text').html(transformationText);
-        if (writePermission) {
-            $('#transformation-buttons').removeClass('hide')
-            $('#transformation-text').html(transformationText);
-        } else {
-            $('#transformation .close').removeClass('hide')
-        }
-        $('.transformation-accept').on('click', function() { $('#submit-transform').click(); });
-        $('#transformation').removeClass('hide');
-
-    } else if (!metadataExists && !writePermission) {
+    } else if (formProperties.data.metadata === null && !formProperties.data.can_edit) {
         // No metadata present and no write access. Do not show a form.
         $('#form').addClass('hide');
         $('#no-metadata').removeClass('hide');
 
     } else {
-        // Metadata present, load the form.
-        if (locked || !writePermission)
+        // Metadata present or user has write access, load the form.
+        if (!formProperties.data.can_edit)
             uiSchema['ui:readonly'] = true;
 
-        render(<Container/>,
-            document.getElementById('form')
-        );
+        render(<Container/>, document.getElementById('form'));
 
         // Form may already be visible (with "loading" text).
         if ($('#metadata-form').hasClass('hide')) {
@@ -411,15 +336,16 @@ window.addEventListener('load', loadForm);
 
 function submitData(data)
 {
-    var path = decodeURIComponent(form.dataset.path);
-    var tokenName = form.dataset.csrf_token_name;
-    var tokenHash = form.dataset.csrf_token_hash;
+    console.log('saving...');
+    let path = decodeURIComponent(form.dataset.path);
+    let tokenName = form.dataset.csrf_token_name;
+    let tokenHash = form.dataset.csrf_token_hash;
 
     // Disable buttons.
     $('.yodaButtons button').attr('disabled', true);
 
     // Create form data.
-    var bodyFormData = new FormData();
+    let bodyFormData = new FormData();
     bodyFormData.set(tokenName, tokenHash);
     bodyFormData.set('data', JSON.stringify({ collection: path,
                                               metadata:   data }));
@@ -431,27 +357,26 @@ function submitData(data)
         data: bodyFormData,
         processData: false,
         contentType: false,
-        success: function (r) {
+        success: (r) => {
+            console.log('save successful');
             window.location.href = '/research/metadata/form?path=' + path;
         },
-        error: function (e) {
-            console.log('ERROR:');
-            console.log(e);
-        },
+        error: (e) => console.log('ERROR: ', e),
     });
 }
 
 function CustomFieldTemplate(props) {
-    const {id, classNames, label, help, hidden, required, description, errors, rawErrors, children, displayLabel, formContext, readonly} = props;
+    const {id, classNames, label, help, hidden, required, description, errors,
+           rawErrors, children, displayLabel, formContext, readonly} = props;
 
     if (hidden || !displayLabel) {
         return children;
     }
 
-    const hasErrors = Array.isArray(errors.props.errors) ? true : false;
+    const hasErrors = Array.isArray(errors.props.errors);
 
     // Only show error messages after submit.
-    if (formContext.submit || formContext.save) {
+    if (formContext.saving) {
       return (
         <div className={classNames}>
           <label className={'col-sm-2 control-label'}>
@@ -518,16 +443,16 @@ function CustomFieldTemplate(props) {
 function ObjectFieldTemplate(props) {
     const { TitleField, DescriptionField } = props;
 
-    var structureClass;
-    var structure;
+    let structureClass;
+    let structure;
     if ('yoda:structure' in props.schema) {
-        var structureClass = 'yoda-structure ' + props.schema['yoda:structure'];
-        var structure = props.schema['yoda:structure'];
+        structureClass = `yoda-structure ${props.schema['yoda:structure']}`;
+        structure = props.schema['yoda:structure'];
     }
 
     if (structure === 'compound') {
-        let array = props.properties;
-        let output = props.properties.map((prop, i, array) => {
+        var array = props.properties;
+        var output = props.properties.map((prop, i, array) => {
             return (
                 <div key={i} className="col-sm-6 field compound-field">
                     {prop.content}
@@ -536,7 +461,7 @@ function ObjectFieldTemplate(props) {
         });
 
         return (
-            <div className={"form-group " + structureClass}>
+            <div className={`form-group ${structureClass}`}>
                 <label className="col-sm-2 combined-main-label control-label">
                     <span>{props.title}</span>
                 </label>
@@ -575,10 +500,7 @@ function ObjectFieldTemplate(props) {
 
 function ArrayFieldTemplate(props) {
     let array = props.items;
-    let canRemove = true;
-    if (array.length === 1) {
-        canRemove = false;
-    }
+    let canRemove = array.length !== 1;
     let output = props.items.map((element, i, array) => {
         // Read only view
         if (props.readonly || props.disabled) {
@@ -589,10 +511,7 @@ function ArrayFieldTemplate(props) {
         if (array.length - 1 === i) {
             // Render "add" button only on the last item.
 
-            let btnCount = 1;
-            if (canRemove) {
-                btnCount = 2;
-            }
+            let btnCount = 1 + canRemove;
 
             return (
                 <div key={i} className="has-btn">
@@ -635,22 +554,17 @@ function ArrayFieldTemplate(props) {
 
 function updateCompleteness()
 {
-    var mandatoryTotal = $('.fa-lock.safe:visible').length;
-    var mandatoryFilled = $('.fa-stack .checkmark-green-top-right:visible').length;
+    const mandatoryTotal  = $('.fa-lock.safe:visible').length;
+    const mandatoryFilled = $('.fa-stack .checkmark-green-top-right:visible').length;
 
-    if (mandatoryTotal == 0) {
-        var metadataCompleteness = 100;
-    } else {
-        var metadataCompleteness = Math.ceil(100 * mandatoryFilled / mandatoryTotal);
-    }
+    const completeness = mandatoryTotal == 0 ? 1 : mandatoryFilled / mandatoryTotal;
+    console.log(`form completeness: ${mandatoryFilled} / ${mandatoryTotal}`);
 
-    var html = '<i class="fa fa-check ' + (metadataCompleteness > 19 ? "form-required-present" : "form-required-missing") + '"</i>' +
-    '<i class="fa fa-check ' + (metadataCompleteness > 19 ? "form-required-present" : "form-required-missing") + '"></i>' +
-    '<i class="fa fa-check ' + (metadataCompleteness > 59 ? "form-required-present" : "form-required-missing") + '"></i>' +
-    '<i class="fa fa-check ' + (metadataCompleteness > 79 ? "form-required-present" : "form-required-missing") + '"></i>' +
-    '<i class="fa fa-check ' + (metadataCompleteness > 99 ? "form-required-present" : "form-required-missing") + '"></i>';
+    const html = ' '
+               + '<i class="fa fa-check form-required-present"></i>'.repeat(  Math.floor(completeness*5))
+               + '<i class="fa fa-check form-required-missing"></i>'.repeat(5-Math.floor(completeness*5));
 
-    $('.form-completeness').attr('title', 'Required for the vault: '+mandatoryTotal+', currently filled required fields: ' + mandatoryFilled);
+    $('.form-completeness').attr('title', `Required for the vault: ${mandatoryTotal}, currently filled required fields: ${mandatoryFilled}`);
     $('.form-completeness').html(html);
 
     return mandatoryTotal == mandatoryFilled;

@@ -41,7 +41,7 @@
                     <h3 class="panel-title pull-left">
                         Metadata form - <?php echo str_replace(' ', '&nbsp;', htmlentities(trim($path))); ?>
                     </h3>
-                    <div class="input-group-sm has-feedback pull-right close hide">
+                    <div class="input-group-sm has-feedback pull-right close-button hide">
                         <a class="btn btn-default" href="/research/browse?dir=<?php echo rawurlencode($path); ?>">Close</a>
                     </div>
                 </div>
@@ -63,7 +63,7 @@
                     <h3 class="panel-title pull-left">
                         Metadata form - <?php echo str_replace(' ', '&nbsp;', htmlentities(trim($path))); ?>
                     </h3>
-                    <div class="input-group-sm has-feedback pull-right">
+                    <div class="input-group-sm has-feedback pull-right close-button">
                         <a class="btn btn-default" href="/research/browse?dir=<?php echo rawurlencode($path); ?>">Close</a>
                     </div>
                 </div>
@@ -93,7 +93,7 @@
     }, 800);
 </script>
 <script src="/research/static/js/metadata/form.js" async></script>
-<script id="form-data" type="text/plain"><?php
-    // base64-encode to make sure no "< /script>" text can be embedded.
-    echo base64_encode(json_encode($formData))
+<script id="form-properties" type="text/plain"><?php
+    // base64-encode to make sure no script tag can be embedded.
+    echo base64_encode(json_encode($formProperties))
 ?></script>
