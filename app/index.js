@@ -290,7 +290,10 @@ function loadForm() {
         } else {
             $('#transformation .close-button').removeClass('hide')
         }
-        $('.transformation-accept').on('click', () => $('#submit-transform').click());
+        $('.transformation-accept').on('click', () => {
+            $('.transformation-accept').attr('disabled', true);
+            $('#submit-transform').click()
+        });
         $('#transformation').removeClass('hide');
 
     } else if (formProperties.status !== 'ok') {
