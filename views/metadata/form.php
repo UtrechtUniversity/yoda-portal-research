@@ -1,10 +1,3 @@
-    <form class="hide" id="action-form" method="post">
-        <input type="hidden" name="path" value="<?php echo htmlentities($path); ?>">
-        <input type="hidden" name="<?php echo htmlentities($this->security->get_csrf_token_name()); ?>" value="<?php echo htmlentities($this->security->get_csrf_hash()); ?>">
-        <input type="submit" id="submit-clone"     formaction="/research/metadata/clone">
-        <input type="submit" id="submit-delete"    formaction="/research/metadata/delete">
-        <input type="submit" id="submit-transform" formaction="/research/metadata/transform">
-    </form>
     <div id="form-errors" class="row hide">
         <div class="col-md-12">
             <div class="panel panel-default">
@@ -49,7 +42,7 @@
                     <div id="transformation-text"></div>
                     <div id="transformation-buttons" class="hide">
                         <a class="transformation-reject btn btn-danger pull-right" href="/research/browse?dir=<?php echo rawurlencode($path); ?>">Postpone transformation</a>
-                        <button class="transformation-accept btn btn-success pull-right">Accept transformation</a>
+                        <button class="transformation-accept btn btn-success pull-right">Accept transformation</button>
                     </div>
                 </div>
             </div>
@@ -72,7 +65,7 @@
                         <p>There is no metadata present for this folder.</p>
                     </div>
                     <div id="form"
-                         data-path="<?php echo rawurlencode($path); ?>"
+                         data-path="<?php echo htmlentities($path); ?>"
                          data-csrf_token_name="<?php echo rawurlencode($tokenName); ?>"
                          data-csrf_token_hash="<?php echo rawurlencode($tokenHash); ?>">
                         <p>Loading metadata <i class="fa fa-spinner fa-spin fa-fw"></i></p>

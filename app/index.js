@@ -4,6 +4,8 @@ import Form from "react-jsonschema-form";
 import Select from 'react-select';
 import Geolocation from "./Geolocation"
 
+const path = $('#form').attr('data-path');
+
 let schema       = {};
 let uiSchema     = {};
 let yodaFormData = {};
@@ -164,7 +166,7 @@ class YodaButtons extends React.Component {
     }
 
     renderFormCompleteness() {
-        return (<span className="form-completeness add-pointer" aria-hidden="true" data-toggle="tooltip" title=""></span>);
+        return (<span className="form-completeness" aria-hidden="true" data-toggle="tooltip" title=""></span>);
     }
 
     renderButtons() {
@@ -219,9 +221,12 @@ class Container extends React.Component {
             closeOnConfirm: false,
             animation: false
         },
-        function(isConfirm){
+        async isConfirm => {
             if (isConfirm) {
-                $('#submit-clone').click();
+                await YodaPortal.api.call('uu_meta_clone_file',
+                                          {target_coll: YodaPortal.basePath+path},
+                                          {errorPrefix: 'Metadata could not be cloned'});
+                window.location.reload();
             }
         });
     }
@@ -241,6 +246,12 @@ class Container extends React.Component {
     }
 };
 
+/**
+ * Returns to the browse view for the current collection.
+ */
+function browse() {
+    window.location.href = '/research/browse?dir=' + encodeURIComponent(path);
+}
 
 function deleteMetadata() {
     swal({
@@ -253,21 +264,20 @@ function deleteMetadata() {
         closeOnConfirm: false,
         animation: false
     },
-    function(isConfirm){
+    async isConfirm => {
         if (isConfirm) {
-            $('#submit-delete').click();
+            await YodaPortal.api.call('uu_meta_remove',
+                                      {coll: YodaPortal.basePath+path},
+                                      {errorPrefix: 'Metadata could not be deleted'});
+
+            YodaPortal.message('success', `Deleted metadata of folder <${path}>`);
+            browse();
         }
     });
 }
 
-function loadForm() {
-    // var r = await fetch('/research/metadata/data?path='
-    //       +$('#form').attr('data-path'),
-    //       {'credentials': 'same-origin'});
-    // var data = await r.json();
-
-    formProperties = JSON.parse(atob($('#form-properties').text()));
-
+function loadForm(properties) {
+    formProperties = properties;
     console.log('Form properties:', formProperties);
 
     // Inhibit "loading" text.
@@ -290,9 +300,14 @@ function loadForm() {
         } else {
             $('#transformation .close-button').removeClass('hide')
         }
-        $('.transformation-accept').on('click', () => {
+        $('.transformation-accept').on('click', async () => {
             $('.transformation-accept').attr('disabled', true);
-            $('#submit-transform').click()
+
+            await YodaPortal.api.call('uu_transform_metadata',
+                                      {coll: YodaPortal.basePath+path},
+                                      {errorPrefix: 'Metadata could not be transformed'});
+
+            window.location.reload();
         });
         $('#transformation').removeClass('hide');
 
@@ -335,37 +350,25 @@ function loadForm() {
     }
 }
 
-window.addEventListener('load', loadForm);
+window.addEventListener('load', _ => loadForm(JSON.parse(atob($('#form-properties').text()))));
 
-function submitData(data)
+async function submitData(data)
 {
-    console.log('saving...');
-    let path = decodeURIComponent(form.dataset.path);
-    let tokenName = form.dataset.csrf_token_name;
-    let tokenHash = form.dataset.csrf_token_hash;
-
     // Disable buttons.
     $('.yodaButtons button').attr('disabled', true);
 
-    // Create form data.
-    let bodyFormData = new FormData();
-    bodyFormData.set(tokenName, tokenHash);
-    bodyFormData.set('data', JSON.stringify({ collection: path,
-                                              metadata:   data }));
-
     // Save.
-    $.ajax({
-        url: '/research/metadata/save',
-        method: 'POST',
-        data: bodyFormData,
-        processData: false,
-        contentType: false,
-        success: (r) => {
-            console.log('save successful');
-            window.location.href = '/research/metadata/form?path=' + path;
-        },
-        error: (e) => console.log('ERROR: ', e),
-    });
+    try {
+        await YodaPortal.api.call('uu_meta_form_save',
+                                  {coll: YodaPortal.basePath+path, metadata: data},
+                                  {errorPrefix: 'Metadata could not be saved'});
+
+        YodaPortal.message('success', `Updated metadata of folder <${path}>`);
+        browse();
+    } catch (e) {
+        // Allow retry.
+        $('.yodaButtons button').attr('disabled', false);
+    }
 }
 
 function CustomFieldTemplate(props) {

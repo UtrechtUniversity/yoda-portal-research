@@ -62,58 +62,9 @@ class Metadata extends MY_Controller
         loadView('metadata/form', $viewParams);
     }
 
-    function data()
-    {
-        $pathStart = $this->pathlibrary->getPathStart($this->config);
-        $rodsAccount = $this->rodsuser->getRodsAccount();
-
-        $path = $this->input->get('path');
-        if ($path === null) {
-            // Bad request.
-            set_status_header(400); return;
-        }
-
-        $fullPath = $pathStart . $path;
-
-        $formData = $this->api->call('uu_meta_form_load', ['coll' => $fullPath]);
-
-        $this->output->set_content_type('application/json')
-                     ->set_output(json_encode($formData));
-    }
-
     /**
-     * Serves storing of:
-     *
-     * 1) SUBMIT FOR VAULT
-     * 2) UNSUBMIT FOR VAULT
-     * 3) save changes to metadata
-     *
-     * Permitted only for userType in {normal, manager}
-     *
-     */
-    function save()
-    {
-        if ($this->input->server('REQUEST_METHOD') !== 'POST') {
-            header('Allow: POST'); set_status_header(405); return;
-        }
-
-        $result = $this->api->call('uu_meta_form_save', $this->input->post('data'));
-
-        $this->output->set_content_type('application/json')
-                     ->set_output(json_encode($result));
-
-        /* return redirect('research/metadata/form?path=' . rawurlencode($path), 'refresh'); */
-    }
-
-    /**
-     * Serves storing of:
-     *
-     * 1) SUBMIT FOR VAULT
-     * 2) UNSUBMIT FOR VAULT
-     * 3) save changes to metadata
-     *
-     * Permitted only for userType in {normal, manager}
-     *
+     * Currently unused - logic to be moved to uu ruleset.
+     * TODO.
      */
     function store()
     {
@@ -124,10 +75,6 @@ class Metadata extends MY_Controller
         $pathStart = $this->pathlibrary->getPathStart($this->config);
         $rodsaccount = $this->rodsuser->getRodsAccount();
 
-        // TODO: Move all logic to backend api_uu_meta_form_save
-        // ("(un)submit" become boolean arguments).
-
-        $this->load->model('Folder_Status_model');
         $this->load->model('Filesystem');
 
         $path = $this->input->get('path');
@@ -140,11 +87,6 @@ class Metadata extends MY_Controller
         $folderStatus = $formConfig['folderStatus'];
         $isDatamanager = $formConfig['isDatamanager'];
 
-        # FIXME: This check is currently absent in policy iiIsStatusTransitionLegal!
-        #        Meaning, it can possibly be bypassed.
-        #        Either way, the policy rule needs to cover all cases, and provide
-        #        readable error messages (which it does).
-        #        -> separate PHP policy checks are error prone and duplicate work.
         if (!($userType=='normal' || $userType=='manager')) { // superseeds userType!= reader - which comes too late for permissions for vault submission
             $this->session->set_flashdata('flashMessage', 'Insufficient rights to perform this action.'); // wat is een locking error?
             $this->session->set_flashdata('flashMessageType', 'danger');
@@ -155,7 +97,6 @@ class Metadata extends MY_Controller
             $this->load->library('vaultsubmission', array('formConfig' => $formConfig, 'folder' => $fullPath));
             if ($this->input->post('vault_submission')) { // HdR er wordt nog niet gecheckt dat juiste persoon dit mag
 
-                # XXX
                 $metadataExists = ($formConfig['hasMetadataXml'] == 'true' || $formConfig['hasMetadataXml'] == 'yes');
                 $loadedFormData = $this->Metadata_form_model->loadXmlFormData($rodsaccount, $formConfig['metadataXmlPath'], $metadataExists, $pathStart);
                 if ($loadedFormData['schemaIdMetadata'] != $loadedFormData['schemaIdCurrent']) {
@@ -219,59 +160,5 @@ class Metadata extends MY_Controller
         }
 
         return redirect('research/metadata/form?path=' . rawurlencode($path), 'refresh');
-    }
-
-    function delete()
-    {
-        if ($this->input->server('REQUEST_METHOD') !== 'POST') {
-            header('Allow: POST'); set_status_header(405); return;
-        }
-
-        $pathStart = $this->pathlibrary->getPathStart($this->config);
-        $rodsaccount = $this->rodsuser->getRodsAccount();
-
-        $path = $this->input->post('path');
-        $fullPath = $pathStart . $path;
-
-        $this->api->call('uu_meta_remove', ['coll' => $fullPath]);
-
-        return redirect('research/metadata/form?path=' . rawurlencode($path), 'refresh');
-    }
-
-    function clone()
-    {
-        if ($this->input->server('REQUEST_METHOD') !== 'POST') {
-            header('Allow: POST'); set_status_header(405); return;
-        }
-
-        $pathStart = $this->pathlibrary->getPathStart($this->config);
-        $rodsaccount = $this->rodsuser->getRodsAccount();
-
-        $path = $this->input->post('path');
-        $fullPath =  $pathStart . $path;
-
-        $this->api->call('uu_meta_clone_file', ['target_coll' => $fullPath]);
-
-        return redirect('research/metadata/form?path=' . rawurlencode($path), 'refresh');
-    }
-
-    function transform()
-    {
-        if ($this->input->server('REQUEST_METHOD') !== 'POST') {
-            header('Allow: POST'); set_status_header(405); return;
-        }
-
-        $pathStart = $this->pathlibrary->getPathStart($this->config);
-        $path = $this->input->post('path');
-        $fullPath =  $pathStart . $path;
-
-        $result = $this->api->call('uu_transform_metadata', ['coll' => $fullPath]);
-
-        if ($result->status === 'ok') {
-            return redirect('research/metadata/form?path=' . rawurlencode($path), 'refresh');
-        } else {
-            setMessage('error', $result['status_info']);
-            return redirect('research/browse?dir=' . rawurlencode($path), 'refresh');
-        }
     }
 }
