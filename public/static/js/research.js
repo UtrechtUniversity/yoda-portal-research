@@ -1,17 +1,28 @@
+"use strict";
+
 $(document).ajaxSend(function(e, request, settings) {
     // Append a CSRF token to all AJAX POST requests.
     if (settings.type === 'POST' && settings.data.length) {
          settings.data
-             += '&' + encodeURIComponent(YodaPortal.csrf.tokenName)
-              + '=' + encodeURIComponent(YodaPortal.csrf.tokenValue);
+             += '&' + encodeURIComponent(Yoda.csrf.tokenName)
+              + '=' + encodeURIComponent(Yoda.csrf.tokenValue);
     }
 });
 
 let preservableFormatsLists = null;
+let currentFolder;
 
-$( document ).ready(function() {
+$(function() {
+    // Extract current location from query string (default to '').
+    currentFolder = decodeURIComponent((/(?:\?|&)dir=([^&]*)/
+                                        .exec(window.location.search) || [0,''])[1]);
+
+    // Canonicalize path somewhat, for convenience.
+    currentFolder = currentFolder.replace(/\/+/g, '/').replace(/\/$/, '');
+
+
     if ($('#file-browser').length) {
-        startBrowsing(browseStartDir, browsePageItems);
+        startBrowsing(browsePageItems);
     }
 
     $('.btn-group button.metadata-form').click(function(){
@@ -27,22 +38,22 @@ $( document ).ready(function() {
     });
 
     $("body").on("click", "a.view-video", function() {
-        path = $(this).attr('data-path');
-        viewerHtml = '<video width="570" controls autoplay><source src="' + path + '"></video>';
+        let path = $(this).attr('data-path');
+        let viewerHtml = `<video width="570" controls autoplay><source src="browse/download?filepath=${htmlEncode(encodeURIComponent(path))}"></video>`;
         $('#viewer').html(viewerHtml);
         $('#viewMedia').modal('show');
     });
 
     $("body").on("click", "a.view-audio", function() {
-        path = $(this).attr('data-path');
-        viewerHtml = '<audio width="570" controls autoplay><source src="' + path + '"></audio>';
+        let path = $(this).attr('data-path');
+        let viewerHtml = `<audio width="570" controls autoplay><source src="browse/download?filepath=${htmlEncode(encodeURIComponent(path))}"></audio>`;
         $('#viewer').html(viewerHtml);
         $('#viewMedia').modal('show');
     });
 
     $("body").on("click", "a.view-image", function() {
-        path = $(this).attr('data-path');
-        viewerHtml = '<img width="570" src="' + path + '" />';
+        let path = $(this).attr('data-path');
+        let viewerHtml = `<img width="570" src="browse/download?filepath=${htmlEncode(encodeURIComponent(path))}" />`;
         $('#viewer').html(viewerHtml);
         $('#viewMedia').modal('show');
     });
@@ -66,7 +77,7 @@ $( document ).ready(function() {
     $("body").on("click", "a.action-check-for-unpreservable-files", function() {
         // Check for unpreservable file formats.
         // If present, show extensions to user.
-        folder = $(this).attr('data-folder');
+        let folder = $(this).attr('data-folder');
         $("#file-formats-list").val('');
 
         $('#showUnpreservableFiles .help').hide();
@@ -75,32 +86,27 @@ $( document ).ready(function() {
         $('#showUnpreservableFiles .unpreservable').hide();
         $('#showUnpreservableFiles .checking').hide();
 
-        const show = () => $('#showUnpreservableFiles').modal('show');
-
         if (preservableFormatsLists === null) {
             // Retrieve preservable file format lists.
-            $.getJSON("research/preservableFormatsLists", function (data) {
-                if (data.data !== null && Object.keys(data.data).length > 0) {
-                    lists = data.data;
-                    $('#file-formats-list').html("<option value='' disabled selected>Select a file format list</option>");
-                    for (var list in lists) {
-                        if (lists.hasOwnProperty(list)) {
-                            $("#file-formats-list").append(new Option(lists[list]['name'], list));
-                        }
+            Yoda.call('uu_vault_preservable_formats_lists').then((data) => {
+                preservableFormatsLists = data;
+
+                $('#file-formats-list').html("<option value='' disabled selected>Select a file format list</option>");
+                for (let list in data) {
+                    if (data.hasOwnProperty(list)) {
+                        $("#file-formats-list").append(new Option(data[list]['name'], list));
                     }
-                    preservableFormatsLists = lists;
-                    show();
-                } else {
-                    setMessage('error', "Something went wrong while checking for compliance with policy.");
                 }
+                $('#showUnpreservableFiles').modal('show');
             });
         } else {
-            show();
+            $('#showUnpreservableFiles').modal('show');
         }
     });
 
     $("#file-formats-list").change(function() {
-        list = $("#file-formats-list option:selected").val();
+        let folder = $('a.action-check-for-unpreservable-files').attr('data-folder');
+        let list   = $('#file-formats-list option:selected').val();
         if (!(list in preservableFormatsLists))
             return;
 
@@ -114,23 +120,20 @@ $( document ).ready(function() {
         $('#showUnpreservableFiles .advice').text(preservableFormatsLists[list]["advice"]);
 
         // Retrieve unpreservable files in folder.
-        $.getJSON(`research/checkForUnpreservableFiles?path=${folder}&list=${list}`, function (data) {
-            if (data.status === 'ok') {
-                $('#showUnpreservableFiles .checking').hide();
-                $('#showUnpreservableFiles .help').show();
-                if (data.data.length > 0) {
-                    $('#showUnpreservableFiles .list-unpreservable-formats').html('');
-                    for (let ext of data.data)
-                        $('#showUnpreservableFiles .list-unpreservable-formats').append(`<li>${htmlEncode(ext)}</li>`);
-                    $('#showUnpreservableFiles .advice').show();
-                    $('#showUnpreservableFiles .unpreservable').show();
-                } else {
-                    $('#showUnpreservableFiles .preservable').show();
-                }
-                $('#showUnpreservableFiles').modal('show');
+        Yoda.call('uu_vault_unpreservable_files',
+                  {coll: Yoda.basePath + folder, list_name: list}).then((data) => {
+            $('#showUnpreservableFiles .checking').hide();
+            $('#showUnpreservableFiles .help').show();
+            if (data.length > 0) {
+                $('#showUnpreservableFiles .list-unpreservable-formats').html('');
+                for (let ext of data)
+                    $('#showUnpreservableFiles .list-unpreservable-formats').append(`<li>${htmlEncode(ext)}</li>`);
+                $('#showUnpreservableFiles .advice').show();
+                $('#showUnpreservableFiles .unpreservable').show();
             } else {
-                setMessage('error', "Something went wrong while checking for compliance with policy.");
+                $('#showUnpreservableFiles .preservable').show();
             }
+            $('#showUnpreservableFiles').modal('show');
         });
     });
 
@@ -160,16 +163,29 @@ $( document ).ready(function() {
 
     $("body").on("click", ".browse", function(e) {
         browse($(this).attr('data-path'), true);
+        // Dismiss stale messages.
+        $('#messages .close').click();
         e.preventDefault();
     });
 
     $("body").on("click", "a.action-go-to-vault", function() {
-        window.location.href = '/vault/?dir=%2F' +  $(this).attr('vault-path');
+        window.location.href = '/vault/?dir=' + encodeURIComponent('/'+$(this).attr('vault-path'));
     });
 });
 
-function browse(dir, changeHistory)
+function changeBrowserUrl(path)
 {
+    let url = window.location.pathname;
+    if (typeof path != 'undefined') {
+        url += "?dir=" + encodeURIComponent(path);
+    }
+
+    history.pushState({} , {}, url);
+}
+
+function browse(dir = '', changeHistory = false)
+{
+    currentFolder = dir;
     makeBreadcrumb(dir);
     if (changeHistory)
         changeBrowserUrl(dir);
@@ -177,41 +193,25 @@ function browse(dir, changeHistory)
     buildFileBrowser(dir);
 }
 
-function makeBreadcrumb(urlEncodedDir)
+function makeBreadcrumb(dir)
 {
-    var dir = decodeURIComponent((urlEncodedDir + '').replace(/\+/g, '%20'));
+    let pathParts = dir.split('/').filter(x => x.length);
 
-    var parts = [];
-    if (typeof dir != 'undefined') {
-        if (dir.length > 0) {
-            var elements = dir.split('/');
+    // [[Crumb text, Path]] - e.g. [...['x', '/research-a/x']]
+    let crumbs = [['Home', ''],
+                  ...Array.from(pathParts.entries())
+                          .map(([i,x]) => [x, '/'+pathParts.slice(0, i+1).join('/')])];
 
-            // Remove empty elements
-            var parts = $.map(elements, function (v) {
-                return v === "" ? null : v;
-            });
-        }
-    }
+    let html = '';
+    for (let [i, [text, path]] of crumbs.entries()) {
+        let el = $('<li>');
+        text = htmlEncode(text).replace(/ /g, '&nbsp;');
+        if (i === crumbs.length-1)
+             el.addClass('active').text(text);
+        else el.html(`<a class="browse" data-path="${htmlEncode(path)}"
+                         href="?dir=${encodeURIComponent(path)}">${text}</a>`);
 
-    // Build html
-    var totalParts = parts.length;
-
-    if (totalParts > 0 && parts[0]!='undefined') {
-        var html = '<li class="browse">Home</li>';
-        var path = "";
-        $.each( parts, function( k, part ) {
-            path += "%2F" + encodeURIComponent(part);
-
-            // Active item
-            valueString = htmlEncode(part).replace(/ /g, "&nbsp;");
-            if (k == (totalParts-1)) {
-                html += '<li class="active">' + valueString + '</li>';
-            } else {
-                html += '<li class="browse" data-path="' + path + '">' + valueString + '</li>';
-            }
-        });
-    } else {
-        var html = '<li class="active">Home</li>';
+        html += el[0].outerHTML;
     }
 
     $('ol.breadcrumb').html(html);
@@ -220,60 +220,157 @@ function makeBreadcrumb(urlEncodedDir)
 function htmlEncode(value){
     //create a in-memory div, set it's inner text(which jQuery automatically encodes)
     //then grab the encoded contents back out.  The div never exists on the page.
-    return $('<div/>').text(value).html();
+    return $('<div/>').text(value).html().replace('"', '&quot;');
 }
 
-function makeBreadcrumbPath(dir)
-{
-    var parts = [];
-    if (typeof dir != 'undefined') {
-        if (dir.length > 0) {
-            var elements = dir.split('/');
-
-            // Remove empty elements
-            var parts = $.map(elements, function (v) {
-                return v === "" ? null : v;
-            });
-        }
-    }
-
-    // Build html
-    var totalParts = parts.length;
-    if (totalParts > 0) {
-        var path = "";
-        var index = 0;
-        $.each( parts, function( k, part ) {
-
-            if(index) {
-                path += "/" + part;
-            }
-            else {
-                path = part;
-            }
-            index++;
-        });
-    }
-
-    return path;
-}
-
-function buildFileBrowser(dir)
-{
-    var url = "browse/data";
-    if (typeof dir != 'undefined') {
-        url += "?dir=" +  dir;
-    }
-
-    var fileBrowser = $('#file-browser').DataTable();
-
-    fileBrowser.ajax.url(url).load();
+function buildFileBrowser(dir) {
+    let fileBrowser = $('#file-browser').DataTable();
+    getFolderContents.dropCache();
+    fileBrowser.ajax.reload();
 
     return true;
 }
 
-function startBrowsing(path, items)
+// Fetches directory contents to populate the listing table.
+let getFolderContents = (() => {
+    // Close over some state variables.
+    // -> we keep a multi-page cache handy, since getting only $page_length [=10]
+    //    results each time is wasteful and slow.
+    // A change in sort column/order or folder will invalidate the cache.
+
+    // The amount of rows to request at once.
+    // *Must* be equal to or greater than the largest datatables page length,
+    // and *should* be smaller than iRODS SQL rows per batch.
+    const batchSize = 200;
+    // (~140 B per entry in JSON returned by iRODS,
+    //  so depending on name = up to 28K to transfer for each fetch)
+
+    let total          = false; // Total subcollections / data objects.
+    let cache          = [];    // Cached result rows (may be more than shown on one page).
+    let cacheStart     = null;  // Row number of the first cache entry.
+    let cacheFolder    = null;  // Folder path of the cache.
+    let cacheSortCol   = null;  // Cached sort column nr.
+    let cacheSortOrder = null;  // Cached sort order.
+    let i = 0;                  // Keep simultaneous requests from interfering.
+
+    let get = async (args) => {
+        // Check if we can use the cache.
+        if (cache.length
+         && currentFolder        === cacheFolder
+         && args.order[0].dir    === cacheSortOrder
+         && args.order[0].column === cacheSortCol
+         && args.start               >= cacheStart
+         && args.start + args.length <= cacheStart + batchSize) {
+
+            return cache.slice(args.start - cacheStart, args.start - cacheStart + args.length);
+        } else {
+            // Nope, load new data via the API.
+            let j = ++i;
+            let result = await Yoda.call('uu_browse_folder',
+                                         {'coll':       Yoda.basePath + currentFolder,
+                                          'offset':     args.start,
+                                          'limit':      batchSize,
+                                          'sort_order': args.order[0].dir,
+                                          'sort_on':    ['name','size','modified'][args.order[0].column]});
+
+            // If another requests has come while we were waiting, simply drop this one.
+            if (i !== j) return null;
+
+            // Populate the 'size' of collections so datatables doesn't get confused.
+            for (let x of result.items)
+                if (x.type === 'coll')
+                    x.size = 0;
+
+            // Update cache info.
+            total          = result.total;
+            cacheStart     = args.start;
+            cache          = result.items;
+            cacheFolder    = currentFolder;
+            cacheSortCol   = args.order[0].column;
+            cacheSortOrder = args.order[0].dir;
+
+            return cache.slice(args.start - cacheStart, args.length);
+        }
+    };
+
+    // The actual function passed to datatables.
+    // (needs a non-async wrapper cause datatables won't accept it otherwise)
+    let fn = (args, cb, settings) => (async () => {
+
+        let data = await get(args);
+        if (data === null)
+            return;
+
+        cb({'data':            data,
+            'recordsTotal':    total,
+            'recordsFiltered': total });
+    })();
+
+    // Allow manually clearing results (needed during soft-reload after uploading a file).
+    fn.dropCache = () => cache = [];
+    return fn;
+})();
+
+// Functions for rendering table cells, per column.
+const tableRenderer = {
+    name: (name, _, row) => {
+         let tgt = `${currentFolder}/${name}`;
+         if (row.type === 'coll')
+              return `<a class="coll browse" href="?dir=${encodeURIComponent(tgt)}" data-path="${htmlEncode(tgt)}"><i class="fa fa-folder-o"></i> ${htmlEncode(name)}</a>`;
+         else return `<i class="fa fa-file-o"></i> ${htmlEncode(name)}`;
+    },
+    size: (size, _, row) => {
+        if (row.type === 'coll') {
+            return '';
+        } else {
+            let szs = ['B', 'kiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB'];
+            let szi = 0;
+            while (size >= 1024 && szi < szs.length-1) {
+                size /= 1024;
+                szi++;
+            }
+            return (Math.floor(size*10)/10+'') + '&nbsp;' + szs[szi];
+        }
+    },
+    date: ts => {
+         let date = new Date(ts*1000);
+         let pad = n => n < 10 ? '0'+n : ''+n;
+         let elem = $('<span>');
+         elem.text(`${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}`
+                 + ` ${pad(date.getHours())}:${pad(date.getMinutes())}`);
+         elem.attr('title', date.toString()); // (should include seconds and TZ info)
+         return elem[0].outerHTML;
+     },
+    context: (_, __, row) => {
+        if (row.type === 'coll')
+            return '';
+
+        // Render context menu for files.
+        const viewExts = {image: ['jpg', 'jpeg', 'gif', 'png'],
+                          audio: ['mp3', 'ogg', 'wav'],
+                          video: ['mp4', 'ogg', 'webm']};
+        let ext = row.name.replace(/.*\./, '').toLowerCase();
+
+        let actions = $('<ul class="dropdown-menu">');
+        actions.append(`<li><a href="browse/download?filepath=${encodeURIComponent(currentFolder+'/'+row.name)}">Download</a>`);
+
+        // Generate dropdown "view" actions for different media types.
+        for (let type of Object.keys(viewExts).filter(type => (viewExts[type].includes(ext))))
+            actions.append(`<li><a class="view-${type}" data-path="${htmlEncode(currentFolder+'/'+row.name)}">View</a>`);
+
+        let dropdown = $(`<div class="dropdown">
+                            <span class="dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                              <span class="glyphicon glyphicon-option-horizontal" aria-hidden="true"></span>
+                            </span>`);
+        dropdown.append(actions);
+
+        return dropdown[0].outerHTML;
+    }
+};
+
+function startBrowsing(items)
 {
-    $('#file-browser').DataTable( {
+    $('#file-browser').DataTable({
         "bFilter": false,
         "bInfo": false,
         "bLengthChange": true,
@@ -281,40 +378,22 @@ function startBrowsing(path, items)
             "emptyTable": "No accessible files/folders present",
             "lengthMenu": "_MENU_"
         },
-        "dom": '<"top">rt<"bottom"lp><"clear">',
-        "ajax": {
-            url: "browse/data",
-            error: function (xhr, error, thrown) {
-                $("#file-browser_processing").hide()
-                setMessage('error', 'Something went wrong. Please try again or refresh page.');
-                return true;
-            },
-            dataSrc: function (json) {
-                jsonString = JSON.stringify(json);
-                resp = JSON.parse(jsonString);
-
-                if (resp.status == 'Success' ) {
-                    return resp.data;
-                } else {
-                    setMessage('error', resp.statusInfo);
-                    return true;
-                }
-            }
-        },
-        "ordering": false,
+        "dom": '<"top">frt<"bottom"lp><"clear">',
+        'columns': [{render: tableRenderer.name,    data: 'name'},
+                    // Size and date should be orderable, but limitations
+                    // on how queries work prevent us from doing this
+                    // correctly without significant overhead.
+                    // (enabling this as is may result in duplicated results for data objects)
+                    {render: tableRenderer.size,    orderable: false, data: 'size'},
+                    {render: tableRenderer.date,    orderable: false, data: 'modify_time'},
+                    {render: tableRenderer.context, orderable: false }],
+        "ajax": getFolderContents,
         "processing": true,
         "serverSide": true,
         "iDeferLoading": 0,
-        "pageLength": items,
-        "drawCallback": function(settings) {
-        }
+        "pageLength": items
     });
-
-    if (path.length > 0) {
-        browse(path, true);
-    } else {
-        browse();
-    }
+    browse(currentFolder);
 }
 
 function toggleLocksList(folder)
@@ -326,14 +405,14 @@ function toggleLocksList(folder)
         $('.lock-items').hide();
     } else {
         // Get locks
-        $.getJSON("browse/list_locks?folder=" + folder, function (data) {
+        $.getJSON("browse/list_locks?folder=" + encodeURIComponent(folder), function (data) {
             $('.lock-items').hide();
 
             if (data.status == 'Success') {
                 var html = '<li class="list-group-item disabled">Locks:</li>';
                 var locks = data.result;
                 $.each(locks, function (index, value) {
-                    html += '<li class="list-group-item"><span class="browse" data-path="' + encodeURIComponent(value) + '">' + htmlEncode(value) + '</span></li>';
+                    html += '<li class="list-group-item"><span class="browse" data-path="' + htmlEncode(value) + '">' + htmlEncode(value) + '</span></li>';
                 });
                 $('.lock-items').html(html);
                 $('.lock-items').show();
@@ -347,11 +426,10 @@ function toggleLocksList(folder)
 
 function toggleActionLogList(folder)
 {
-    var actionList = $('.actionlog-items'),
-        isVisible = actionList.is(":visible");
+    let actionList = $('.actionlog-items');
 
     // toggle locks list
-    if (isVisible) {
+    if (actionList.is(":visible")) {
         actionList.hide();
     } else {
         buildActionLog(folder);
@@ -360,10 +438,10 @@ function toggleActionLogList(folder)
 
 function buildActionLog(folder)
 {
-    var actionList = $('.actionlog-items');
+    let actionList = $('.actionlog-items');
 
     // Get provenance information
-    $.getJSON("browse/list_actionlog?folder=" + folder, function (data) {
+    $.getJSON("browse/list_actionlog?folder=" + encodeURIComponent(folder), function (data) {
         actionList.hide();
 
         if (data.status == 'Success') {
@@ -392,15 +470,15 @@ function buildActionLog(folder)
 
 function toggleSystemMetadata(folder)
 {
-    var systemMetadata = $('.system-metadata-items');
-    var isVisible = systemMetadata.is(":visible");
+    let systemMetadata = $('.system-metadata-items');
+    let isVisible = systemMetadata.is(":visible");
 
     // Toggle system metadata.
     if (isVisible) {
         systemMetadata.hide();
     } else {
         // Get system metadata.
-        $.getJSON("browse/system_metadata?folder=" + folder, function(data) {
+        $.getJSON("browse/system_metadata?folder=" + encodeURIComponent(folder), function(data) {
             systemMetadata.hide();
             if (data) {
                 var html = '<li class="list-group-item disabled">System metadata:</li>';
@@ -426,29 +504,20 @@ function toggleSystemMetadata(folder)
 
 window.addEventListener('popstate', function(e) {
     // Catch forward/backward navigation and reload the view.
-    query = window.location.search.substr(1).split('&').reduce(
+    let query = window.location.search.substr(1).split('&').reduce(
         function(acc, kv) {
-            xy = kv.split('=', 2);
-            acc[xy[0]] = xy.length == 1 || xy[1];
+            let xy = kv.split('=', 2);
+            acc[xy[0]] = xy.length == 1 || decodeURIComponent(xy[1]);
             return acc;
         }, {});
-    dir = 'dir' in query ? query.dir : undefined;
-    browse(dir, false);
-});
-function changeBrowserUrl(path)
-{
-    var url = window.location.pathname;
-    if (typeof path != 'undefined') {
-        url += "?dir=" +  path;
-    }
 
-    history.pushState({} , {}, url);
-}
+    browse('dir' in query ? query.dir : '');
+});
 
 function topInformation(dir, showAlert)
 {
     if (typeof dir != 'undefined') {
-        $.getJSON("browse/top_data?dir=" + dir, function(data){
+        $.getJSON("browse/top_data?dir=" + encodeURIComponent(dir), function(data){
 
             if (data.status != 'Success' && showAlert) {
                 setMessage('error', data.statusInfo);
@@ -508,7 +577,7 @@ function topInformation(dir, showAlert)
                     actions['submit'] = 'Submit';
                 }
 
-                var icon = '<i class="fa fa-folder-o" aria-hidden="true"></i>';
+                var icon = '<i class="fa fa-folder-open-o" aria-hidden="true"></i>';
                 $('.btn-group button.folder-status').attr('data-datamanager', isDatamanager);
 
                 $('.top-info-buttons').show();
@@ -540,18 +609,18 @@ function topInformation(dir, showAlert)
             $('.lock-items').hide();
             var lockIcon = '';
             if (lockCount != '0' && typeof lockCount != 'undefined') {
-                lockIcon = '<i class="fa fa-exclamation-circle lock-icon" data-folder="' + dir + '" data-locks="' + lockCount + '" title="' + lockCount + ' lock(s) found" aria-hidden="true"></i>';
+                lockIcon = `<i class="fa fa-exclamation-circle lock-icon" data-folder="${htmlEncode(dir)}" data-locks="${lockCount}" title="${lockCount} lock(s) found" aria-hidden="true"></i>`;
             } else {
-                lockIcon = '<i class="fa fa-exclamation-circle lock-icon hide" data-folder="' + dir + '" data-locks="0" title="0 lock(s) found" aria-hidden="true"></i>';
+                lockIcon = `<i class="fa fa-exclamation-circle lock-icon hide" data-folder="${htmlEncode(dir)}" data-locks="0" title="0 lock(s) found" aria-hidden="true"></i>`;
             }
 
             // Provenance action log
             $('.actionlog-items').hide();
-            actionLogIcon = ' <i class="fa fa-book actionlog-icon" style="cursor:pointer" data-folder="' + dir + '" aria-hidden="true" title="Provenance action log"></i>';
+            let actionLogIcon = ` <i class="fa fa-book actionlog-icon" style="cursor:pointer" data-folder="${htmlEncode(dir)}" aria-hidden="true" title="Provenance action log"></i>`;
 
             // System metadata.
             $('.system-metadata-items').hide();
-            systemMetadataIcon = ' <i class="fa fa-info-circle system-metadata-icon" style="cursor:pointer" data-folder="' + dir + '" aria-hidden="true" title="System metadata"></i>';
+            let systemMetadataIcon = ` <i class="fa fa-info-circle system-metadata-icon" style="cursor:pointer" data-folder="${htmlEncode(dir)}" aria-hidden="true" title="System metadata"></i>`;
 
             $('.btn-group button.folder-status').attr('data-write', hasWriteRights);
 
@@ -571,10 +640,10 @@ function topInformation(dir, showAlert)
                 $('a.action-go-to-vault').attr('vault-path', vaultPath);
             }
 
-            folderName = htmlEncode(basename).replace(/ /g, "&nbsp;");
+            let folderName = htmlEncode(basename).replace(/ /g, "&nbsp;");
 
             // Set status badge.
-            statusText = "";
+            let statusText = "";
             if (typeof status != 'undefined') {
               if (status == '') {
                   statusText = "";
@@ -590,12 +659,12 @@ function topInformation(dir, showAlert)
                   statusText = "Rejected";
               }
             }
-            statusBadge = '<span id="statusBadge" class="badge">' + statusText + '</span>';
+            let statusBadge = '<span id="statusBadge" class="badge">' + statusText + '</span>';
 
             // Reset action dropdown.
             $('.btn-group button.folder-status').prop("disabled", false).next().prop("disabled", false);
 
-            $('.top-information h1').html('<span class="icon">' + icon + '</span> ' + folderName + lockIcon + systemMetadataIcon + actionLogIcon + statusBadge);
+            $('.top-information h1').html(`<span class="icon">${icon}</span> ${folderName}${lockIcon}${systemMetadataIcon}${actionLogIcon}${statusBadge}`);
             $('.top-information').show();
         });
     } else {
@@ -610,20 +679,20 @@ function handleActionsList(actions, folder)
     var vaultHtml = '';
     var possibleActions = ['lock', 'unlock',
                            'submit', 'unsubmit',
-                        'accept', 'reject'];
+                           'accept', 'reject'];
 
     var possibleVaultActions = ['check-for-unpreservable-files',
                                 'go-to-vault'];
 
     $.each(possibleActions, function( index, value ) {
         if (actions.hasOwnProperty(value)) {
-            html += '<li><a class="action-' + value + '" data-folder="' + folder + '">' + actions[value] + '</a></li>';
+            html += '<li><a class="action-' + value + '" data-folder="' + htmlEncode(folder) + '">' + actions[value] + '</a></li>';
         }
     });
 
     $.each(possibleVaultActions, function( index, value ) {
         if (actions.hasOwnProperty(value)) {
-            vaultHtml += '<li><a class="action-' + value + '" data-folder="' + folder + '">' + actions[value] + '</a></li>';
+            vaultHtml += '<li><a class="action-' + value + '" data-folder="' + htmlEncode(folder) + '">' + actions[value] + '</a></li>';
         }
     });
 
@@ -636,7 +705,7 @@ function handleActionsList(actions, folder)
     $('.action-list').html(html);
 }
 
-function lockFolder(folder)
+async function lockFolder(folder)
 {
     // Get current button text
     var btnText = $('#statusBadge').html();
@@ -644,194 +713,183 @@ function lockFolder(folder)
     $('.btn-group button.folder-status').prop("disabled", true).next().prop("disabled", true);
 
     // Change folder status call
-    $.post("browse/change_folder_status", {"path" : decodeURIComponent(folder), "status" : "LOCKED"}, function(data) {
-        if(data.status == 'Success') {
-            // Set actions
-            var actions = [];
 
-            if ($('.actionlog-items').is(":visible")) {
-                buildActionLog(folder);
-            }
+    try {
+        await Yoda.call('uu_collection_lock',
+                        {'coll': Yoda.basePath + folder})
+        // Set actions
+        var actions = [];
 
-            $('#statusBadge').text('Locked');
-            actions['unlock'] = 'Unlock';
-            actions['submit'] = 'Submit';
-
-            var totalLocks = $('.lock-icon').attr('data-locks');
-            if (totalLocks == '0') {
-                $('.lock-icon').removeClass('hide');
-                $('.lock-icon').attr('data-locks', 1);
-                $('.lock-icon').attr('title','1 lock(s) found');
-            }
-            setMessage('success', 'Successfully locked this folder');
-
-            handleActionsList(actions, folder);
-        } else {
-            setMessage('error', data.statusInfo);
-            $('#statusBadge').html(btnText);
+        if ($('.actionlog-items').is(":visible")) {
+            buildActionLog(folder);
         }
-        topInformation(folder, false);
-    }, "json");
+
+        $('#statusBadge').text('Locked');
+        actions['unlock'] = 'Unlock';
+        actions['submit'] = 'Submit';
+
+        var totalLocks = $('.lock-icon').attr('data-locks');
+        if (totalLocks == '0') {
+            $('.lock-icon').removeClass('hide');
+            $('.lock-icon').attr('data-locks', 1);
+            $('.lock-icon').attr('title','1 lock(s) found');
+        }
+        setMessage('success', 'Successfully locked this folder');
+
+        handleActionsList(actions, folder);
+    } catch (e) {
+        $('#statusBadge').html(btnText);
+    }
+    topInformation(folder, false);
 }
 
-function unlockFolder(folder)
+async function unlockFolder(folder)
 {
     // Get current button text
-    var btnText = $('#statusBadge').html();
+    let btnText = $('#statusBadge').html();
     $('#statusBadge').html('Unlock <i class="fa fa-spinner fa-spin fa-fw"></i>');
     $('.btn-group button.folder-status').prop("disabled", true).next().prop("disabled", true);
 
-    // Change folder status call
-    $.post("browse/change_folder_status", {"path" : decodeURIComponent(folder), "status" : "UNLOCKED"}, function(data) {
-        if(data.status == 'Success') {
-            // Set actions
-            var actions = [];
+    try {
+        await Yoda.call('uu_collection_unlock',
+                        {'coll': Yoda.basePath + folder});
+        // Set actions
+        let actions = [];
 
-            if ($('.actionlog-items').is(":visible")) {
-                buildActionLog(folder);
-            }
-
-            $('#statusBadge').text('');
-            actions['lock'] = 'Lock';
-            actions['submit'] = 'Submit';
-
-            var totalLocks = $('.lock-icon').attr('data-locks');
-            if (totalLocks == '1') {
-                $('.lock-icon').addClass('hide');
-                $('.lock-icon').attr('data-locks', 0);
-            }
-
-            // unlocking -> hide lock-items as there are none
-            if ($('.lock-items').is(":visible")) {
-                $('.lock-items').hide();
-            }
-
-            setMessage('success', 'Successfully unlocked this folder');
-
-            handleActionsList(actions, folder);
-        } else {
-            setMessage('error', data.statusInfo);
-            $('#statusBadge').html(btnText);
+        if ($('.actionlog-items').is(":visible")) {
+            buildActionLog(folder);
         }
-        topInformation(folder, false);
-    }, "json");
+
+        $('#statusBadge').text('');
+        actions['lock'] = 'Lock';
+        actions['submit'] = 'Submit';
+
+        var totalLocks = $('.lock-icon').attr('data-locks');
+        if (totalLocks == '1') {
+            $('.lock-icon').addClass('hide');
+            $('.lock-icon').attr('data-locks', 0);
+        }
+
+        // unlocking -> hide lock-items as there are none
+        if ($('.lock-items').is(":visible")) {
+            $('.lock-items').hide();
+        }
+
+        setMessage('success', 'Successfully unlocked this folder');
+
+        handleActionsList(actions, folder);
+    } catch (e) {
+        $('#statusBadge').html(btnText);
+    }
+    topInformation(folder, false);
 }
 
 function showMetadataForm(path)
 {
-    window.location.href = 'metadata/form?path=' + path;
+    window.location.href = 'metadata/form?path=' + encodeURIComponent(path);
 }
 
-function submitToVault(folder)
+async function submitToVault(folder)
 {
     if (typeof folder != 'undefined') {
         // Set spinner & disable button
-        var btnText = $('#statusBadge').html();
+        let btnText = $('#statusBadge').html();
         $('#statusBadge').html('Submit <i class="fa fa-spinner fa-spin fa-fw"></i>');
         $('.btn-group button.folder-status').prop("disabled", true).next().prop("disabled", true);
 
-        $.post("research/submit", {"path" : decodeURIComponent(folder)}, function(data) {
-            if (data.status == 'Success') {
-                if (data.folderStatus == 'SUBMITTED') {
-                    $('#statusBadge').html('Submitted');
-                } else {
-                    $('#statusBadge').html('Accepted');
-                }
-
-                // lock icon
-                var totalLocks = $('.lock-icon').attr('data-locks');
-                if (totalLocks == '0') {
-                    $('.lock-icon').removeClass('hide');
-                    $('.lock-icon').attr('data-locks', 1);
-                    $('.lock-icon').attr('title', '1 lock(s) found');
-                }
+        try {
+            let status = await Yoda.call('uu_collection_submit',
+                                         {'coll': Yoda.basePath + folder})
+            if (status === 'SUBMITTED') {
+                $('#statusBadge').html('Submitted');
             } else {
-                $('#statusBadge').html(btnText);
-                setMessage('error', data.statusInfo);
+                $('#statusBadge').html('Accepted');
             }
-            topInformation(folder, false);
-        }, "json");
+
+            // lock icon
+            let totalLocks = $('.lock-icon').attr('data-locks');
+            if (totalLocks == '0') {
+                $('.lock-icon').removeClass('hide');
+                $('.lock-icon').attr('data-locks', 1);
+                $('.lock-icon').attr('title', '1 lock(s) found');
+            }
+        } catch (e) {
+            $('#statusBadge').html(btnText);
+        }
+        topInformation(folder, false);
     }
 }
 
-function unsubmitToVault(folder) {
+async function unsubmitToVault(folder) {
     if (typeof folder != 'undefined') {
         var btnText = $('#statusBadge').html();
         $('#statusBadge').html('Unsubmit <i class="fa fa-spinner fa-spin fa-fw"></i>');
         $('.btn-group button.folder-status').prop("disabled", true).next().prop("disabled", true);
 
-        $.post("research/unsubmit", {"path" : decodeURIComponent(folder)}, function(data) {
-            if (data.status == 'Success') {
-                $('#statusBadge').html('');
-            } else {
-                $('#statusBadge').html(btnText);
-                setMessage('error', data.statusInfo);
-            }
-            topInformation(folder, false);
-        }, "json");
+        try {
+            let status = await Yoda.call('uu_collection_unsubmit',
+                                         {'coll': Yoda.basePath + folder})
+            $('#statusBadge').html('');
+        } catch(e) {
+            $('#statusBadge').html(btnText);
+        }
+        topInformation(folder, false);
     }
 }
 
-function acceptFolder(folder)
+async function acceptFolder(folder)
 {
     var btnText = $('#statusBadge').html();
     $('#statusBadge').html('Accept <i class="fa fa-spinner fa-spin fa-fw"></i>');
     $('.btn-group button.folder-status').prop("disabled", true).next().prop("disabled", true);
 
-    $.post("research/accept", {"path" : decodeURIComponent(folder)}, function(data) {
-        if (data.status == 'Success') {
-            $('#statusBadge').html('Accepted');
-        } else {
-            $('#statusBadge').html(btnText);
-            setMessage('error', data.statusInfo);
-          }
-          topInformation(folder, false);
-      }, "json");
+    try {
+        await Yoda.call('uu_collection_accept',
+                                  {'coll': Yoda.basePath + folder})
+        $('#statusBadge').html('Accepted');
+    } catch (e) {
+        $('#statusBadge').html(btnText);
+    }
+    topInformation(folder, false);
 }
 
-function rejectFolder(folder)
+async function rejectFolder(folder)
 {
     var btnText = $('#statusBadge').html();
     $('#statusBadge').html('Reject <i class="fa fa-spinner fa-spin fa-fw"></i>');
     $('.btn-group button.folder-status').prop("disabled", true).next().prop("disabled", true);
 
-    $.post("research/reject", {"path" : decodeURIComponent(folder)}, function(data) {
-        if (data.status == 'Success') {
-            $('#statusBadge').html('Rejected');
-        } else {
-            $('#statusBadge').html(btnText);
-            setMessage('error', data.statusInfo);
-          }
-          topInformation(folder, false);
-      }, "json");
+    try {
+        await Yoda.call('uu_collection_reject',
+                        {'coll': Yoda.basePath + folder})
+        $('#statusBadge').html('Rejected');
+    } catch (e) {
+        $('#statusBadge').html(btnText);
+        setMessage('error', data.statusInfo);
+    }
+    topInformation(folder, false);
 }
 
 // File uploads.
 function handleUpload(path, files) {
-    // Check if path is specified.
-    if (path == "") {
+    // Check if path is specified and files are uploaded.
+    if (path == "" || files.length < 1)
         return;
-    }
-
-    // Check if files are uploaded.
-    if (files.length < 1) {
-        return;
-    }
 
     // Keep track of the number of uploads to generate unique element IDs.
     handleUpload.nextFileId = handleUpload.nextFileId || 1;
 
-    var promises = [];
+    let promises = [];
     $('#files').html("");
     $('#uploads').modal('show');
 
     // Send files one by one.
-    for (var i = 0; i < files.length; i++) {
+    for (let i = 0; i < files.length; i++) {
         const file = files[i];
 
         // Log file upload.
         const id = "upload" + handleUpload.nextFileId++;
-        this.logUpload(id, file);
+        logUpload(id, file);
 
         // Check file size.
         if(file.size > 25*1024*1024) {
@@ -840,8 +898,7 @@ function handleUpload(path, files) {
         }
 
         // Send file.
-        var promise = sendFile(id, path, file);
-        promises.push(promise);
+        promises.push(sendFile(id, path, file));
     }
 
     // Reload file browser if all promises are resolved.
@@ -862,7 +919,7 @@ function sendFile(id, path, file) {
 
         xhr.onloadend = function (e) {
             if (xhr.readyState == 4 && xhr.status == 200) {
-                response = JSON.parse(xhr.response);
+                let response = JSON.parse(xhr.response);
                 if (response.status == "OK") {
                     $("#" + id + " .msg").html("OK");
                     resolve(xhr.response);
@@ -883,8 +940,8 @@ function sendFile(id, path, file) {
             $("#" + id + " progress").val(percent);
         });
 
-        fd.append(YodaPortal.csrf.tokenName, YodaPortal.csrf.tokenValue);
-        fd.append('filepath', decodeURIComponent(path));
+        fd.append(Yoda.csrf.tokenName, Yoda.csrf.tokenValue);
+        fd.append('filepath', path);
         fd.append('file', file);
 
         // Initiate a multipart/form-data upload.
@@ -893,11 +950,11 @@ function sendFile(id, path, file) {
 }
 
 function logUpload(id, file) {
-    log = '<div class="row" id="' + id + '">' +
-          '<div class="col-md-6" style="word-wrap: break-word;">' + htmlEncode(file.name) + '</div>' +
-          '<div class="col-md-3"><progress value="0" max="100"></progress></div>' +
-          '<div class="col-md-3 msg"><i class="fa fa-spinner fa-spin fa-fw"></i></div>'
-          '</div>';
+    let log = `<div class="row" id="${id}">
+                  <div class="col-md-6" style="word-wrap: break-word;">${htmlEncode(file.name)}</div>
+                  <div class="col-md-3"><progress value="0" max="100"></progress></div>
+                  <div class="col-md-3 msg"><i class="fa fa-spinner fa-spin fa-fw"></i></div>
+               </div>`;
     $('#files').append(log);
 }
 
