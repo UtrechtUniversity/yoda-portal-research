@@ -381,19 +381,25 @@ function CustomFieldTemplate(props) {
 
     const hasErrors = Array.isArray(errors.props.errors);
 
+    // Check for help text for tooltips.
+    var helpText = "";
+    if (props.uiSchema["ui:help"]) {
+        helpText = props.uiSchema["ui:help"];
+    }
+
     // Only show error messages after submit.
     if (formContext.saving) {
       return (
         <div className={classNames}>
           <label className={'col-sm-2 control-label'}>
-            <span data-toggle="tooltip" title="" data-original-title="">{label}</span>
+            <span data-toggle="tooltip" title={helpText}>{label}</span>
           </label>
 
           {required ? (
             <span className={'fa-stack col-sm-1'}>
-              <i className={'fa fa-lock safe fa-stack-1x'} aria-hidden="true" data-toggle="tooltip" title="" data-original-title="Required for the vault"></i>
+              <i className={'fa fa-lock safe fa-stack-1x'} aria-hidden="true" data-toggle="tooltip" title="Required for the vault"></i>
               {!hasErrors ? (
-                <i className={'fa fa-check fa-stack-1x checkmark-green-top-right'} aria-hidden="true" data-toggle="tooltip" title="" data-original-title="Filled out correctly for the vault"></i>
+                <i className={'fa fa-check fa-stack-1x checkmark-green-top-right'} aria-hidden="true" data-toggle="tooltip" title="Filled out correctly for the vault"></i>
               ) : (
                 null
               )}
@@ -417,14 +423,14 @@ function CustomFieldTemplate(props) {
        return (
         <div className={classNames}>
           <label className={'col-sm-2 control-label'}>
-            <span data-toggle="tooltip" title="" data-original-title="">{label}</span>
+            <span data-toggle="tooltip" title={helpText}>{label}</span>
           </label>
 
           {required && !readonly ? (
             <span className={'fa-stack col-sm-1'}>
-              <i className={'fa fa-lock safe fa-stack-1x'} aria-hidden="true" data-toggle="tooltip" title="" data-original-title="Required for the vault"></i>
+              <i className={'fa fa-lock safe fa-stack-1x'} aria-hidden="true" data-toggle="tooltip" title="Required for the vault"></i>
               {!hasErrors ? (
-                <i className={'fa fa-check fa-stack-1x checkmark-green-top-right'} aria-hidden="true" data-toggle="tooltip" title="" data-original-title="Filled out correctly for the vault"></i>
+                <i className={'fa fa-check fa-stack-1x checkmark-green-top-right'} aria-hidden="true" data-toggle="tooltip" title="Filled out correctly for the vault"></i>
               ) : (
                 null
               )}
@@ -552,7 +558,7 @@ function ArrayFieldTemplate(props) {
     });
 
     if (props.disabled)
-        return (<div class="hide">{output}</div>);
+        return (<div className="hide">{output}</div>);
     else
         return (<div>{output}</div>);
 }
@@ -564,7 +570,6 @@ function updateCompleteness()
     const mandatoryFilled = $('.fa-stack .checkmark-green-top-right:visible').length;
 
     const completeness = mandatoryTotal == 0 ? 1 : mandatoryFilled / mandatoryTotal;
-    console.log(`form completeness: ${mandatoryFilled} / ${mandatoryTotal}`);
 
     const html = ' '
                + '<i class="fa fa-check form-required-present"></i>'.repeat(  Math.floor(completeness*5))
