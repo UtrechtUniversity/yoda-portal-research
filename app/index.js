@@ -381,18 +381,12 @@ function CustomFieldTemplate(props) {
 
     const hasErrors = Array.isArray(errors.props.errors);
 
-    // Check for help text for tooltips.
-    var helpText = "";
-    if (props.uiSchema["ui:help"]) {
-        helpText = props.uiSchema["ui:help"];
-    }
-
     // Only show error messages after submit.
     if (formContext.saving) {
       return (
         <div className={classNames}>
           <label className={'col-sm-2 control-label'}>
-            <span data-toggle="tooltip" title={helpText}>{label}</span>
+            <span data-toggle="tooltip" title={help.props.help}>{label}</span>
           </label>
 
           {required ? (
@@ -415,7 +409,6 @@ function CustomFieldTemplate(props) {
               </div>
             </div>
             {errors}
-            {help}
           </div>
         </div>
       );
@@ -423,7 +416,7 @@ function CustomFieldTemplate(props) {
        return (
         <div className={classNames}>
           <label className={'col-sm-2 control-label'}>
-            <span data-toggle="tooltip" title={helpText}>{label}</span>
+            <span data-toggle="tooltip" title={help.props.help}>{label}</span>
           </label>
 
           {required && !readonly ? (
@@ -445,7 +438,6 @@ function CustomFieldTemplate(props) {
                 {children}
               </div>
             </div>
-            {help}
           </div>
          </div>
       );
