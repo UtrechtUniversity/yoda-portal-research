@@ -223,9 +223,9 @@ class Container extends React.Component {
         },
         async isConfirm => {
             if (isConfirm) {
-                await YodaPortal.api.call('uu_meta_clone_file',
-                                          {target_coll: YodaPortal.basePath+path},
-                                          {errorPrefix: 'Metadata could not be cloned'});
+                await Yoda.call('uu_meta_clone_file',
+                                {target_coll: Yoda.basePath+path},
+                                {errorPrefix: 'Metadata could not be cloned'});
                 window.location.reload();
             }
         });
@@ -266,11 +266,11 @@ function deleteMetadata() {
     },
     async isConfirm => {
         if (isConfirm) {
-            await YodaPortal.api.call('uu_meta_remove',
-                                      {coll: YodaPortal.basePath+path},
-                                      {errorPrefix: 'Metadata could not be deleted'});
+            await Yoda.call('uu_meta_remove',
+                            {coll: Yoda.basePath+path},
+                            {errorPrefix: 'Metadata could not be deleted'});
 
-            YodaPortal.message('success', `Deleted metadata of folder <${path}>`);
+            Yoda.message('success', `Deleted metadata of folder <${path}>`);
             browse();
         }
     });
@@ -303,9 +303,9 @@ function loadForm(properties) {
         $('.transformation-accept').on('click', async () => {
             $('.transformation-accept').attr('disabled', true);
 
-            await YodaPortal.api.call('uu_transform_metadata',
-                                      {coll: YodaPortal.basePath+path},
-                                      {errorPrefix: 'Metadata could not be transformed'});
+            await Yoda.call('uu_transform_metadata',
+                            {coll: Yoda.basePath+path},
+                            {errorPrefix: 'Metadata could not be transformed'});
 
             window.location.reload();
         });
@@ -350,20 +350,19 @@ function loadForm(properties) {
     }
 }
 
-window.addEventListener('load', _ => loadForm(JSON.parse(atob($('#form-properties').text()))));
+$(_ => loadForm(JSON.parse(atob($('#form-properties').text()))));
 
-async function submitData(data)
-{
+async function submitData(data) {
     // Disable buttons.
     $('.yodaButtons button').attr('disabled', true);
 
     // Save.
     try {
-        await YodaPortal.api.call('uu_meta_form_save',
-                                  {coll: YodaPortal.basePath+path, metadata: data},
-                                  {errorPrefix: 'Metadata could not be saved'});
+        await Yoda.call('uu_meta_form_save',
+                        {coll: Yoda.basePath+path, metadata: data},
+                        {errorPrefix: 'Metadata could not be saved'});
 
-        YodaPortal.message('success', `Updated metadata of folder <${path}>`);
+        Yoda.message('success', `Updated metadata of folder <${path}>`);
         browse();
     } catch (e) {
         // Allow retry.

@@ -13,17 +13,9 @@ class Vaultsubmission
     private $formConfig = array();
     private $folder;
 
-    /**
-     * Constructor
+    /* XXX: Currently unused, code kept until it's verified that all business
+     * logic is present in the uu ruleset.
      */
-    public function __construct($params)
-    {
-        // Get the CI instance
-        $this->CI =& get_instance();
-        $this->account = $this->CI->rodsuser->getRodsAccount();
-        $this->formConfig = $params['formConfig'];
-        $this->folder = $params['folder'];
-    }
 
     public function validate()
     {
@@ -63,11 +55,6 @@ class Vaultsubmission
         }
 
         return $result;
-    }
-
-    public function clearSubmitFlag()
-    {
-        return $this->CI->Folder_Status_model->unsubmit($this->folder);
     }
 
     public function checkLock()
