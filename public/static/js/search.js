@@ -126,6 +126,7 @@ function search(value, type, itemsPerPage, displayStart, searchOrderDir, searchO
                 $( ".browse-search" ).on( "click", function() {
                     var path = $(this).attr('data-path');
                     if (path.startsWith('%2Fresearch-')) {
+                        path = decodeURIComponent(path);
                         browse(path, true);
                     } else {
                         window.location = "/vault/?dir=" + path;
