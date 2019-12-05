@@ -158,25 +158,6 @@ class Browse extends MY_Controller
             ->set_output(json_encode($output));
     }
 
-    /**
-     * Retrieve system metadata of research folder.
-     */
-    public function system_metadata()
-    {
-        $rodsaccount = $this->rodsuser->getRodsAccount();
-        $pathStart = $this->pathlibrary->getPathStart($this->config);
-        $folderPath = $this->input->get('folder');
-        $fullPath = $pathStart . $folderPath;
-
-        $systemMetadata = $this->filesystem->listSystemMetadata($rodsaccount, $fullPath);
-
-        $output = array('result' => $systemMetadata);
-
-        $this->output
-            ->set_content_type('application/json')
-            ->set_output(json_encode($output));
-    }
-
     public function download()
     {
         $rodsaccount = $this->rodsuser->getRodsAccount();

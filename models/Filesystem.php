@@ -524,26 +524,4 @@ RULE;
         }
         return array();
     }
-
-    /**
-     * List the system metadata of a folder.
-     *
-     * @param $iRodsAccount
-     * @param $folder
-     * @return mixed
-     */
-    static public function listSystemMetadata($iRodsAccount, $folder) {
-        try {
-            $rule = new ProdsRule(
-                $iRodsAccount,
-                'myRule { rule_uu_research_system_metadata(*coll); }',
-                array('*coll' => $folder),
-                array('ruleExecOut')
-            );
-
-            return json_decode($rule->execute()['ruleExecOut']);
-        } catch(RODSException $e) {
-            return false;
-        }
-    }
 }

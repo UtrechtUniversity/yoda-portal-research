@@ -477,27 +477,24 @@ function toggleSystemMetadata(folder)
     if (isVisible) {
         systemMetadata.hide();
     } else {
-        // Get system metadata.
-        $.getJSON("browse/system_metadata?folder=" + encodeURIComponent(folder), function(data) {
+        // Retrieve unpreservable files in folder.
+        Yoda.call('uu_research_system_metadata',
+                  {coll: Yoda.basePath + folder}).then((data) => {
             systemMetadata.hide();
-            if (data) {
-                var html = '<li class="list-group-item disabled">System metadata:</li>';
+            var html = '<li class="list-group-item disabled">System metadata:</li>';
 
-                if (data.result) {
-                    $.each(data.result, function (index, value) {
-                        html += '<li class="list-group-item"><span><strong>'
-                             + htmlEncode(index)
-                             + '</strong>: '
-                             + htmlEncode(value)
-                             + '</span></li>';
-                    });
-                } else {
-                    html += '<li class="list-group-item">No system metadata present</li>';
-                }
-                systemMetadata.html(html).show();
+            if (data) {
+                $.each(data, function(index, value) {
+                    html += '<li class="list-group-item"><span><strong>' +
+                        htmlEncode(index) +
+                        '</strong>: ' +
+                        htmlEncode(value) +
+                        '</span></li>';
+                });
             } else {
-                setMessage('error', 'Could not retrieve system metadata.');
+                html += '<li class="list-group-item">No system metadata present</li>';
             }
+            systemMetadata.html(html).show();
         });
     }
 }
