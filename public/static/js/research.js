@@ -441,30 +441,27 @@ function buildActionLog(folder)
     let actionList = $('.actionlog-items');
 
     // Get provenance information
-    $.getJSON("browse/list_actionlog?folder=" + encodeURIComponent(folder), function (data) {
+    Yoda.call('uu_provenance_log',
+              {coll: Yoda.basePath + folder}).then((data) => {
         actionList.hide();
 
-        if (data.status == 'Success') {
-            var html = '<li class="list-group-item disabled">Provenance information:</li>';
-            var logItems = data.result;
-            if (logItems.length) {
-                $.each(logItems, function (index, value) {
-                    html += '<li class="list-group-item"><span>'
-                         + htmlEncode(value[2])
-                         + ' - <strong>'
-                         + htmlEncode(value[1])
-                         + '</strong> - '
-                         + htmlEncode(value[0])
-                         + '</span></li>';
-                });
-            }
-            else {
-                html += '<li class="list-group-item">No provenance information present</li>';
-            }
-            actionList.html(html).show();
-        } else {
-            setMessage('error', data.statusInfo);
+        var html = '<li class="list-group-item disabled">Provenance information:</li>';
+        var logItems = data;
+        if (logItems.length) {
+            $.each(logItems, function (index, value) {
+                html += '<li class="list-group-item"><span>'
+                     + htmlEncode(value[2])
+                     + ' - <strong>'
+                     + htmlEncode(value[1])
+                     + '</strong> - '
+                     + htmlEncode(value[0])
+                     + '</span></li>';
+            });
         }
+        else {
+            html += '<li class="list-group-item">No provenance information present</li>';
+        }
+        actionList.html(html).show();
     });
 }
 
@@ -477,7 +474,7 @@ function toggleSystemMetadata(folder)
     if (isVisible) {
         systemMetadata.hide();
     } else {
-        // Retrieve unpreservable files in folder.
+        // Retrieve system metadata of folder.
         Yoda.call('uu_research_system_metadata',
                   {coll: Yoda.basePath + folder}).then((data) => {
             systemMetadata.hide();

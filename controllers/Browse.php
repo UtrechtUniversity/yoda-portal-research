@@ -123,41 +123,6 @@ class Browse extends MY_Controller
             ->set_output(json_encode($output));
     }
 
-    public function list_actionLog()
-    {
-        $rodsaccount = $this->rodsuser->getRodsAccount();
-        $pathStart = $this->pathlibrary->getPathStart($this->config);
-        $folderPath = $this->input->get('folder');
-        $fullPath = $pathStart . $folderPath;
-
-        $result = $this->filesystem->listActionLog($rodsaccount, $fullPath);
-
-        $logItems = array();
-        if ($result['*status'] == 'Success') {
-
-            foreach($result['*result'] as $item){
-                $timestamp = date("Y/m/d H:i:s", 1 * $item[0]);
-
-                #user zone handling - users can originate from different zones
-                $parts = explode('#',$item[2]);
-                $userName = $parts[0]; // take developer name without zone initially
-                if (count($parts)==2 &&
-                    $parts[1] != $rodsaccount->zone ) { // ONly present zone when user mentioned in log is not from current zone
-                        $userName = $item[2];
-                }
-                $logItems[] = array($userName, ucfirst($item[1]), $timestamp);
-            }
-        }
-
-        $output = array('result' => $logItems,
-	                'status' => $result['*status'],
-			'statusInfo' => $result['*statusInfo']);
-
-        $this->output
-            ->set_content_type('application/json')
-            ->set_output(json_encode($output));
-    }
-
     public function download()
     {
         $rodsaccount = $this->rodsuser->getRodsAccount();

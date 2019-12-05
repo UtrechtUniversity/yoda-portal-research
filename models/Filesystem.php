@@ -484,44 +484,4 @@ RULE;
 
         return array();
     }
-
-    /**
-     * List the action log of a folder.
-     *
-     * @param $iRodsAccount
-     * @param $folder
-     * @return array
-     */
-    function listActionLog($iRodsAccount, $folder)
-    {
-        $output = array();
-
-        $ruleBody = <<<'RULE'
-myRule {
-    iiFrontEndActionLog(*folder, *result, *status, *statusInfo);
-}
-RULE;
-        try {
-            $rule = new ProdsRule(
-                $iRodsAccount,
-                $ruleBody,
-                array(
-                    "*folder" => $folder
-                ),
-                array("*result", "*status", "*statusInfo")
-            );
-
-            $ruleResult = $rule->execute();
-
-            $output['*result'] = json_decode($ruleResult['*result'], true);
-            $output['*status'] = $ruleResult['*status'];
-            $output['*statusInfo'] = $ruleResult['*statusInfo'];
-
-            return $output;
-
-        } catch(RODSException $e) {
-            return array();
-        }
-        return array();
-    }
 }
