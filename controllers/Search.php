@@ -144,7 +144,6 @@ class Search extends MY_Controller
 
             if ($status == 'Success') {
                 $totalItems += $result['summary']['total'];
-                $this->load->model('Metadata_form_model');
                 if (isset($result['summary']) && $result['summary']['returned'] > 0) {
                     $categoryFormLabels = array();
                     foreach ($result['rows'] as $row) {
