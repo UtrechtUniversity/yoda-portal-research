@@ -514,8 +514,8 @@ function topInformation(dir, showAlert)
         // Retrieve system metadata of folder.
         Yoda.call('uu_research_collection_details',
                   {path: Yoda.basePath + dir}).then((data) => {
-            var icon = '<i class="fa fa-folder-o" aria-hidden="true"></i>';
-            var basename = data.group;
+            let statusText = "";
+            var basename = data.basename;
             var status = data.status;
             var userType = data.member_type;
             var hasWriteRights = "yes";
@@ -524,50 +524,48 @@ function topInformation(dir, showAlert)
             var vaultPath = data.vault_path;
             var actions = [];
 
-            // User metadata
-            if (typeof status != 'undefined') {
-                $('.btn-group button.metadata-form').attr('data-path', dir);
-                $('.btn-group button.metadata-form').show();
-            } else {
-                $('.btn-group button.metadata-form').hide();
-            }
+            $('.btn-group button.metadata-form').hide();
             $('#upload').attr('data-path', "");
-
-            // folder status (normal folder)
             $('.btn-group button.upload').prop("disabled", true);
+            $('.top-information').hide();
+            $('.top-info-buttons').hide();
+
+            // Set folder status badge and actions.
             if (typeof status != 'undefined') {
                 if (status == '') {
+                    statusText = "";
                     actions['lock'] = 'Lock';
                     actions['submit'] = 'Submit';
-
-                    // Enable uploads.
-                    $('#upload').attr('data-path', dir);
-                    $('.btn-group button.upload').prop("disabled", false);
                 } else if (status == 'LOCKED') {
+                    statusText = "Locked";
                     actions['unlock'] = 'Unlock';
                     actions['submit'] = 'Submit';
                 } else if (status == 'SUBMITTED') {
+                    statusText = "Submitted";
                     actions['unsubmit'] = 'Unsubmit';
                 } else if (status == 'ACCEPTED') {
-
+                    statusText = "Accepted";
                 } else if (status == 'SECURED') {
+                    statusText = "Secured";
                     actions['lock'] = 'Lock';
                     actions['submit'] = 'Submit';
-
-                    // Enable uploads.
-                    $('#upload').attr('data-path', dir);
-                    $('.btn-group button.upload').prop("disabled", false);
                 } else if (status == 'REJECTED') {
+                    statusText = "Rejected";
                     actions['lock'] = 'Lock';
                     actions['submit'] = 'Submit';
                 }
 
-                var icon = '<i class="fa fa-folder-open-o" aria-hidden="true"></i>';
-                $('.btn-group button.folder-status').attr('data-datamanager', isDatamanager);
+                // Show metadata button.
+                $('.btn-group button.metadata-form').attr('data-path', dir);
+                $('.btn-group button.metadata-form').show();
 
-                $('.top-info-buttons').show();
-            } else {
-                $('.top-info-buttons').hide();
+                // Enable uploads.
+                if (status == '' || status == 'SECURED') {
+                    $('#upload').attr('data-path', dir);
+                    $('.btn-group button.upload').prop("disabled", false);
+                }
+
+                $('.btn-group button.folder-status').attr('data-datamanager', isDatamanager);
             }
 
             if (userType == 'reader') {
@@ -626,31 +624,19 @@ function topInformation(dir, showAlert)
             }
 
             let folderName = htmlEncode(basename).replace(/ /g, "&nbsp;");
-
-            // Set status badge.
-            let statusText = "";
-            if (typeof status != 'undefined') {
-              if (status == '') {
-                  statusText = "";
-              } else if (status == 'LOCKED') {
-                  statusText = "Locked";
-              } else if (status == 'SUBMITTED') {
-                  statusText = "Submitted";
-              } else if (status == 'ACCEPTED') {
-                  statusText = "Accepted";
-              } else if (status == 'SECURED') {
-                  statusText = "Secured";
-              } else if (status == 'REJECTED') {
-                  statusText = "Rejected";
-              }
-            }
             let statusBadge = '<span id="statusBadge" class="badge">' + statusText + '</span>';
 
             // Reset action dropdown.
             $('.btn-group button.folder-status').prop("disabled", false).next().prop("disabled", false);
 
+            var icon = '<i class="fa fa-folder-o" aria-hidden="true"></i>';
             $('.top-information h1').html(`<span class="icon">${icon}</span> ${folderName}${lockIcon}${systemMetadataIcon}${actionLogIcon}${statusBadge}`);
-            $('.top-information').show();
+
+            // Show top information and buttons.
+            if (typeof status != 'undefined') {
+                $('.top-information').show();
+                $('.top-info-buttons').show();
+            }
         });
     } else {
         $('#upload').attr('data-path', "");
