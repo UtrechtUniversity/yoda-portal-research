@@ -213,55 +213,6 @@ RULE;
         return array();
     }
 
-    static public function collectionDetails($iRodsAccount, $path)
-    {
-        $output = array();
-
-        // XXX
-        $path = str_replace("`", "\\`", $path);
-
-        $ruleBody = <<<'RULE'
-myRule {
-    iiFrontCollectionDetails(*path, *result, *status, *statusInfo);
-}
-RULE;
-        try {
-            $rule = new ProdsRule(
-                $iRodsAccount,
-                $ruleBody,
-                array(
-                    "*path" => $path
-                ),
-                array("*result",
-                     "*status",
-                     "*statusInfo"
-                    )
-            );
-
-            $ruleResult = $rule->execute();
-
-            $status = $ruleResult['*status'];
-            $statusInfo = $ruleResult['*statusInfo'];
-
-            $result = json_decode($ruleResult['*result'], true);
-
-            $output = array(
-                'result' => $result,
-                'status' => $status,
-                'statusInfo' => $statusInfo
-            );
-
-            return $output;
-
-        } catch(RODSException $e) {
-            $output = array(
-                'status' => 'Error',
-                'statusInfo' => 'Something unexpected went wrong - ' . $e->rodsErrAbbrToCode($e->getCodeAbbr()). '. Please contact a system administrator'
-            );
-            return $output;
-        }
-    }
-
     static public function searchByName($iRodsAccount, $path, $searchString, $type, $orderBy, $orderSort, $limit, $offset = 0)
     {
         $output = array();

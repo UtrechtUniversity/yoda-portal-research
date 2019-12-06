@@ -511,30 +511,21 @@ window.addEventListener('popstate', function(e) {
 function topInformation(dir, showAlert)
 {
     if (typeof dir != 'undefined') {
-        $.getJSON("browse/top_data?dir=" + encodeURIComponent(dir), function(data){
-
-            if (data.status != 'Success' && showAlert) {
-                setMessage('error', data.statusInfo);
-                return;
-            }
-
+        // Retrieve system metadata of folder.
+        Yoda.call('uu_research_collection_details',
+                  {path: Yoda.basePath + dir}).then((data) => {
             var icon = '<i class="fa fa-folder-o" aria-hidden="true"></i>';
-            var basename = data.result.basename;
-            var metadata = data.result.userMetadata;
-            var status = data.result.folderStatus;
-            var userType = data.result.userType;
+            var basename = data.group;
+            var status = data.status;
+            var userType = data.member_type;
             var hasWriteRights = "yes";
-            var hasDatamanager = data.result.hasDatamanager;
-            var isDatamanager = data.result.isDatamanager;
-            var researchGroupAccess = data.result.researchGroupAccess;
-            var inResearchGroup = data.result.inResearchGroup;
-            var lockFound = data.result.lockFound;
-            var lockCount = data.result.lockCount;
-            var vaultPath = data.result.vaultPath;
+            var isDatamanager = data.is_datamanager;
+            var lockCount = data.lock_count;
+            var vaultPath = data.vault_path;
             var actions = [];
 
             // User metadata
-            if (metadata == 'true') {
+            if (typeof status != 'undefined') {
                 $('.btn-group button.metadata-form').attr('data-path', dir);
                 $('.btn-group button.metadata-form').show();
             } else {

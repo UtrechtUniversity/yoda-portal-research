@@ -80,19 +80,6 @@ class Browse extends MY_Controller
         loadView('browse', $viewParams);
     }
 
-    public function top_data()
-    {
-        $rodsaccount = $this->rodsuser->getRodsAccount();
-        $pathStart = $this->pathlibrary->getPathStart($this->config);
-        $dirPath = $this->input->get('dir');
-
-        $output = $this->filesystem->collectionDetails($rodsaccount, $pathStart . $dirPath);
-
-        $this->output
-            ->set_content_type('application/json')
-            ->set_output(json_encode($output));
-    }
-
     public function list_locks()
     {
         $rodsaccount = $this->rodsuser->getRodsAccount();
