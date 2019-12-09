@@ -573,7 +573,7 @@ function topInformation(dir, showAlert)
                 hasWriteRights = 'no';
             }
 
-            if (isDatamanager == 'yes') {
+            if (isDatamanager) {
                 // Check rights as datamanager.
                 if (userType != 'manager' && userType != 'normal') {
                     var actions = [];
