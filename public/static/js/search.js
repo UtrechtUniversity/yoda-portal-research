@@ -1,3 +1,5 @@
+"use strict";
+
 let currentSearchString;
 let currentSearchType;
 let currentSearchItems;
@@ -146,20 +148,14 @@ const resultsRenderer = {
 };
 
 function search() {
-    displayStart = 0;
     searchOrderDir = 'asc';
     searchOrderColumn = 0;
 
     if (typeof currentSearchString != 'undefined' && currentSearchString.length > 0 && currentSearchType != 'revision') {
-        // Display start for first page load.
-        if (typeof displayStart === 'undefined') {
-            displayStart = 0;
-        }
-
         // Table columns definition.
-        var columns = [];
-        type = currentSearchType;
-        if (type == 'filename') {
+        let columns = [];
+        let renderColumns = [];
+        if (currentSearchType == 'filename') {
             columns = ['Name', 'Size', 'Modified date'];
             renderColumns = [{
                     render: resultsRenderer.name,
@@ -176,7 +172,7 @@ function search() {
                     data: 'modify_time'
                 }
             ];
-        } else if (type == 'folder' || type == 'status' || type == 'metadata') {
+        } else if (currentSearchType == 'folder' || currentSearchType == 'status' || currentSearchType == 'metadata') {
             columns = ['Name', 'Modified date'];
             renderColumns = [{
                     render: resultsRenderer.name,
@@ -246,8 +242,8 @@ function search() {
             }
         });
 
-        if (type == 'status') {
-            searchStatus = $(".search-status option:selected").text();
+        if (currentSearchType == 'status') {
+            let searchStatus = $(".search-status option:selected").text();
             $('.search-string').text(searchStatus);
         } else {
             $('.search-string').html(htmlEncode(currentSearchString).replace(/ /g, "&nbsp;"));
