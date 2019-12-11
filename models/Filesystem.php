@@ -186,33 +186,6 @@ class Filesystem extends CI_Model {
         return true;
     }
 
-    static public function metadataFormPaths($iRodsAccount, $path) {
-        $ruleBody = <<<'RULE'
-myRule {
-    iiPrepareMetadataForm(*path, *result);
-}
-RULE;
-        try {
-            $rule = new ProdsRule(
-                $iRodsAccount,
-                $ruleBody,
-                array(
-                    "*path" => $path
-                ),
-                array("*result")
-            );
-
-            $ruleResult = $rule->execute();
-            $output = json_decode($ruleResult['*result'], true);
-
-            return $output;
-        } catch(RODSException $e) {
-            return false;
-        }
-
-        return array();
-    }
-
     /**
      * List the locks on a folder.
      *
