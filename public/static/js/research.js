@@ -524,7 +524,7 @@ function topInformation(dir, showAlert)
                 return;
             }
 
-            var icon = '<i class="fa fa-folder-o" aria-hidden="true"></i>';
+            var icon = '<i class="fa fa-folder-open-o" aria-hidden="true"></i>';
             var basename = data.result.basename;
             var metadata = data.result.userMetadata;
             var status = data.result.folderStatus;
