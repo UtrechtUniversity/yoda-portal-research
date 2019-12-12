@@ -441,30 +441,27 @@ function buildActionLog(folder)
     let actionList = $('.actionlog-items');
 
     // Get provenance information
-    $.getJSON("browse/list_actionlog?folder=" + encodeURIComponent(folder), function (data) {
+    Yoda.call('uu_provenance_log',
+              {coll: Yoda.basePath + folder}).then((data) => {
         actionList.hide();
 
-        if (data.status == 'Success') {
-            var html = '<li class="list-group-item disabled">Provenance information:</li>';
-            var logItems = data.result;
-            if (logItems.length) {
-                $.each(logItems, function (index, value) {
-                    html += '<li class="list-group-item"><span>'
-                         + htmlEncode(value[2])
-                         + ' - <strong>'
-                         + htmlEncode(value[1])
-                         + '</strong> - '
-                         + htmlEncode(value[0])
-                         + '</span></li>';
-                });
-            }
-            else {
-                html += '<li class="list-group-item">No provenance information present</li>';
-            }
-            actionList.html(html).show();
-        } else {
-            setMessage('error', data.statusInfo);
+        var html = '<li class="list-group-item disabled">Provenance information:</li>';
+        var logItems = data;
+        if (logItems.length) {
+            $.each(logItems, function (index, value) {
+                html += '<li class="list-group-item"><span>'
+                     + htmlEncode(value[2])
+                     + ' - <strong>'
+                     + htmlEncode(value[1])
+                     + '</strong> - '
+                     + htmlEncode(value[0])
+                     + '</span></li>';
+            });
         }
+        else {
+            html += '<li class="list-group-item">No provenance information present</li>';
+        }
+        actionList.html(html).show();
     });
 }
 
@@ -477,27 +474,24 @@ function toggleSystemMetadata(folder)
     if (isVisible) {
         systemMetadata.hide();
     } else {
-        // Get system metadata.
-        $.getJSON("browse/system_metadata?folder=" + encodeURIComponent(folder), function(data) {
+        // Retrieve system metadata of folder.
+        Yoda.call('uu_research_system_metadata',
+                  {coll: Yoda.basePath + folder}).then((data) => {
             systemMetadata.hide();
-            if (data) {
-                var html = '<li class="list-group-item disabled">System metadata:</li>';
+            var html = '<li class="list-group-item disabled">System metadata:</li>';
 
-                if (data.result) {
-                    $.each(data.result, function (index, value) {
-                        html += '<li class="list-group-item"><span><strong>'
-                             + htmlEncode(index)
-                             + '</strong>: '
-                             + htmlEncode(value)
-                             + '</span></li>';
-                    });
-                } else {
-                    html += '<li class="list-group-item">No system metadata present</li>';
-                }
-                systemMetadata.html(html).show();
+            if (data) {
+                $.each(data, function(index, value) {
+                    html += '<li class="list-group-item"><span><strong>' +
+                        htmlEncode(index) +
+                        '</strong>: ' +
+                        htmlEncode(value) +
+                        '</span></li>';
+                });
             } else {
-                setMessage('error', 'Could not retrieve system metadata.');
+                html += '<li class="list-group-item">No system metadata present</li>';
             }
+            systemMetadata.html(html).show();
         });
     }
 }
@@ -517,72 +511,61 @@ window.addEventListener('popstate', function(e) {
 function topInformation(dir, showAlert)
 {
     if (typeof dir != 'undefined') {
-        $.getJSON("browse/top_data?dir=" + encodeURIComponent(dir), function(data){
-
-            if (data.status != 'Success' && showAlert) {
-                setMessage('error', data.statusInfo);
-                return;
-            }
-
-            var icon = '<i class="fa fa-folder-open-o" aria-hidden="true"></i>';
-            var basename = data.result.basename;
-            var metadata = data.result.userMetadata;
-            var status = data.result.folderStatus;
-            var userType = data.result.userType;
+        // Retrieve system metadata of folder.
+        Yoda.call('uu_research_collection_details',
+                  {path: Yoda.basePath + dir}).then((data) => {
+            let statusText = "";
+            var basename = data.basename;
+            var status = data.status;
+            var userType = data.member_type;
             var hasWriteRights = "yes";
-            var hasDatamanager = data.result.hasDatamanager;
-            var isDatamanager = data.result.isDatamanager;
-            var researchGroupAccess = data.result.researchGroupAccess;
-            var inResearchGroup = data.result.inResearchGroup;
-            var lockFound = data.result.lockFound;
-            var lockCount = data.result.lockCount;
-            var vaultPath = data.result.vaultPath;
+            var isDatamanager = data.is_datamanager;
+            var lockCount = data.lock_count;
+            var vaultPath = data.vault_path;
             var actions = [];
 
-            // User metadata
-            if (metadata == 'true') {
-                $('.btn-group button.metadata-form').attr('data-path', dir);
-                $('.btn-group button.metadata-form').show();
-            } else {
-                $('.btn-group button.metadata-form').hide();
-            }
+            $('.btn-group button.metadata-form').hide();
             $('#upload').attr('data-path', "");
-
-            // folder status (normal folder)
             $('.btn-group button.upload').prop("disabled", true);
+            $('.top-information').hide();
+            $('.top-info-buttons').hide();
+
+            // Set folder status badge and actions.
             if (typeof status != 'undefined') {
                 if (status == '') {
+                    statusText = "";
                     actions['lock'] = 'Lock';
                     actions['submit'] = 'Submit';
-
-                    // Enable uploads.
-                    $('#upload').attr('data-path', dir);
-                    $('.btn-group button.upload').prop("disabled", false);
                 } else if (status == 'LOCKED') {
+                    statusText = "Locked";
                     actions['unlock'] = 'Unlock';
                     actions['submit'] = 'Submit';
                 } else if (status == 'SUBMITTED') {
+                    statusText = "Submitted";
                     actions['unsubmit'] = 'Unsubmit';
                 } else if (status == 'ACCEPTED') {
-
+                    statusText = "Accepted";
                 } else if (status == 'SECURED') {
+                    statusText = "Secured";
                     actions['lock'] = 'Lock';
                     actions['submit'] = 'Submit';
-
-                    // Enable uploads.
-                    $('#upload').attr('data-path', dir);
-                    $('.btn-group button.upload').prop("disabled", false);
                 } else if (status == 'REJECTED') {
+                    statusText = "Rejected";
                     actions['lock'] = 'Lock';
                     actions['submit'] = 'Submit';
                 }
 
-                var icon = '<i class="fa fa-folder-open-o" aria-hidden="true"></i>';
-                $('.btn-group button.folder-status').attr('data-datamanager', isDatamanager);
+                // Show metadata button.
+                $('.btn-group button.metadata-form').attr('data-path', dir);
+                $('.btn-group button.metadata-form').show();
 
-                $('.top-info-buttons').show();
-            } else {
-                $('.top-info-buttons').hide();
+                // Enable uploads.
+                if (status == '' || status == 'SECURED') {
+                    $('#upload').attr('data-path', dir);
+                    $('.btn-group button.upload').prop("disabled", false);
+                }
+
+                $('.btn-group button.folder-status').attr('data-datamanager', isDatamanager);
             }
 
             if (userType == 'reader') {
@@ -590,7 +573,7 @@ function topInformation(dir, showAlert)
                 hasWriteRights = 'no';
             }
 
-            if (isDatamanager == 'yes') {
+            if (isDatamanager) {
                 // Check rights as datamanager.
                 if (userType != 'manager' && userType != 'normal') {
                     var actions = [];
@@ -641,31 +624,19 @@ function topInformation(dir, showAlert)
             }
 
             let folderName = htmlEncode(basename).replace(/ /g, "&nbsp;");
-
-            // Set status badge.
-            let statusText = "";
-            if (typeof status != 'undefined') {
-              if (status == '') {
-                  statusText = "";
-              } else if (status == 'LOCKED') {
-                  statusText = "Locked";
-              } else if (status == 'SUBMITTED') {
-                  statusText = "Submitted";
-              } else if (status == 'ACCEPTED') {
-                  statusText = "Accepted";
-              } else if (status == 'SECURED') {
-                  statusText = "Secured";
-              } else if (status == 'REJECTED') {
-                  statusText = "Rejected";
-              }
-            }
             let statusBadge = '<span id="statusBadge" class="badge">' + statusText + '</span>';
 
             // Reset action dropdown.
             $('.btn-group button.folder-status').prop("disabled", false).next().prop("disabled", false);
 
+            var icon = '<i class="fa fa-folder-open-o" aria-hidden="true"></i>';
             $('.top-information h1').html(`<span class="icon">${icon}</span> ${folderName}${lockIcon}${systemMetadataIcon}${actionLogIcon}${statusBadge}`);
-            $('.top-information').show();
+
+            // Show top information and buttons.
+            if (typeof status != 'undefined') {
+                $('.top-information').show();
+                $('.top-info-buttons').show();
+            }
         });
     } else {
         $('#upload').attr('data-path', "");

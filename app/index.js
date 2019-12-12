@@ -466,7 +466,7 @@ function ObjectFieldTemplate(props) {
         return (
             <div className={`form-group ${structureClass}`}>
                 <label className="col-sm-2 combined-main-label control-label">
-                    <span>{props.title}</span>
+                    <span data-toggle="tooltip" title={props.uiSchema["ui:help"]}>{props.title}</span>
                 </label>
                 <span className="fa-stack col-sm-1"></span>
                 <div className="col-sm-9">
