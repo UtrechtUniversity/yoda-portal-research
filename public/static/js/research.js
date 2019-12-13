@@ -271,7 +271,8 @@ let getFolderContents = (() => {
                                           'offset':     args.start,
                                           'limit':      batchSize,
                                           'sort_order': args.order[0].dir,
-                                          'sort_on':    ['name','size','modified'][args.order[0].column]});
+                                          'sort_on':    ['name','size','modified'][args.order[0].column],
+                                          'space':      'Space.RESEARCH'});
 
             // If another requests has come while we were waiting, simply drop this one.
             if (i !== j) return null;
@@ -511,7 +512,6 @@ window.addEventListener('popstate', function(e) {
 function topInformation(dir, showAlert)
 {
     if (typeof dir != 'undefined') {
-        // Retrieve system metadata of folder.
         Yoda.call('uu_research_collection_details',
                   {path: Yoda.basePath + dir}).then((data) => {
             let statusText = "";
