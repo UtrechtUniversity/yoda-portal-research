@@ -686,7 +686,7 @@ async function lockFolder(folder)
     // Change folder status call
 
     try {
-        await Yoda.call('uu_collection_lock',
+        await Yoda.call('uu_folder_lock',
                         {'coll': Yoda.basePath + folder})
         // Set actions
         var actions = [];
@@ -722,7 +722,7 @@ async function unlockFolder(folder)
     $('.btn-group button.folder-status').prop("disabled", true).next().prop("disabled", true);
 
     try {
-        await Yoda.call('uu_collection_unlock',
+        await Yoda.call('uu_folder_unlock',
                         {'coll': Yoda.basePath + folder});
         // Set actions
         let actions = [];
@@ -769,7 +769,7 @@ async function submitToVault(folder)
         $('.btn-group button.folder-status').prop("disabled", true).next().prop("disabled", true);
 
         try {
-            let status = await Yoda.call('uu_collection_submit',
+            let status = await Yoda.call('uu_folder_submit',
                                          {'coll': Yoda.basePath + folder})
             if (status === 'SUBMITTED') {
                 $('#statusBadge').html('Submitted');
@@ -798,7 +798,7 @@ async function unsubmitToVault(folder) {
         $('.btn-group button.folder-status').prop("disabled", true).next().prop("disabled", true);
 
         try {
-            let status = await Yoda.call('uu_collection_unsubmit',
+            let status = await Yoda.call('uu_folder_unsubmit',
                                          {'coll': Yoda.basePath + folder})
             $('#statusBadge').html('');
         } catch(e) {
@@ -815,7 +815,7 @@ async function acceptFolder(folder)
     $('.btn-group button.folder-status').prop("disabled", true).next().prop("disabled", true);
 
     try {
-        await Yoda.call('uu_collection_accept',
+        await Yoda.call('uu_folder_accept',
                                   {'coll': Yoda.basePath + folder})
         $('#statusBadge').html('Accepted');
     } catch (e) {
@@ -831,7 +831,7 @@ async function rejectFolder(folder)
     $('.btn-group button.folder-status').prop("disabled", true).next().prop("disabled", true);
 
     try {
-        await Yoda.call('uu_collection_reject',
+        await Yoda.call('uu_folder_reject',
                         {'coll': Yoda.basePath + folder})
         $('#statusBadge').html('Rejected');
     } catch (e) {
