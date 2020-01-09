@@ -518,7 +518,7 @@ function topInformation(dir, showAlert)
             var basename = data.basename;
             var status = data.status;
             var userType = data.member_type;
-            var hasWriteRights = "yes";
+            var hasWriteRights = true;
             var isDatamanager = data.is_datamanager;
             var lockCount = data.lock_count;
             var vaultPath = data.vault_path;
@@ -559,25 +559,19 @@ function topInformation(dir, showAlert)
                 $('.btn-group button.metadata-form').attr('data-path', dir);
                 $('.btn-group button.metadata-form').show();
 
-                // Enable uploads.
-                if (status == '' || status == 'SECURED') {
-                    $('#upload').attr('data-path', dir);
-                    $('.btn-group button.upload').prop("disabled", false);
-                }
-
                 $('.btn-group button.folder-status').attr('data-datamanager', isDatamanager);
             }
 
             if (userType == 'reader') {
                 var actions = [];
-                hasWriteRights = 'no';
+                hasWriteRights = false;
             }
 
             if (isDatamanager) {
                 // Check rights as datamanager.
                 if (userType != 'manager' && userType != 'normal') {
                     var actions = [];
-                    hasWriteRights = 'no';
+                    hasWriteRights = false;
                 }
 
                 if (typeof status != 'undefined') {
@@ -586,6 +580,12 @@ function topInformation(dir, showAlert)
                         actions['reject'] = 'Reject';
                     }
                 }
+            }
+
+            // Enable uploads.
+            if (hasWriteRights && (status == '' || status == 'SECURED')) {
+                $('#upload').attr('data-path', dir);
+                $('.btn-group button.upload').prop("disabled", false);
             }
 
             // Lock icon
