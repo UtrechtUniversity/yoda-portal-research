@@ -25,7 +25,7 @@ class Geolocation extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            showModal: false,
+            //showModal: false,
             ...props.formData
         };
 
@@ -38,6 +38,7 @@ class Geolocation extends React.Component {
         this.drawStop = this.drawStop.bind(this);
         this.setFormData = this.setFormData.bind(this);
         this.geoBoxID = globalGeoBoxCounter;
+        this.showModal = false;
         globalGeoBoxCounter++;
     }
 
@@ -45,14 +46,14 @@ class Geolocation extends React.Component {
         e.preventDefault();
 
         globalThis = this; // @todo: get rid of this dirty trick
-
-        this.setState({showModal: true});
+        this.showModal = true;
+        this.setState(this.state);
     }
 
     closeModal(e) {
         e.preventDefault();
 
-        delete this.state["showModal"];
+        this.showModal = false;
         this.setState(this.state);
     }
 
@@ -232,7 +233,7 @@ class Geolocation extends React.Component {
                   </div>
 
                 <Modal
-                    isOpen={this.state.showModal}
+                    isOpen={this.showModal}
                     onAfterOpen={this.afterOpenModal}
                     onRequestClose={this.closeModal}
                     style={customModalStyles}
