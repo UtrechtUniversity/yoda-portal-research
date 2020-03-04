@@ -79,11 +79,11 @@
             <div class="col-md-4">
                 <div class="top-info-buttons">
                     <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-default metadata-form" data-path="">Metadata</button>
+                        <button type="button" class="btn btn-default metadata-form" data-path="" title="Open metadata form">Metadata</button>
                     </div>
                     <div class="btn-group" role="group">
                         <input type="file" id="upload" multiple style="display: none" />
-                        <button type="button" class="btn btn-default upload" data-path=""><i class="fa fa-upload" aria-hidden="true"></i> Upload</button>
+                        <button type="button" class="btn btn-default upload" data-path="" title="Upload files up to 100MB"><i class="fa fa-upload" aria-hidden="true"></i> Upload</button>
                     </div>
                     <div class="btn-group">
                         <button type="button" class="btn btn-default folder-status" data-toggle="dropdown" disabled="disabled">Actions</button>
