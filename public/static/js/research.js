@@ -705,7 +705,6 @@ async function lockFolder(folder)
             $('.lock-icon').attr('data-locks', 1);
             $('.lock-icon').attr('title','1 lock(s) found');
         }
-        setMessage('success', 'Successfully locked this folder');
 
         handleActionsList(actions, folder);
     } catch (e) {
@@ -745,8 +744,6 @@ async function unlockFolder(folder)
         if ($('.lock-items').is(":visible")) {
             $('.lock-items').hide();
         }
-
-        setMessage('success', 'Successfully unlocked this folder');
 
         handleActionsList(actions, folder);
     } catch (e) {
