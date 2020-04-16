@@ -19,8 +19,6 @@ class Search extends MY_Controller
         $this->config->load('config');
 
         $this->load->library('pathlibrary');
-
-
     }
 
     public function unset_session()

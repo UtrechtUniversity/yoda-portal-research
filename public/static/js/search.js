@@ -151,11 +151,6 @@ function search() {
     searchOrderDir = 'asc';
     searchOrderColumn = 0;
 
-
-    console.log('KOM IK HIER??');
-    console.log(currentSearchType);
-    console.log(currentSearchString);
-
     if (typeof currentSearchString != 'undefined' && currentSearchString.length > 0 && currentSearchType != 'revision') {
         // Table columns definition.
         let columns = [];
@@ -283,14 +278,12 @@ function saveSearchRequest() {
             },
             success: function() {
                 if (currentSearchType == 'revision' && view == 'revision') {
-                    //console.log('1');
                     $('#search').hide();
                     $('.search-results').hide();
                     return false;
                 }
 
                 if (currentSearchType == 'revision' && view == 'browse') {
-                    //console.log('2');
                     $('#search').hide();
                     $('.search-results').hide();
 

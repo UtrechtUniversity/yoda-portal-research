@@ -356,9 +356,6 @@ async function submitData(data) {
     // Disable buttons.
     $('.yodaButtons button').attr('disabled', true);
 
-    console.log(data);
-    return;
-
     // Save.
     try {
         await Yoda.call('uu_meta_form_save',
