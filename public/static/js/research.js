@@ -32,22 +32,22 @@ $(function() {
     ////////////////////////////////////////////////
     // File and folder management from context menu
     ////////////////////////////////////////////////
-    $('.btn-group button.folder-add').click(function(){
+    $('.btn-group button.folder-create').click(function(){
         // Destroy earlier alerts
-        fileMgmtDialogAlert('folder-add', '');
+        fileMgmtDialogAlert('folder-create', '');
 
         // Set initial values
-        $('#path-folder-add').val('');
-        $('#folder-add #collection').html($(this).attr('data-path')); // for user
-        $('.btn-confirm-folder-add').attr('data-path', $(this).attr('data-path'));
+        $('#path-folder-create').val('');
+        $('#folder-create #collection').html($(this).attr('data-path')); // for user
+        $('.btn-confirm-folder-create').attr('data-path', $(this).attr('data-path'));
 
-        $('#folder-add').modal('show');
+        $('#folder-create').modal('show');
     });
 
     // handle addition of new folder to
-    $('.btn-confirm-folder-add').click(function() {
+    $('.btn-confirm-folder-create').click(function() {
         // er kan een dubbele naam zijn? error handling afwikkelen!
-       handleFolderAdd($('#path-folder-add').val(), $(this).attr('data-path'));
+       handleFolderAdd($('#path-folder-create').val(), $(this).attr('data-path'));
     });
 
     // FOLDER rename
@@ -272,7 +272,7 @@ $(function() {
 
 async function handleFolderAdd(new_folder, collection) {
     if (!new_folder.length) {
-        fileMgmtDialogAlert('folder-add', 'Please add a folder name');
+        fileMgmtDialogAlert('folder-create', 'Please add a folder name');
         return;
     }
 
@@ -287,10 +287,10 @@ async function handleFolderAdd(new_folder, collection) {
         setMessage('success', 'Successfully added new folder: ' + new_folder + ' to ' + collection );
         browse(collection, true);
 
-        $('#folder-add').modal('hide');
+        $('#folder-create').modal('hide');
     }
     else {
-        fileMgmtDialogAlert('folder-add', result.proc_status_info);
+        fileMgmtDialogAlert('folder-create', result.proc_status_info);
     }
 }
 
@@ -831,7 +831,7 @@ function topInformation(dir, showAlert)
 
             // Folder/file manipulations
             // WHICH rights have to be correctly set to be allowed adding a folder
-            $('.btn-group button.folder-add').attr('data-path', dir);
+            $('.btn-group button.folder-create').attr('data-path', dir);
 
 
             // Lock icon
@@ -888,7 +888,7 @@ function topInformation(dir, showAlert)
         $('#upload').attr('data-path', "");
 
         // Folder/ file manipulation data
-        $('.btn-group button.folder-add').attr('data-path', "");
+        $('.btn-group button.folder-create').attr('data-path', "");
 
         $('.top-information').hide();
     }
