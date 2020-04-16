@@ -191,7 +191,7 @@
                         <button type="button" class="btn btn-default metadata-form" data-path="" title="Open metadata form">Metadata</button>
                     </div>
                     <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-default folder-create" data-path="" title="Create a new folder"><i class="fa fa-folder" aria-hidden="true"></i> Creat Folder</button>
+                        <button type="button" class="btn btn-default folder-create" data-path="" title="Create a new folder"><i class="fa fa-folder" aria-hidden="true"></i> Create Folder</button>
                     </div>
                     <div class="btn-group" role="group">
                         <input type="file" id="upload" multiple style="display: none" />
