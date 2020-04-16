@@ -50,6 +50,7 @@ class Browse extends MY_Controller
             $searchOrderDir = $this->session->userdata('research-search-order-dir');
             $searchOrderColumn = $this->session->userdata('research-search-order-column');
         }
+
         $showStatus = false;
         $showTerm = false;
         if ($searchType == 'status') {

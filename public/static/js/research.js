@@ -29,6 +29,102 @@ $(function() {
         showMetadataForm($(this).attr('data-path'));
     });
 
+    ////////////////////////////////////////////////
+    // File and folder management from context menu
+    ////////////////////////////////////////////////
+    $('.btn-group button.folder-add').click(function(){
+        // Destroy earlier alerts
+        fileMgmtDialogAlert('folder-add', '');
+
+        // Set initial values
+        $('#path-folder-add').val('');
+        $('#folder-add #collection').html($(this).attr('data-path')); // for user
+        $('.btn-confirm-folder-add').attr('data-path', $(this).attr('data-path'));
+
+        $('#folder-add').modal('show');
+    });
+
+    // handle addition of new folder to
+    $('.btn-confirm-folder-add').click(function() {
+        // er kan een dubbele naam zijn? error handling afwikkelen!
+       handleFolderAdd($('#path-folder-add').val(), $(this).attr('data-path'));
+    });
+
+    // FOLDER rename
+    $("body").on("click", "a.folder-rename", function() {
+        //alert('RENAME' + $(this).attr('data-collection')  + '--- folder: ' + $(this).attr('data-name'));
+
+        fileMgmtDialogAlert('folder-rename', '');
+
+        $('#folder-rename-name').val($(this).attr('data-name'));
+        $('#org-folder-rename-name').val($(this).attr('data-name'));
+        $('#folder-rename #collection').html($(this).attr('data-collection'));
+        $('.btn-confirm-folder-rename').attr('data-collection', $(this).attr('data-collection'));
+
+        $('#folder-rename').modal('show');
+    });
+    $('.btn-confirm-folder-rename').click(function() {
+        handleFolderRename($('#folder-rename-name').val(), $(this).attr('data-collection'), $('#org-folder-rename-name').val());
+    });
+
+    // FOLDER delete
+    $("body").on("click", "a.folder-delete", function() {
+        //alert('DELETE' + $(this).attr('data-collection')  + '---folder: ' + $(this).attr('data-name'))
+
+        fileMgmtDialogAlert('folder-delete', '');
+
+        // set initial values for further processing and user experience
+
+        $('#folder-delete #collection').html($(this).attr('data-collection'));
+        $('#folder-delete-name').html($(this).attr('data-name'));
+
+        $('.btn-confirm-folder-delete').attr('data-collection', $(this).attr('data-collection'));
+        $('.btn-confirm-folder-delete').attr('data-name', $(this).attr('data-name'));
+
+        $('#folder-delete').modal('show');
+    });
+
+    $('.btn-confirm-folder-delete').click(function() {
+        handleFolderDelete($(this).attr('data-collection'), $(this).attr('data-name'));
+    });
+
+    // FILE rename
+    $("body").on("click", "a.file-rename", function() {
+        // Destroy earlier alerts
+        fileMgmtDialogAlert('file-rename', '');
+
+        $('#file-rename-name').val($(this).attr('data-name'));
+        $('#org-file-rename-name').val($(this).attr('data-name'));
+        $('#file-rename #collection').html($(this).attr('data-collection'));
+        $('.btn-confirm-file-rename').attr('data-collection', $(this).attr('data-collection'));
+
+        $('#file-rename').modal('show');
+    });
+
+    $('.btn-confirm-file-rename').click(function() {
+        handleFileRename($('#file-rename-name').val(), $(this).attr('data-collection'), $('#org-file-rename-name').val());
+    });
+
+    // FILE delete
+    $("body").on("click", "a.file-delete", function() {
+        // Destroy earlier alerts
+        fileMgmtDialogAlert('file-delete', '');
+
+        // set initial values for further processing and user experience
+
+        $('#file-delete #collection').html($(this).attr('data-collection'));
+        $('#file-delete-name').html($(this).attr('data-name'));
+
+        $('.btn-confirm-file-delete').attr('data-collection', $(this).attr('data-collection'));
+        $('.btn-confirm-file-delete').attr('data-name', $(this).attr('data-name'));
+
+        $('#file-delete').modal('show');
+    });
+
+    $('.btn-confirm-file-delete').click(function() {
+        handleFileDelete($(this).attr('data-collection'), $(this).attr('data-name'));
+    });
+
     $('.btn-group button.upload').click(function(){
         $("#upload").trigger("click");
     });
@@ -173,6 +269,136 @@ $(function() {
     });
 });
 
+
+async function handleFolderAdd(new_folder, collection) {
+    if (!new_folder.length) {
+        fileMgmtDialogAlert('folder-add', 'Please add a folder name');
+        return;
+    }
+
+    let result = await Yoda.call('uu_research_folder_add',
+        {   coll: Yoda.basePath +  collection,
+            new_folder_name: new_folder
+        },
+        {'quiet': true}
+    );
+
+    if (result.proc_status=='ok') {
+        setMessage('success', 'Successfully added new folder: ' + new_folder + ' to ' + collection );
+        browse(collection, true);
+
+        $('#folder-add').modal('hide');
+    }
+    else {
+        fileMgmtDialogAlert('folder-add', result.proc_status_info);
+    }
+}
+
+
+async function handleFolderRename(new_folder_name, collection, org_folder_name) {
+    if (!new_folder_name.length) {
+        fileMgmtDialogAlert('folder-rename', 'Please add a new folder name');
+        return;
+    }
+
+    let result = await Yoda.call('uu_research_folder_rename',
+        {   new_folder_name: new_folder_name,
+            coll: Yoda.basePath +  collection,
+            org_folder_name: org_folder_name
+        },
+        {'quiet': true}
+    );
+
+    if (result.proc_status=='ok') {
+        setMessage('success', 'Successfully renamed folder to ' + new_folder_name );
+        browse(collection, true);
+
+        $('#folder-rename').modal('hide');
+    }
+    else {
+        fileMgmtDialogAlert('folder-rename', result.proc_status_info);
+    }
+}
+
+
+async function handleFolderDelete(collection, folder_name) {
+    let result = await Yoda.call('uu_research_folder_delete',
+        {
+            coll: Yoda.basePath +  collection,
+            folder_name: folder_name
+        },
+        {'quiet': true}
+    );
+
+    if (result.proc_status=='ok') {
+        setMessage('success', 'Successfully deleted folder ' + folder_name );
+        browse(collection, true);
+
+        $('#folder-delete').modal('hide');
+    }
+    else {
+        fileMgmtDialogAlert('folder-delete', result.proc_status_info);
+    }
+}
+
+async function handleFileRename(new_file_name, collection, org_file_name) {
+    if (!new_file_name.length) {
+        fileMgmtDialogAlert('file-rename', 'Please add a new file name');
+        return;
+    }
+
+    let result = await Yoda.call('uu_research_file_rename',
+        {   new_file_name: new_file_name,
+            coll: Yoda.basePath +  collection,
+            org_file_name: org_file_name
+        },
+        {'quiet': true}
+    );
+
+    if (result.proc_status=='ok') {
+        setMessage('success', 'Successfully renamed file to ' + new_file_name );
+        browse(collection, true);
+
+        $('#file-rename').modal('hide');
+    }
+    else {
+        fileMgmtDialogAlert('file-rename', result.proc_status_info);
+    }
+}
+
+async function handleFileDelete(collection, file_name) {
+    let result = await Yoda.call('uu_research_file_delete',
+        {
+            coll: Yoda.basePath +  collection,
+            file_name: file_name
+        },
+        {'quiet': true}
+    );
+
+    if (result.proc_status=='ok') {
+        setMessage('success', 'Successfully deleted file ' + file_name );
+        browse(collection, true);
+
+        $('#file-delete').modal('hide');
+    }
+    else {
+        fileMgmtDialogAlert('file-delete', result.proc_status_info);
+    }
+}
+
+
+// Alerts regarding folder/file management
+function fileMgmtDialogAlert(dlgName, alert) {
+    if (alert.length) {
+        $('#alert-panel-' + dlgName + ' span').html(alert);
+        $('#alert-panel-' + dlgName).show()
+    }
+    else {
+        $('#alert-panel-' + dlgName).hide();
+    }
+}
+
+
 function changeBrowserUrl(path)
 {
     let url = window.location.pathname;
@@ -207,7 +433,7 @@ function makeBreadcrumb(dir)
         let el = $('<li>');
         text = htmlEncode(text).replace(/ /g, '&nbsp;');
         if (i === crumbs.length-1)
-             el.addClass('active').text(text);
+             el.addClass('active').html(text);
         else el.html(`<a class="browse" data-path="${htmlEncode(path)}"
                          href="?dir=${encodeURIComponent(path)}">${text}</a>`);
 
@@ -290,6 +516,8 @@ let getFolderContents = (() => {
             cacheSortCol   = args.order[0].column;
             cacheSortOrder = args.order[0].dir;
 
+            console.log(result.items);
+
             return cache.slice(args.start - cacheStart, args.length);
         }
     };
@@ -343,22 +571,36 @@ const tableRenderer = {
          return elem[0].outerHTML;
      },
     context: (_, __, row) => {
-        if (row.type === 'coll')
-            return '';
-
-        // Render context menu for files.
-        const viewExts = {image: ['jpg', 'jpeg', 'gif', 'png'],
-                          audio: ['mp3', 'ogg', 'wav'],
-                          video: ['mp4', 'ogg', 'webm']};
-        let ext = row.name.replace(/.*\./, '').toLowerCase();
-
         let actions = $('<ul class="dropdown-menu">');
-        actions.append(`<li><a href="browse/download?filepath=${encodeURIComponent(currentFolder+'/'+row.name)}">Download</a>`);
 
-        // Generate dropdown "view" actions for different media types.
-        for (let type of Object.keys(viewExts).filter(type => (viewExts[type].includes(ext))))
-            actions.append(`<li><a class="view-${type}" data-path="${htmlEncode(currentFolder+'/'+row.name)}">View</a>`);
+        if (row.type === 'coll') {
+            // no context menu for toplevel group-collections - these cannot be altered or deleted
+            if (currentFolder.length==0) {
+                return '';
+            }
+            actions.append(`<li><a class="folder-rename" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}">Rename folder</a>`);
+            actions.append(`<li><a class="folder-delete" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}">Delete folder</a>`);
+        }
+        else {
+            // Render context menu for files.
+            const viewExts = {
+                image: ['jpg', 'jpeg', 'gif', 'png'],
+                audio: ['mp3', 'ogg', 'wav'],
+                video: ['mp4', 'ogg', 'webm']
+            };
+            let ext = row.name.replace(/.*\./, '').toLowerCase();
 
+            actions.append(`<li><a href="browse/download?filepath=${encodeURIComponent(currentFolder + '/' + row.name)}">Download</a>`);
+
+            // Generate dropdown "view" actions for different media types.
+            for (let type of Object.keys(viewExts).filter(type => (viewExts[type].includes(ext)))) {
+                actions.append(`<li><a class="view-${type}" data-path="${htmlEncode(currentFolder + '/' + row.name)}">View</a>`);
+            }
+            //actions.append(`<li><hr>`);
+            actions.append(`<li><a class="file-rename" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}">Rename</a>`);
+            actions.append(`<li><a class="file-delete" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}">Delete</a>`);
+
+        }
         let dropdown = $(`<div class="dropdown">
                             <span class="dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                               <span class="glyphicon glyphicon-option-horizontal" aria-hidden="true"></span>
@@ -585,8 +827,14 @@ function topInformation(dir, showAlert)
             // Enable uploads.
             if (hasWriteRights && (status == '' || status == 'SECURED')) {
                 $('#upload').attr('data-path', dir);
+
                 $('.btn-group button.upload').prop("disabled", false);
             }
+
+            // Folder/file manipulations
+            // WHICH rights have to be correctly set to be allowed adding a folder
+            $('.btn-group button.folder-add').attr('data-path', dir);
+
 
             // Lock icon
             $('.lock-items').hide();
@@ -640,6 +888,10 @@ function topInformation(dir, showAlert)
         });
     } else {
         $('#upload').attr('data-path', "");
+
+        // Folder/ file manipulation data
+        $('.btn-group button.folder-add').attr('data-path', "");
+
         $('.top-information').hide();
     }
 }

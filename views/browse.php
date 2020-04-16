@@ -36,6 +36,128 @@
     </div>
 </div>
 
+
+<div class="modal" id="folder-add">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="alert alert-warning" id="alert-panel-folder-add">
+                    <span>BLABLA</span>
+                </div>
+
+                <h3>Add new folder to <span id="collection"></span></h3>
+
+                <input type="text" id='path-folder-add' value="" placeholder="Add folder name ">
+
+                <button class='btn-confirm-folder-add btn btn-default' data-path="">Add new folder</button>
+
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-default grey cancel" data-dismiss="modal">Close</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="modal" id="folder-delete">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="alert alert-warning" id="alert-panel-folder-delete">
+                    <span>BLABLA</span>
+                </div>
+
+                <h3>Delete folder in <span id="collection"></span></h3>
+                <br>
+                Do you want to delete folder: "<span id="folder-delete-name"></span>" ?
+
+
+                <button class='btn-confirm-folder-delete btn btn-default' data-collection="" data-name="">Delete folder</button>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-default grey cancel" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal" id="folder-rename">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="alert alert-warning" id="alert-panel-folder-rename">
+                    <span>BLABLA</span>
+                </div>
+
+                <h3>Rename folder in <span id="collection"></span></h3>
+
+                <input type="hidden" id='org-folder-rename-name' value="">
+                <input type="text" id='folder-rename-name' value="" placeholder="New folder name">
+
+                <button class='btn-confirm-folder-rename btn btn-default' data-collection="">Rename folder</button>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-default grey cancel" data-dismiss="modal">Close</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="file-rename">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="alert alert-warning" id="alert-panel-file-rename">
+                    <span>BLABLA</span>
+                </div>
+
+                <h3>Rename file in <span id="collection"></span></h3>
+
+                <input type="hidden" id='org-file-rename-name' value="">
+                <input type="text" id='file-rename-name' value="" placeholder="New file name">
+
+                <button class='btn-confirm-file-rename btn btn-default' data-collection="">Rename file</button>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-default grey cancel" data-dismiss="modal">Close</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="modal" id="file-delete">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="alert alert-warning" id="alert-panel-file-delete">
+                    <span>BLABLA</span>
+                </div>
+
+                <h3>Delete file in <span id="collection"></span></h3>
+                <br>
+                Do you want to delete <span id="file-delete-name"></span> ?
+
+
+                <button class='btn-confirm-file-delete btn btn-default' data-collection="" data-name="">Delete file</button>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-default grey cancel" data-dismiss="modal">Close</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
 <div class="modal" id="uploads">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -73,13 +195,16 @@
 
     <div class="top-information">
          <div class="row">
-            <div class="col-md-8">
+            <div class="col-md-6">
                 <h1></h1>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <div class="top-info-buttons">
                     <div class="btn-group" role="group">
                         <button type="button" class="btn btn-default metadata-form" data-path="" title="Open metadata form">Metadata</button>
+                    </div>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-default folder-add" data-path=""><i class="fa fa-folder" aria-hidden="true"></i> Add folder</button>
                     </div>
                     <div class="btn-group" role="group">
                         <input type="file" id="upload" multiple style="display: none" />

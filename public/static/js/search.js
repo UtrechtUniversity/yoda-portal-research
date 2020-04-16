@@ -83,7 +83,7 @@ let getSearchResults = (() => {
             'search_string': currentSearchString,
             'search_type': currentSearchType,
             'offset': args.start,
-            'limit': currentSearchItems,
+            'limit': $("select[name='search_length']").val(),
             'sort_order': args.order[0].dir,
             'sort_on': ['name', 'size', 'modified'][args.order[0].column]
         });
@@ -150,6 +150,11 @@ const resultsRenderer = {
 function search() {
     searchOrderDir = 'asc';
     searchOrderColumn = 0;
+
+
+    console.log('KOM IK HIER??');
+    console.log(currentSearchType);
+    console.log(currentSearchString);
 
     if (typeof currentSearchString != 'undefined' && currentSearchString.length > 0 && currentSearchType != 'revision') {
         // Table columns definition.
@@ -229,7 +234,7 @@ function search() {
             "ajax": getSearchResults,
             "processing": true,
             "serverSide": true,
-            "pageLength": currentSearchItems,
+            "pageLength": $("select[name='search_length']").val(), //currentSearchItems,
             "drawCallback": function(settings) {
                 $(".browse-search").on("click", function() {
                     var path = $(this).attr('data-path');
@@ -267,6 +272,7 @@ function showSearchResults() {
 function saveSearchRequest() {
     if (typeof currentSearchString != 'undefined' && currentSearchString.length > 0) {
         var url = "search/set_session";
+
         $.ajax({
             url: url,
             method: "POST",
@@ -277,12 +283,14 @@ function saveSearchRequest() {
             },
             success: function() {
                 if (currentSearchType == 'revision' && view == 'revision') {
+                    //console.log('1');
                     $('#search').hide();
                     $('.search-results').hide();
                     return false;
                 }
 
                 if (currentSearchType == 'revision' && view == 'browse') {
+                    //console.log('2');
                     $('#search').hide();
                     $('.search-results').hide();
 
@@ -294,7 +302,6 @@ function saveSearchRequest() {
                     window.location.href = "browse";
                     return false;
                 }
-
                 showSearchResults();
             }
         });

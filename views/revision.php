@@ -24,6 +24,9 @@
                     </div>
 
                     <input type="hidden" id="restoration-objectid" value="">
+                    <input type="hidden" id="org_folder_select_path" value="">
+                    <input type="hidden" id="org_folder_select_filename" value="">
+
                     <div class="panel revision-restore-dialog">
                         <div class="panel-body">
                             <ol class="breadcrumb dlg-breadcrumb">
@@ -89,18 +92,6 @@
                                     <button class="btn btn-default pull-right"  id="btn-cancel-overwrite-dialog" >Cancel</button>
                                 </div>
                             </div>
-                        </div>
-                        <div class="mode-dlg-locked hide">
-                            <div class="alert alert-danger">
-                                Revision of the file <strong><span class="orgFileName"></span></strong> can not be placed in location: <strong><span class='path'> </span></strong>.
-                                <br>
-                                <br>
-                                <br>This folder is in a locked state and can therefore not be changed.
-                                <br>
-                                <br>Please select another folder for placement of your revision.
-                            </div>
-
-                            <button class="btn btn-default pull-right"  id="btn-select-other-folder" >Select other folder...</button>
                         </div>
                     </div>
                 </div>
