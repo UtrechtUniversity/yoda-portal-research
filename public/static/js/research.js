@@ -570,8 +570,8 @@ const tableRenderer = {
             if (currentFolder.length==0) {
                 return '';
             }
-            actions.append(`<li><a class="folder-rename" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}">Rename</a>`);
-            actions.append(`<li><a class="folder-delete" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}">Delete</a>`);
+            actions.append(`<li><a href="#" class="folder-rename" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}">Rename</a>`);
+            actions.append(`<li><a href="#" class="folder-delete" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}">Delete</a>`);
         }
         else {
             // Render context menu for files.
@@ -589,8 +589,8 @@ const tableRenderer = {
                 actions.append(`<li><a class="view-${type}" data-path="${htmlEncode(currentFolder + '/' + row.name)}">View</a>`);
             }
 
-            actions.append(`<li><a class="file-rename" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}">Rename</a>`);
-            actions.append(`<li><a class="file-delete" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}">Delete</a>`);
+            actions.append(`<li><a href="#" class="file-rename" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}">Rename</a>`);
+            actions.append(`<li><a href="#" class="file-delete" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}">Delete</a>`);
         }
         let dropdown = $(`<div class="dropdown">
                             <span class="dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
