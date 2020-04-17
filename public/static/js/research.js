@@ -570,8 +570,8 @@ const tableRenderer = {
             if (currentFolder.length==0) {
                 return '';
             }
-            actions.append(`<li><a href="#" class="folder-rename" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}">Rename</a>`);
-            actions.append(`<li><a href="#" class="folder-delete" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}">Delete</a>`);
+            actions.append(`<li><a href="#" class="folder-rename" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}" title="Rename this folder" >Rename</a>`);
+            actions.append(`<li><a href="#" class="folder-delete" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}" title="Delete this file">Delete</a>`);
         }
         else {
             // Render context menu for files.
@@ -582,15 +582,15 @@ const tableRenderer = {
             };
             let ext = row.name.replace(/.*\./, '').toLowerCase();
 
-            actions.append(`<li><a href="browse/download?filepath=${encodeURIComponent(currentFolder + '/' + row.name)}">Download</a>`);
+            actions.append(`<li><a href="browse/download?filepath=${encodeURIComponent(currentFolder + '/' + row.name)}" title="Download this file">Download</a>`);
 
             // Generate dropdown "view" actions for different media types.
             for (let type of Object.keys(viewExts).filter(type => (viewExts[type].includes(ext)))) {
-                actions.append(`<li><a class="view-${type}" data-path="${htmlEncode(currentFolder + '/' + row.name)}">View</a>`);
+                actions.append(`<li><a class="view-${type}" data-path="${htmlEncode(currentFolder + '/' + row.name)}" title="View this file">View</a>`);
             }
 
-            actions.append(`<li><a href="#" class="file-rename" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}">Rename</a>`);
-            actions.append(`<li><a href="#" class="file-delete" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}">Delete</a>`);
+            actions.append(`<li><a href="#" class="file-rename" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}" title="Rename this file">Rename</a>`);
+            actions.append(`<li><a href="#" class="file-delete" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}" title="Delete this file">Delete</a>`);
         }
         let dropdown = $(`<div class="dropdown">
                             <span class="dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
