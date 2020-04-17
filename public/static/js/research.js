@@ -52,10 +52,9 @@ $(function() {
 
     // FOLDER rename
     $("body").on("click", "a.folder-rename", function() {
-        //alert('RENAME' + $(this).attr('data-collection')  + '--- folder: ' + $(this).attr('data-name'));
-
         fileMgmtDialogAlert('folder-rename', '');
 
+        // set initial values for further processing and user experience
         $('#folder-rename-name').val($(this).attr('data-name'));
         $('#org-folder-rename-name').val($(this).attr('data-name'));
         $('#folder-rename #collection').html($(this).attr('data-collection'));
@@ -69,15 +68,11 @@ $(function() {
 
     // FOLDER delete
     $("body").on("click", "a.folder-delete", function() {
-        //alert('DELETE' + $(this).attr('data-collection')  + '---folder: ' + $(this).attr('data-name'))
-
         fileMgmtDialogAlert('folder-delete', '');
 
         // set initial values for further processing and user experience
-
         $('#folder-delete #collection').html($(this).attr('data-collection'));
         $('#folder-delete-name').html($(this).attr('data-name'));
-
         $('.btn-confirm-folder-delete').attr('data-collection', $(this).attr('data-collection'));
         $('.btn-confirm-folder-delete').attr('data-name', $(this).attr('data-name'));
 
@@ -93,6 +88,7 @@ $(function() {
         // Destroy earlier alerts
         fileMgmtDialogAlert('file-rename', '');
 
+        // set initial values for further processing and user experience
         $('#file-rename-name').val($(this).attr('data-name'));
         $('#org-file-rename-name').val($(this).attr('data-name'));
         $('#file-rename #collection').html($(this).attr('data-collection'));
@@ -111,10 +107,8 @@ $(function() {
         fileMgmtDialogAlert('file-delete', '');
 
         // set initial values for further processing and user experience
-
         $('#file-delete #collection').html($(this).attr('data-collection'));
         $('#file-delete-name').html($(this).attr('data-name'));
-
         $('.btn-confirm-file-delete').attr('data-collection', $(this).attr('data-collection'));
         $('.btn-confirm-file-delete').attr('data-name', $(this).attr('data-name'));
 
@@ -576,8 +570,8 @@ const tableRenderer = {
             if (currentFolder.length==0) {
                 return '';
             }
-            actions.append(`<li><a class="folder-rename" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}">Rename folder</a>`);
-            actions.append(`<li><a class="folder-delete" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}">Delete folder</a>`);
+            actions.append(`<li><a class="folder-rename" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}">Rename</a>`);
+            actions.append(`<li><a class="folder-delete" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}">Delete</a>`);
         }
         else {
             // Render context menu for files.
@@ -594,10 +588,9 @@ const tableRenderer = {
             for (let type of Object.keys(viewExts).filter(type => (viewExts[type].includes(ext)))) {
                 actions.append(`<li><a class="view-${type}" data-path="${htmlEncode(currentFolder + '/' + row.name)}">View</a>`);
             }
-            //actions.append(`<li><hr>`);
+
             actions.append(`<li><a class="file-rename" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}">Rename</a>`);
             actions.append(`<li><a class="file-delete" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}">Delete</a>`);
-
         }
         let dropdown = $(`<div class="dropdown">
                             <span class="dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
@@ -765,10 +758,17 @@ function topInformation(dir, showAlert)
             var actions = [];
 
             $('.btn-group button.metadata-form').hide();
+
             $('#upload').attr('data-path', "");
             $('.btn-group button.upload').prop("disabled", true);
             $('.btn-group button.folder-create').attr('data-path', "");
             $('.btn-group button.folder-create').prop("disabled", true);
+
+            $('a.folder-delete').prop("disabled", true);
+            $('a.folder-rename').prop("disabled", true);
+            $('a.file-delete').prop("disabled", true);
+            $('a.file-rename').prop("disabled", true);
+
             $('.top-information').hide();
             $('.top-info-buttons').hide();
 
@@ -830,10 +830,14 @@ function topInformation(dir, showAlert)
                 $('#upload').attr('data-path', dir);
                 $('.btn-group button.upload').prop("disabled", false);
 
-
                 // Enable folder / file manipulations.
                 $('.btn-group button.folder-create').attr('data-path', dir);
                 $('.btn-group button.folder-create').prop("disabled", false);
+
+                $('a.folder-delete').prop("disabled", false);
+                $('a.folder-rename').prop("disabled", false);
+                $('a.file-delete').prop("disabled", false);
+                $('a.file-rename').prop("disabled", false);
             }
 
             // Lock icon
