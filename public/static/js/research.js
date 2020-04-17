@@ -767,6 +767,8 @@ function topInformation(dir, showAlert)
             $('.btn-group button.metadata-form').hide();
             $('#upload').attr('data-path', "");
             $('.btn-group button.upload').prop("disabled", true);
+            $('.btn-group button.folder-create').attr('data-path', "");
+            $('.btn-group button.folder-create').prop("disabled", true);
             $('.top-information').hide();
             $('.top-info-buttons').hide();
 
@@ -822,17 +824,17 @@ function topInformation(dir, showAlert)
                 }
             }
 
-            // Enable uploads.
+            // Check if folder is writable.
             if (hasWriteRights && (status == '' || status == 'SECURED')) {
+                // Enable uploads.
                 $('#upload').attr('data-path', dir);
-
                 $('.btn-group button.upload').prop("disabled", false);
+
+
+                // Enable folder / file manipulations.
+                $('.btn-group button.folder-create').attr('data-path', dir);
+                $('.btn-group button.folder-create').prop("disabled", false);
             }
-
-            // Folder/file manipulations
-            // WHICH rights have to be correctly set to be allowed adding a folder
-            $('.btn-group button.folder-create').attr('data-path', dir);
-
 
             // Lock icon
             $('.lock-items').hide();
