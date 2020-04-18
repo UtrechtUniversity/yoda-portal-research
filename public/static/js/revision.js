@@ -563,7 +563,6 @@ async function restoreRevision(overwriteFlag)
     console.log('restoreRevision()');
     console.log(overwriteFlag);
 
-
     var restorationObjectId = $('#restoration-objectid').val(),
         newFileName = $('#newFileName').val();
 
@@ -628,7 +627,11 @@ async function restoreRevision(overwriteFlag)
         html = 'Successfully made a copy of revision';
         html += ' <a href="/research/?dir=' + dlgCurrentFolder + '">Go to research area</a>';
 
-        $('.mode-dlg-exists .alert-warning').html(html);
+        dlgAlertShow(html);
+
+        // $('.mode-dlg-exists').removeClass('hide');
+        //$('#form-restore-overwrite').removeClass('hide');
+        //$('.mode-dlg-exists .alert-warning').html(html);
         //dlgAlertShow(html);
     }
     else { // non api error - simply present the error in the main-revision-restore dialog
