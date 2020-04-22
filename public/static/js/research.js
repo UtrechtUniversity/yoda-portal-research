@@ -1116,7 +1116,7 @@ function handleUpload(path, files) {
         logUpload(id, file);
 
         // Check file size.
-        if(file.size > 100*1024*1024) {
+        if(file.size > 300*1024*1024) {
             $("#" + id + " .msg").html("Exceeds file limit");
             continue;
         }

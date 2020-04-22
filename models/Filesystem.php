@@ -110,7 +110,7 @@ class Filesystem extends CI_Model {
 
             // Check file size.
             $size = filesize($tmpFile);
-            $maxSize = 100 * 1024 * 1024;
+            $maxSize = 300 * 1024 * 1024;
             if ($size > $maxSize) {
                 $output = array(
                     'status' => 'ERROR',
