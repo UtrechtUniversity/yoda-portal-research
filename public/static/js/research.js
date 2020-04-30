@@ -639,21 +639,17 @@ function toggleLocksList(folder)
         $('.lock-items').hide();
     } else {
         // Get locks
-        $.getJSON("browse/list_locks?folder=" + encodeURIComponent(folder), function (data) {
+        Yoda.call('uu_folder_get_locks',
+                  {'coll':  Yoda.basePath + folder})
+        .then((data) => {
             $('.lock-items').hide();
 
-            if (data.status == 'Success') {
-                var html = '<li class="list-group-item disabled">Locks:</li>';
-                var locks = data.result;
-                $.each(locks, function (index, value) {
-                    html += '<li class="list-group-item"><span class="browse" data-path="' + htmlEncode(value) + '">' + htmlEncode(value) + '</span></li>';
-                });
-                $('.lock-items').html(html);
-                $('.lock-items').show();
-            } else {
-                setMessage('error', data.statusInfo);
-            }
-
+            var html = '<li class="list-group-item disabled">Locks:</li>';
+            $.each(data, function (index, value) {
+                html += '<li class="list-group-item"><span class="browse" data-path="' + htmlEncode(value) + '">' + htmlEncode(value) + '</span></li>';
+            });
+            $('.lock-items').html(html);
+            $('.lock-items').show();
         });
     }
 }

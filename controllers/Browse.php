@@ -81,36 +81,6 @@ class Browse extends MY_Controller
         loadView('browse', $viewParams);
     }
 
-    public function list_locks()
-    {
-        $rodsaccount = $this->rodsuser->getRodsAccount();
-        $pathStart = $this->pathlibrary->getPathStart($this->config);
-        $folderPath = $this->input->get('folder');
-        $fullPath = $pathStart . $folderPath;
-
-        $result = $this->filesystem->listLocks($rodsaccount, $fullPath);
-
-        // Strip path
-        $locks = array();
-        if ($result['*status'] == 'Success') {
-            $total = $result['*result']['total'];
-            if ($total > 0) {
-                $locksResult = $result['*result']['locks'];
-                foreach ($locksResult as $path) {
-                    $locks[] = str_replace($pathStart, '', $path);
-                }
-            }
-        }
-
-        $output = array('result' => $locks,
-	                'status' => $result['*status'],
-			'statusInfo' => $result['*statusInfo']);
-
-        $this->output
-            ->set_content_type('application/json')
-            ->set_output(json_encode($output));
-    }
-
     public function download()
     {
         $rodsaccount = $this->rodsuser->getRodsAccount();
