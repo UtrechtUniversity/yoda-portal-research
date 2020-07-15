@@ -100,7 +100,7 @@ let getRevisionListContents = (() => {
             // Nope, load new data via the API.
             let j = ++i;
 
-            let result = await Yoda.call('uu_research_revisions_search_on_filename',
+            let result = await Yoda.call('research_revisions_search_on_filename',
                 {'searchString':   currentSearchArg,   /// TOEVOEGEN SEARCH ARGUMENT
                     'offset':     args.start,
                     'limit':      batchSize});
@@ -172,7 +172,7 @@ async function clickFileForRevisionDetails(obj, dtTable) {
         return;
     }
 
-    let result = await Yoda.call('uu_research_revision_list',
+    let result = await Yoda.call('research_revision_list',
         {'path':   Yoda.basePath + '/' + path });
 
     var htmlDetailView = '';
@@ -319,7 +319,7 @@ let getFolderContents2 = (() => {
             // Nope, load new data via the API.
             let j = ++i;
             // + currentFolder
-            let result = await Yoda.call('uu_browse_collections',
+            let result = await Yoda.call('browse_collections',
                 {'coll':     Yoda.basePath + dlgCurrentFolder, //
                     'offset':     args.start,
                     'limit':      batchSize,
@@ -590,7 +590,7 @@ async function restoreRevision(overwriteFlag)
         }
     }
 
-    let result = await Yoda.call('uu_research_revision_restore',
+    let result = await Yoda.call('research_revision_restore',
         {   revision_id: restorationObjectId,
             overwrite: overwriteFlag,
             coll_target: Yoda.basePath + revisionTargetColl,

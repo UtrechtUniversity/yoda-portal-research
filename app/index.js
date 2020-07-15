@@ -223,7 +223,7 @@ class Container extends React.Component {
         },
         async isConfirm => {
             if (isConfirm) {
-                await Yoda.call('uu_meta_clone_file',
+                await Yoda.call('meta_clone_file',
                                 {target_coll: Yoda.basePath+path},
                                 {errorPrefix: 'Metadata could not be cloned'});
                 window.location.reload();
@@ -266,7 +266,7 @@ function deleteMetadata() {
     },
     async isConfirm => {
         if (isConfirm) {
-            await Yoda.call('uu_meta_remove',
+            await Yoda.call('meta_remove',
                             {coll: Yoda.basePath+path},
                             {errorPrefix: 'Metadata could not be deleted'});
 
@@ -303,7 +303,7 @@ function loadForm(properties) {
         $('.transformation-accept').on('click', async () => {
             $('.transformation-accept').attr('disabled', true);
 
-            await Yoda.call('uu_transform_metadata',
+            await Yoda.call('transform_metadata',
                             {coll: Yoda.basePath+path},
                             {errorPrefix: 'Metadata could not be transformed'});
 
@@ -358,7 +358,7 @@ async function submitData(data) {
 
     // Save.
     try {
-        await Yoda.call('uu_meta_form_save',
+        await Yoda.call('meta_form_save',
                         {coll: Yoda.basePath+path, metadata: data},
                         {errorPrefix: 'Metadata could not be saved'});
 

@@ -79,7 +79,7 @@ let getSearchResults = (() => {
     let get = async (args) => {
         // Load new data via the API.
         let j = ++i;
-        let result = await Yoda.call('uu_search', {
+        let result = await Yoda.call('search', {
             'search_string': currentSearchString,
             'search_type': currentSearchType,
             'offset': args.start,

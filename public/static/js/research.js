@@ -178,7 +178,7 @@ $(function() {
 
         if (preservableFormatsLists === null) {
             // Retrieve preservable file format lists.
-            Yoda.call('uu_vault_preservable_formats_lists').then((data) => {
+            Yoda.call('vault_preservable_formats_lists').then((data) => {
                 preservableFormatsLists = data;
 
                 $('#file-formats-list').html("<option value='' disabled selected>Select a file format list</option>");
@@ -210,7 +210,7 @@ $(function() {
         $('#showUnpreservableFiles .advice').text(preservableFormatsLists[list]["advice"]);
 
         // Retrieve unpreservable files in folder.
-        Yoda.call('uu_vault_unpreservable_files',
+        Yoda.call('vault_unpreservable_files',
                   {coll: Yoda.basePath + folder, list_name: list}).then((data) => {
             $('#showUnpreservableFiles .checking').hide();
             $('#showUnpreservableFiles .help').show();
@@ -270,7 +270,7 @@ async function handleFolderAdd(new_folder, collection) {
         return;
     }
 
-    let result = await Yoda.call('uu_research_folder_add',
+    let result = await Yoda.call('research_folder_add',
         {   coll: Yoda.basePath +  collection,
             new_folder_name: new_folder
         },
@@ -295,7 +295,7 @@ async function handleFolderRename(new_folder_name, collection, org_folder_name) 
         return;
     }
 
-    let result = await Yoda.call('uu_research_folder_rename',
+    let result = await Yoda.call('research_folder_rename',
         {   new_folder_name: new_folder_name,
             coll: Yoda.basePath +  collection,
             org_folder_name: org_folder_name
@@ -316,7 +316,7 @@ async function handleFolderRename(new_folder_name, collection, org_folder_name) 
 
 
 async function handleFolderDelete(collection, folder_name) {
-    let result = await Yoda.call('uu_research_folder_delete',
+    let result = await Yoda.call('research_folder_delete',
         {
             coll: Yoda.basePath +  collection,
             folder_name: folder_name
@@ -341,7 +341,7 @@ async function handleFileRename(new_file_name, collection, org_file_name) {
         return;
     }
 
-    let result = await Yoda.call('uu_research_file_rename',
+    let result = await Yoda.call('research_file_rename',
         {   new_file_name: new_file_name,
             coll: Yoda.basePath +  collection,
             org_file_name: org_file_name
@@ -361,7 +361,7 @@ async function handleFileRename(new_file_name, collection, org_file_name) {
 }
 
 async function handleFileDelete(collection, file_name) {
-    let result = await Yoda.call('uu_research_file_delete',
+    let result = await Yoda.call('research_file_delete',
         {
             coll: Yoda.basePath +  collection,
             file_name: file_name
@@ -486,7 +486,7 @@ let getFolderContents = (() => {
         } else {
             // Nope, load new data via the API.
             let j = ++i;
-            let result = await Yoda.call('uu_browse_folder',
+            let result = await Yoda.call('browse_folder',
                                          {'coll':       Yoda.basePath + currentFolder,
                                           'offset':     args.start,
                                           'limit':      batchSize,
@@ -639,7 +639,7 @@ function toggleLocksList(folder)
         $('.lock-items').hide();
     } else {
         // Get locks
-        Yoda.call('uu_folder_get_locks',
+        Yoda.call('folder_get_locks',
                   {'coll':  Yoda.basePath + folder})
         .then((data) => {
             $('.lock-items').hide();
@@ -671,7 +671,7 @@ function buildActionLog(folder)
     let actionList = $('.actionlog-items');
 
     // Get provenance information
-    Yoda.call('uu_provenance_log',
+    Yoda.call('provenance_log',
               {coll: Yoda.basePath + folder}).then((data) => {
         actionList.hide();
 
@@ -705,7 +705,7 @@ function toggleSystemMetadata(folder)
         systemMetadata.hide();
     } else {
         // Retrieve system metadata of folder.
-        Yoda.call('uu_research_system_metadata',
+        Yoda.call('research_system_metadata',
                   {coll: Yoda.basePath + folder}).then((data) => {
             systemMetadata.hide();
             var html = '<li class="list-group-item disabled">System metadata:</li>';
@@ -741,7 +741,7 @@ window.addEventListener('popstate', function(e) {
 function topInformation(dir, showAlert)
 {
     if (typeof dir != 'undefined') {
-        Yoda.call('uu_research_collection_details',
+        Yoda.call('research_collection_details',
                   {path: Yoda.basePath + dir}).then((data) => {
             let statusText = "";
             var basename = data.basename;
@@ -938,7 +938,7 @@ async function lockFolder(folder)
     // Change folder status call
 
     try {
-        await Yoda.call('uu_folder_lock',
+        await Yoda.call('folder_lock',
                         {'coll': Yoda.basePath + folder})
         // Set actions
         var actions = [];
@@ -973,7 +973,7 @@ async function unlockFolder(folder)
     $('.btn-group button.folder-status').prop("disabled", true).next().prop("disabled", true);
 
     try {
-        await Yoda.call('uu_folder_unlock',
+        await Yoda.call('folder_unlock',
                         {'coll': Yoda.basePath + folder});
         // Set actions
         let actions = [];
@@ -1018,7 +1018,7 @@ async function submitToVault(folder)
         $('.btn-group button.folder-status').prop("disabled", true).next().prop("disabled", true);
 
         try {
-            let status = await Yoda.call('uu_folder_submit',
+            let status = await Yoda.call('folder_submit',
                                          {'coll': Yoda.basePath + folder})
             if (status === 'SUBMITTED') {
                 $('#statusBadge').html('Submitted');
@@ -1047,7 +1047,7 @@ async function unsubmitToVault(folder) {
         $('.btn-group button.folder-status').prop("disabled", true).next().prop("disabled", true);
 
         try {
-            let status = await Yoda.call('uu_folder_unsubmit',
+            let status = await Yoda.call('folder_unsubmit',
                                          {'coll': Yoda.basePath + folder})
             $('#statusBadge').html('');
         } catch(e) {
@@ -1064,7 +1064,7 @@ async function acceptFolder(folder)
     $('.btn-group button.folder-status').prop("disabled", true).next().prop("disabled", true);
 
     try {
-        await Yoda.call('uu_folder_accept',
+        await Yoda.call('folder_accept',
                                   {'coll': Yoda.basePath + folder})
         $('#statusBadge').html('Accepted');
     } catch (e) {
@@ -1080,7 +1080,7 @@ async function rejectFolder(folder)
     $('.btn-group button.folder-status').prop("disabled", true).next().prop("disabled", true);
 
     try {
-        await Yoda.call('uu_folder_reject',
+        await Yoda.call('folder_reject',
                         {'coll': Yoda.basePath + folder})
         $('#statusBadge').html('Rejected');
     } catch (e) {
