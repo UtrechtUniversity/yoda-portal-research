@@ -178,7 +178,7 @@ async function clickFileForRevisionDetails(obj, dtTable) {
     var htmlDetailView = '';
     hmltDetailView = '<div class="col-md-12"><div class="row">';
 
-    if (!collection_exists)
+    if (collection_exists=='false')
         htmlDetailView += '<i class="fa fa-exclamation-circle"></i> This collection no longer exists.';
 
     htmlDetailView += '<table id="" class="table" ><thead><tr><th>Revision date</th><th>Owner</th><th>Size</th></tr></thead>';
@@ -213,6 +213,10 @@ async function clickFileForRevisionDetails(obj, dtTable) {
         var id = $(this).data('objectid'),
             path = decodeURIComponent($(this).data('path')),
             orgFileName = decodeURIComponent($(this).data('orgfilename'));
+       
+        // When the collection no longer exists, fall back to the root 
+        if (collection_exists == 'false')
+            path = '/' + path.split('/')[1]; 
         showFolderSelectDialog(id, path, orgFileName);
 
         event.stopPropagation();
