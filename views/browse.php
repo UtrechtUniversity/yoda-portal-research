@@ -4,8 +4,6 @@
     var view = 'browse';
 </script>
 
-<?php echo $searchHtml; ?>
-
 <div class="modal" id="showUnpreservableFiles">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -175,34 +173,41 @@
     </div>
 </div>
 
-<div class="row">
-    <ol class="breadcrumb">
-        <li class="active">Home</li>
-    </ol>
+<?php echo $searchHtml; ?>
+
+<div class="row d-block">
+    <nav aria-label="breadcrumb flex-column">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">Home</li>
+        </ol>
+    </nav>
 
     <div class="top-information">
          <div class="row">
             <div class="col-md-6">
-                <h1></h1>
+                <h2 class="pt-3"></h2>
             </div>
             <div class="col-md-6">
                 <div class="top-info-buttons">
-                    <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-default metadata-form" data-path="" title="Open metadata form">Metadata</button>
-                    </div>
-                    <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-default folder-create" data-path="" title="Create a new folder"><i class="fa fa-folder" aria-hidden="true"></i> Create Folder</button>
-                    </div>
-                    <div class="btn-group" role="group">
-                        <input type="file" id="upload" multiple style="display: none" />
-                        <button type="button" class="btn btn-default upload" data-path="" title="Upload files up to 300MB"><i class="fa fa-upload" aria-hidden="true"></i> Upload</button>
-                    </div>
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-default folder-status" data-toggle="dropdown" disabled="disabled">Actions</button>
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" disabled="disabled">
-                            <span class="caret"></span><span class="sr-only">Actions</span>
-                        </button>
-                        <ul class="dropdown-menu action-list" role="menu"></ul>
+                    <div class="btn-toolbar pull-right" role="toolbar">
+                        <div class="btn-group mr-2" role="group">
+                            <button type="button" class="btn btn-outline-secondary metadata-form" data-path="" title="Open metadata form">Metadata</button>
+                        </div>
+                        <div class="btn-group mr-2" role="group">
+                            <button type="button" class="btn btn-outline-secondary folder-create" data-path="" title="Create a new folder"><i class="fa fa-folder" aria-hidden="true"></i> Create Folder</button>
+                        </div>
+                        <div class="btn-group mr-2" role="group">
+                            <input type="file" id="upload" multiple style="display: none" />
+                            <button type="button" class="btn btn-outline-secondary upload" data-path="" title="Upload files up to 300MB"><i class="fa fa-upload" aria-hidden="true"></i> Upload</button>
+                        </div>
+                        <div class="btn-group">
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Actions
+                                </button>
+                                <div class="dropdown-menu action-list" role="menu"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -214,7 +219,7 @@
     </div>
 
     <div class="col-md-12">
-        <div class="row">
+        <div class="row d-block">
             <table id="file-browser" class="table yoda-table table-striped" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);">
                 <thead>
                     <tr>

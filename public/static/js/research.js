@@ -424,7 +424,7 @@ function makeBreadcrumb(dir)
 
     let html = '';
     for (let [i, [text, path]] of crumbs.entries()) {
-        let el = $('<li>');
+        let el = $('<li class="breadcrumb-item">');
         text = htmlEncode(text).replace(/ /g, '&nbsp;');
         if (i === crumbs.length-1)
              el.addClass('active').html(text);
@@ -434,7 +434,7 @@ function makeBreadcrumb(dir)
         html += el[0].outerHTML;
     }
 
-    $('ol.breadcrumb').html(html);
+    $('nav ol.breadcrumb').html(html);
 }
 
 function htmlEncode(value){
@@ -563,15 +563,15 @@ const tableRenderer = {
          return elem[0].outerHTML;
      },
     context: (_, __, row) => {
-        let actions = $('<ul class="dropdown-menu">');
+        let actions = $('<div class="dropdown-menu">');
 
         if (row.type === 'coll') {
             // no context menu for toplevel group-collections - these cannot be altered or deleted
             if (currentFolder.length==0) {
                 return '';
             }
-            actions.append(`<li><a href="#" class="folder-rename" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}" title="Rename this folder" >Rename</a>`);
-            actions.append(`<li><a href="#" class="folder-delete" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}" title="Delete this file">Delete</a>`);
+            actions.append(`<a href="#" class="dropdown-item" class="folder-rename" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}" title="Rename this folder" >Rename</a>`);
+            actions.append(`<a class="dropdown-item" href="#" class="folder-delete" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}" title="Delete this file">Delete</a>`);
         }
         else {
             // Render context menu for files.
@@ -582,20 +582,20 @@ const tableRenderer = {
             };
             let ext = row.name.replace(/.*\./, '').toLowerCase();
 
-            actions.append(`<li><a href="browse/download?filepath=${encodeURIComponent(currentFolder + '/' + row.name)}" title="Download this file">Download</a>`);
+            actions.append(`<a class="dropdown-item" href="browse/download?filepath=${encodeURIComponent(currentFolder + '/' + row.name)}" title="Download this file">Download</a>`);
 
             // Generate dropdown "view" actions for different media types.
             for (let type of Object.keys(viewExts).filter(type => (viewExts[type].includes(ext)))) {
-                actions.append(`<li><a class="view-${type}" data-path="${htmlEncode(currentFolder + '/' + row.name)}" title="View this file">View</a>`);
+                actions.append(`<a class="dropdown-item view-${type}" data-path="${htmlEncode(currentFolder + '/' + row.name)}" title="View this file">View</a>`);
             }
 
-            actions.append(`<li><a href="#" class="file-rename" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}" title="Rename this file">Rename</a>`);
-            actions.append(`<li><a href="#" class="file-delete" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}" title="Delete this file">Delete</a>`);
+            actions.append(`<a href="#" class="dropdown-item file-rename" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}" title="Rename this file">Rename</a>`);
+            actions.append(`<a href="#" class="dropdown-item file-delete" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}" title="Delete this file">Delete</a>`);
         }
         let dropdown = $(`<div class="dropdown">
-                            <span class="dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                              <span class="glyphicon glyphicon-option-horizontal" aria-hidden="true"></span>
-                            </span>`);
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                              <i class="fa fa-ellipsis-h" aria-hidden="true"></i>
+                            </button>`);
         dropdown.append(actions);
 
         return dropdown[0].outerHTML;
@@ -878,7 +878,7 @@ function topInformation(dir, showAlert)
             $('.btn-group button.folder-status').prop("disabled", false).next().prop("disabled", false);
 
             var icon = '<i class="fa fa-folder-open-o" aria-hidden="true"></i>';
-            $('.top-information h1').html(`<span class="icon">${icon}</span> ${folderName}${lockIcon}${systemMetadataIcon}${actionLogIcon}${statusBadge}`);
+            $('.top-information h2').html(`<span class="icon">${icon}</span> ${folderName}${lockIcon}${systemMetadataIcon}${actionLogIcon}${statusBadge}`);
 
             // Show top information and buttons.
             if (typeof status != 'undefined') {
@@ -909,18 +909,18 @@ function handleActionsList(actions, folder)
 
     $.each(possibleActions, function( index, value ) {
         if (actions.hasOwnProperty(value)) {
-            html += '<li><a class="action-' + value + '" data-folder="' + htmlEncode(folder) + '">' + actions[value] + '</a></li>';
+            html += '<a class="dropdown-item action-' + value + '" data-folder="' + htmlEncode(folder) + '">' + actions[value] + '</a>';
         }
     });
 
     $.each(possibleVaultActions, function( index, value ) {
         if (actions.hasOwnProperty(value)) {
-            vaultHtml += '<li><a class="action-' + value + '" data-folder="' + htmlEncode(folder) + '">' + actions[value] + '</a></li>';
+            vaultHtml += '<a class="dropdown-item action-' + value + '" data-folder="' + htmlEncode(folder) + '">' + actions[value] + '</a>';
         }
     });
 
     if (html != '' && vaultHtml != '') {
-        html += '<li class="divider"></li>' + vaultHtml;
+        html += '<div class="dropdown-divider"></div>' + vaultHtml;
     } else if (vaultHtml != '') {
         html += vaultHtml;
     }

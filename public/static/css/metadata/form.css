@@ -202,3 +202,7 @@ button[data-clone*="main"] {
 .transformation-accept {
     margin-right: 5px;
 }
+
+.hide {
+    display: none;
+}

@@ -51,16 +51,14 @@
 
     <div id="metadata-form" class="row hide">
         <div class="col-md-12">
-            <div class="panel panel-default">
-                <div class="panel-heading clearfix">
-                    <h3 class="panel-title pull-left">
-                        Metadata form - <?php echo str_replace(' ', '&nbsp;', htmlentities(trim($path))); ?>
-                    </h3>
+            <div class="card">
+                <div class="card-header">
+                    Metadata form - <?php echo str_replace(' ', '&nbsp;', htmlentities(trim($path))); ?>
                     <div class="input-group-sm has-feedback pull-right close-button">
-                        <a class="btn btn-default" href="/research/browse?dir=<?php echo rawurlencode($path); ?>">Close</a>
+                        <a class="btn btn-light" href="/research/browse?dir=<?php echo rawurlencode($path); ?>">Close</a>
                     </div>
                 </div>
-                <div class="panel-body">
+                <div class="card-body">
                     <div id="no-metadata" class="hide">
                         <p>There is no metadata present for this folder.</p>
                     </div>

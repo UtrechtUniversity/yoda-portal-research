@@ -1,8 +1,9 @@
 import React, { Component } from "react";
 import { render } from "react-dom";
-import Form from "react-jsonschema-form";
+import Form from "@rjsf/bootstrap-4";
 import Select from 'react-select';
-import Geolocation from "./Geolocation"
+import Geolocation from "./Geolocation";
+
 
 const path = $('#form').attr('data-path');
 
