@@ -181,7 +181,7 @@ async function clickFileForRevisionDetails(obj, dtTable) {
     if (!collection_exists)
         htmlDetailView += '<i class="fa fa-exclamation-circle"></i> This collection no longer exists.';
 
-    htmlDetailView += '<table id="" class="table" ><thead><tr><th>Revision date</th><th>Owner</th><th>Size</th></tr></thead>';
+    htmlDetailView += '<table id="" class="table" ><thead><tr><th>Revision date</th><th>Owner</th><th>Size</th><th></th></tr></thead>';
     htmlDetailView += '<tbody>';
 
     for (i=0; i<result.revisions.length;i++)
@@ -209,12 +209,10 @@ async function clickFileForRevisionDetails(obj, dtTable) {
 
     // Button handling restore button: After opening sub windown give possibility to select folder for placement of selected revision
     $('.btn-revision-select-dialog').on('click', function(){
-
         var id = $(this).data('objectid'),
             path = decodeURIComponent($(this).data('path')),
             orgFileName = decodeURIComponent($(this).data('orgfilename'));
         showFolderSelectDialog(id, path, orgFileName);
-
         event.stopPropagation();
     });
 }
@@ -232,6 +230,10 @@ function showFolderSelectDialog(restorationObjectId, path, orgFileName)
 
     var decodedFileName = decodeURIComponent(orgFileName);
 
+    console.log(restorationObjectId);
+    console.log(path);
+    console.log(decodedFileName);
+
     // Dit moet allemaal naar de sub dlg Duplicate
     // $('#newFileName').val(orgFileName);  //val(decodedFileName); // Is in dialog where to enter a new name when duplicate
     // // .path is for error reporting
@@ -247,7 +249,10 @@ function showFolderSelectDialog(restorationObjectId, path, orgFileName)
     $('.cover').addClass('hide');
     $('.revision-restore-dialog').removeClass('hide');
 
-    $('#select-folder').modal('show');
+
+    // window.$("#select-folder").modal("show");
+    jQuery("#select-folder").modal()
+    //$('#select-folder').modal('show');
 }
 
 

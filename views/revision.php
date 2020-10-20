@@ -102,29 +102,31 @@
 
 <?php echo $searchHtml; ?>
 
-<div class="row">
-    <div class="panel panel-default">
-        <div class="panel-heading clearfix">
-            <h3 class="panel-title pull-left">
-                Revisions
-            </h3>
-            <div class="input-group-sm has-feedback pull-right">
-                <a class="btn btn-default" href="/research/browse">Close</a>
+<div class="col-md-12">
+    <div class="row d-block">
+        <div class="panel panel-default">
+            <div class="panel-heading clearfix">
+                <h3 class="panel-title pull-left">
+                    Revisions
+                </h3>
+                <div class="input-group-sm has-feedback pull-right">
+                    <a class="btn btn-default grey cancel" href="/research/browse">Close</a>
+                </div>
             </div>
-        </div>
-        <div class="panel-body">
-            <p class="alert-panel-main hide" style="color:green;">
-                <i class="fa fa-check"></i> Your file was successfully restored!
-            </p>
+            <div class="panel-body">
+                <p class="alert-panel-main hide" style="color:green;">
+                    <i class="fa fa-check"></i> Your file was successfully restored!
+                </p>
 
-            <table id="file-browser" class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Number of revisions</th>
-                    </tr>
-                </thead>
-            </table>
+                <table id="file-browser" class="table yoda-table dataTable no-footer" role="grid">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Number of revisions</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
     </div>
 </div>
