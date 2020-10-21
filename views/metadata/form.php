@@ -55,7 +55,7 @@
                 <div class="card-header">
                     Metadata form - <?php echo str_replace(' ', '&nbsp;', htmlentities(trim($path))); ?>
                     <div class="input-group-sm has-feedback pull-right close-button">
-                        <a class="btn btn-light" href="/research/browse?dir=<?php echo rawurlencode($path); ?>">Close</a>
+                        <a class="btn btn-light btn-sm" href="/research/browse?dir=<?php echo rawurlencode($path); ?>">Close</a>
                     </div>
                 </div>
                 <div class="card-body">

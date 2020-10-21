@@ -42,7 +42,7 @@ const enumWidget = (props) => {
 };
 
 const widgets = {
-    SelectWidget: enumWidget
+    //SelectWidget: enumWidget
 };
 
 const fields = {
@@ -123,7 +123,7 @@ class YodaForm extends React.Component {
 
     render () {
         return (
-        <Form className="form form-horizontal metadata-form"
+        <Form className="metadata-form"
               schema={schema}
               idPrefix={"yoda"}
               uiSchema={uiSchema}
@@ -385,23 +385,7 @@ function CustomFieldTemplate(props) {
     if (formContext.saving) {
       return (
         <div className={classNames}>
-          <label className={'col-sm-2 control-label'}>
-            <span data-toggle="tooltip" title={help.props.help}>{label}</span>
-          </label>
-
-          {required ? (
-            <span className={'fa-stack col-sm-1'}>
-              <i className={'fa fa-lock safe fa-stack-1x'} aria-hidden="true" data-toggle="tooltip" title="Required for the vault"></i>
-              {!hasErrors ? (
-                <i className={'fa fa-check fa-stack-1x checkmark-green-top-right'} aria-hidden="true" data-toggle="tooltip" title="Filled out correctly for the vault"></i>
-              ) : (
-                null
-              )}
-            </span>
-          ) : (
-            <span className={'fa-stack col-sm-1'}></span>
-          )}
-          <div className={'col-sm-9 field-wrapper'}>
+          <div className={'col-sm-11 field-wrapper'}>
             <div className={'row'}>
               <div className={'col-sm-12'}>
                 {description}
@@ -415,22 +399,6 @@ function CustomFieldTemplate(props) {
     } else {
        return (
         <div className={classNames}>
-          <label className={'col-sm-2 control-label'}>
-            <span data-toggle="tooltip" title={help.props.help}>{label}</span>
-          </label>
-
-          {required && !readonly ? (
-            <span className={'fa-stack col-sm-1'}>
-              <i className={'fa fa-lock safe fa-stack-1x'} aria-hidden="true" data-toggle="tooltip" title="Required for the vault"></i>
-              {!hasErrors ? (
-                <i className={'fa fa-check fa-stack-1x checkmark-green-top-right'} aria-hidden="true" data-toggle="tooltip" title="Filled out correctly for the vault"></i>
-              ) : (
-                null
-              )}
-            </span>
-          ) : (
-            <span className={'fa-stack col-sm-1'}></span>
-          )}
           <div className={'col-sm-9 field-wrapper'}>
             <div className={'row'}>
               <div className={'col-sm-12'}>
@@ -469,8 +437,7 @@ function ObjectFieldTemplate(props) {
                 <label className="col-sm-2 combined-main-label control-label">
                     <span data-toggle="tooltip" title={props.uiSchema["ui:help"]}>{props.title}</span>
                 </label>
-                <span className="fa-stack col-sm-1"></span>
-                <div className="col-sm-9">
+                <div className="col-sm-11">
                     <div className="form-group row">
                         {output}
                     </div>
@@ -522,10 +489,10 @@ function ArrayFieldTemplate(props) {
                     {element.children}
                     <div className={"btn-controls btn-group btn-count-" + btnCount} role="group">
                         {canRemove &&
-                        <button type="button" className="clone-btn btn btn-default" onClick={item.onDropIndexClick(item.index)}>
+                        <button type="button" className="clone-btn btn btn-outline-secondary" onClick={item.onDropIndexClick(item.index)}>
                             <i className="fa fa-minus" aria-hidden="true"></i>
                         </button>}
-                        <button type="button" className="clone-btn btn btn-default" onClick={props.onAddClick}>
+                        <button type="button" className="clone-btn btn btn-outline-secondary" onClick={props.onAddClick}>
                             <i className="fa fa-plus" aria-hidden="true"></i>
                         </button>
                     </div>
@@ -537,7 +504,7 @@ function ArrayFieldTemplate(props) {
                     <div key={i} className="has-btn">
                         {element.children}
                         <div className="btn-controls">
-                            <button type="button" className="clone-btn btn btn-default" onClick={item.onDropIndexClick(item.index)}>
+                            <button type="button" className="clone-btn btn btn-outline-secondary" onClick={item.onDropIndexClick(item.index)}>
                                 <i className="fa fa-minus" aria-hidden="true"></i>
                             </button>
                         </div>
