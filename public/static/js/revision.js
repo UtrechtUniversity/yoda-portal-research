@@ -31,7 +31,6 @@ $( document ).ready(function() {
     });
 });
 
-
 /// MAIN TABLE containing revisioned files
 function startBrowsing(items) {
     var mainTable = $('#file-browser').DataTable({
@@ -138,7 +137,6 @@ let getRevisionListContents = (() => {
         return fn;
 })();
 
-
 const tableRenderer = {
         name: (name, _, row) => {
             //let tgt = `${dlgCurrentFolder}/${name}`;
@@ -149,7 +147,6 @@ const tableRenderer = {
             return htmlEncode(count);
         }
 };
-
 
 ///////////////////////////////////////////////////////////////////////////////////////
 // Main - revision table dropdown window hodling revision details
@@ -181,7 +178,7 @@ async function clickFileForRevisionDetails(obj, dtTable) {
     if (!collection_exists)
         htmlDetailView += '<i class="fa fa-exclamation-circle"></i> This collection no longer exists.';
 
-    htmlDetailView += '<table id="" class="table" ><thead><tr><th>Revision date</th><th>Owner</th><th>Size</th></tr></thead>';
+    htmlDetailView += '<table id="" class="table" ><thead><tr><th>Revision date</th><th>Owner</th><th>Size</th><th></th></tr></thead>';
     htmlDetailView += '<tbody>';
 
     for (i=0; i<result.revisions.length;i++)
@@ -193,11 +190,12 @@ async function clickFileForRevisionDetails(obj, dtTable) {
 
         htmlDetailView += '<td><div class="btn-group" role="group" aria-label="...">';
         // list of available revisions for given file. button for restoring purposes
-        htmlDetailView += '<button type="button" class="btn btn-default btn-revision-select-dialog"' +
+        htmlDetailView += '<button type="button" class="btn btn-outline-secondary btn-revision-select-dialog" ' +
+            //'data-toggle="modal" data-target="#select-folder" ' +
             'data-orgfilename="' + rawurlencode(result.revisions[i].org_original_data_name) + '" ' +
             'data-objectid="' + result.revisions[i].data_id + '"' +
-            'data-path="' + rawurlencode(result.revisions[i].dezoned_coll_name) + '"><i class="fa fa-magic" aria-hidden="true"></i> Restore</button';
-        htmlDetailView += '</td>';
+            'data-path="' + rawurlencode(result.revisions[i].dezoned_coll_name) + '"><i class="fa fa-magic" aria-hidden="true"></i> Restore</button>';
+        htmlDetailView += '</div></td>';
         htmlDetailView += '</tr>';
     }
     htmlDetailView += '</tbody>';
@@ -209,18 +207,16 @@ async function clickFileForRevisionDetails(obj, dtTable) {
 
     // Button handling restore button: After opening sub windown give possibility to select folder for placement of selected revision
     $('.btn-revision-select-dialog').on('click', function(){
-
+        console.log('CKIKC')
         var id = $(this).data('objectid'),
             path = decodeURIComponent($(this).data('path')),
             orgFileName = decodeURIComponent($(this).data('orgfilename'));
         showFolderSelectDialog(id, path, orgFileName);
-
-        event.stopPropagation();
+        //event.stopPropagation();
     });
 }
 
 //////////////////////////////////////////////// SELECT FOLDER FOR SPECIFIC REVISION
-
 // functions for handling of folder selection - easy point of entry for select-folder functionality from the panels within dataTables
 // objectid is the Id of the revision that has to be restored
 function showFolderSelectDialog(restorationObjectId, path, orgFileName)
@@ -231,6 +227,10 @@ function showFolderSelectDialog(restorationObjectId, path, orgFileName)
     $('#org_folder_select_filename').val(orgFileName);
 
     var decodedFileName = decodeURIComponent(orgFileName);
+
+    console.log(restorationObjectId);
+    console.log(path);
+    console.log(decodedFileName);
 
     // Dit moet allemaal naar de sub dlg Duplicate
     // $('#newFileName').val(orgFileName);  //val(decodedFileName); // Is in dialog where to enter a new name when duplicate
@@ -249,7 +249,6 @@ function showFolderSelectDialog(restorationObjectId, path, orgFileName)
 
     $('#select-folder').modal('show');
 }
-
 
 function startBrowsing2(path, items)  // deze draait om currentFolder
 {
@@ -366,8 +365,6 @@ let getFolderContents2 = (() => {
     return fn;
 })();
 
-
-
 const tableRenderer2 = {
     name: (name, _, row) => {
         let tgt = `${dlgCurrentFolder}/${name}`;
@@ -404,10 +401,7 @@ const tableRenderer2 = {
     }
 };
 
-
-
 //// handling DIALOG SELECT FOLDER
-
 // dlg-select-folder
 $( document ).ready(function() {
     // dlg-select-folder => Button to actually restore the file
@@ -421,11 +415,10 @@ $( document ).ready(function() {
         // $('.orgFileName').text($('#org_folder_select_filename').val());   //
 
         $('.mode-dlg-exists .alert-warning').html( 'The file name <b>' + $('#org_folder_select_filename').val() + '</b> (location: ' + $('#org_folder_select_path').val() + ') already exists');
-
+//        dlgAlreadyExistsAlert('Please enter a name for the file you want to restore')
 
         restoreRevision('restore_no_overwrite');
     });
-
 
 // dlg-select-folder
     $('#btn-restore-overwrite').on('click', function(event){
@@ -461,29 +454,18 @@ $( document ).ready(function() {
     });
 })
 
-
 // select-folder
-function dlgAlertShow(errorMessage)
+function dlgAlertShow(alertMessage)
 {
-    $('#alert-panel-dlg').removeClass('hide');
-    $('#alert-panel-dlg span').html(errorMessage);
+    $(".alert-folder-select").html(alertMessage)
 }
-
-// select-folder
-function dlgAlertHide()
-{
-    $('#alert-panel-dlg').addClass('hide');
-}
-
-
-
 
 // dlg-select-folder
 function browse(dir)
 {
     dlgCurrentFolder = dir;
     // Hide previous alerts
-    dlgAlertHide();
+    dlgAlertShow('')
 
     makeBreadcrumb(dir);
 
@@ -491,7 +473,6 @@ function browse(dir)
 
     buildFileBrowser(dir);
 }
-
 
 // select-folder
 function changeBrowserUrl(path)
@@ -531,7 +512,7 @@ function makeBreadcrumb(urlEncodedDir)
     var totalParts = parts.length;
 
     if (totalParts > 0 && parts[0]!='undefined') {
-        var html = '<li class="browse dlg-browse" data-path="">Home</li>';
+        var html = '<li class="breadcrumb-item browse dlg-browse" data-path="">Home</li>';
         var path = "";
         $.each( parts, function( k, part ) {
             path += "/" + encodeURIComponent(part);
@@ -539,38 +520,28 @@ function makeBreadcrumb(urlEncodedDir)
             // Active item
             valueString = htmlEncode(part).replace(/ /g, "&nbsp;");
             if (k == (totalParts-1)) {
-                html += '<li class="active">' + valueString + '</li>';
+                html += '<li class="breadcrumb-item active">' + valueString + '</li>';
             } else {
-                html += '<li class="browse dlg-browse" data-path="' + path + '">' + valueString + '</li>';
+                html += '<li class="breadcrumb-item browse dlg-browse" data-path="' + path + '">' + valueString + '</li>';
             }
         });
     } else {
-        var html = '<li class="active">Home</li>';
+        var html = '<li class="breadcrumb-item active">Home</li>';
     }
 
     $('ol.dlg-breadcrumb').html(html);
 }
 
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 // handle RESTORING a revision
-
-// in case of overwrite, it should have the old name,
-
 async function restoreRevision(overwriteFlag)
 {
+    dlgAlreadyExistsAlert('')
+
     console.log('restoreRevision()');
     console.log(overwriteFlag);
 
     var restorationObjectId = $('#restoration-objectid').val(),
         newFileName = $('#newFileName').val();
-
-    console.log('-------------------------------------')
-    console.log('restoreRevision()');
-    console.log(overwriteFlag);
-    console.log(newFileName);
-
 
     if (typeof revisionTargetColl == 'undefined' || revisionTargetColl.length==0) {
         errorMessage = 'The HOME folder cannot be used for restoration purposes. Please choose another folder';
@@ -580,12 +551,11 @@ async function restoreRevision(overwriteFlag)
 
     if (overwriteFlag == 'restore_next_to') {
         if (newFileName.length==0) {
-            //dlgAlertShow('Please enter a name for the file you want to restore');
-            $('.mode-dlg-exists .alert-warning').html( 'Please enter a name for the file you want to restore');
+            dlgAlreadyExistsAlert('Please enter a name for the file you want to restore')
             return;
         }
         if (!(newFileName.indexOf('/')==-1 && newFileName.indexOf('\\')==-1)) {
-            $('.mode-dlg-exists .alert-warning').html( 'It is not allowed to use "/" or "\\" in a filename.');
+            dlgAlreadyExistsAlert('It is not allowed to use "/" or "\\" in a filename.')
             return;
         }
     }
@@ -603,23 +573,15 @@ async function restoreRevision(overwriteFlag)
     // 1) Another  duplicate name can be entered
     // 2) An illegal filename containing / or \
     // Case 2 is dealt with in the backend but does not require to be treated here. The above javascript already protects for this
-
     if (result.proc_status=="ok_duplicate") { // hier differentieren naar verschillende types response-process-statussen
         if (overwriteFlag == 'restore_next_to') {
             // Error reporting within overwrite/new name dialog box
-            $('.mode-dlg-exists .alert-warning').html( 'The new file name <b>' + newFileName + '</b> (location: ' + revisionTargetColl + ') already exists');
-
+            dlgAlreadyExistsAlert('The new file name <b>' + newFileName + '</b> (location: ' + revisionTargetColl + ') already exists')
             return;
         }
 
         // bring up Overwrite/new name dialog
-        //dlgAlertShow(result.proc_status_info);
-        $('#alertBox').addClass('hide');
-        //$('.alert-panel-overwrite').removeClass('hide');
         $('.cover').removeClass('hide');
-       // $('.revision-restore-dialog').addClass('hide');
-        // set the correct mode of the dialog
-        //$('.mode-dlg-locked').addClass('hide');
         $('.mode-dlg-exists').removeClass('hide');
         $('#form-restore-overwrite').removeClass('hide');
     }
@@ -628,17 +590,20 @@ async function restoreRevision(overwriteFlag)
         html += ' <a href="/research/?dir=' + dlgCurrentFolder + '">Go to research area</a>';
 
         dlgAlertShow(html);
-
-        // $('.mode-dlg-exists').removeClass('hide');
-        //$('#form-restore-overwrite').removeClass('hide');
-        //$('.mode-dlg-exists .alert-warning').html(html);
-        //dlgAlertShow(html);
+        $('.cover').addClass('hide');
+        $('.revision-restore-dialog').removeClass('hide');
     }
     else { // non api error - simply present the error in the main-revision-restore dialog
         dlgAlertShow(result.proc_status_info);
+        $('.cover').addClass('hide');
+        $('.revision-restore-dialog').removeClass('hide');
     }
 }
 
+// Alerts to user in dialog when file already exists
+function dlgAlreadyExistsAlert(message){
+    $(".alert-dlg-already-exists").html( message);
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 // util functions
