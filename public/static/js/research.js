@@ -648,7 +648,7 @@ function toggleLocksList(folder)
             $.each(data, function (index, value) {
                 html += '<a class="list-group-item list-group-item-action"><span class="browse" data-path="' + htmlEncode(value) + '">' + htmlEncode(value) + '</span></a>';
             });
-            $('.list-group .lock-items').html(html);
+            $('.list-group > .lock-items').html(html);
             $('.lock-items').show();
         });
     }
@@ -669,35 +669,38 @@ function toggleActionLogList(folder)
 function buildActionLog(folder)
 {
     let actionList = $('.actionlog-items');
+    let actionListItems = $('.actionlog-items > list-group');
 
     // Get provenance information
     Yoda.call('provenance_log',
               {coll: Yoda.basePath + folder}).then((data) => {
         actionList.hide();
 
-        var html = '<li class="list-group-item disabled">Provenance information:</li>';
+        var html = '';
         var logItems = data;
         if (logItems.length) {
             $.each(logItems, function (index, value) {
-                html += '<li class="list-group-item"><span>'
+                html += '<a class="list-group-item list-group-item-action"><span>'
                      + htmlEncode(value[2])
                      + ' - <strong>'
                      + htmlEncode(value[1])
                      + '</strong> - '
                      + htmlEncode(value[0])
-                     + '</span></li>';
+                     + '</span></a>';
             });
+        } else {
+            html += '<a class="list-group-item list-group-item-action">No provenance information present</a>';
         }
-        else {
-            html += '<li class="list-group-item">No provenance information present</li>';
-        }
-        actionList.html(html).show();
+        actionListItems.html(html)
+        actionList.show();
     });
 }
 
 function toggleSystemMetadata(folder)
 {
     let systemMetadata = $('.system-metadata-items');
+    let systemMetadataItems = $('.system-metadata-items > list-group');
+
     let isVisible = systemMetadata.is(":visible");
 
     // Toggle system metadata.
@@ -708,7 +711,7 @@ function toggleSystemMetadata(folder)
         Yoda.call('research_system_metadata',
                   {coll: Yoda.basePath + folder}).then((data) => {
             systemMetadata.hide();
-            var html = '<li class="list-group-item disabled">System metadata:</li>';
+            var html = '';
 
             if (data) {
                 $.each(data, function(index, value) {
@@ -721,7 +724,8 @@ function toggleSystemMetadata(folder)
             } else {
                 html += '<li class="list-group-item">No system metadata present</li>';
             }
-            systemMetadata.html(html).show();
+            systemMetadataItems.html(html);
+            systemMetadata.show();
         });
     }
 }

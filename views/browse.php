@@ -216,8 +216,16 @@
             <div class="list-group"></div>
             <div class="card-footer"></div>
         </div>
-        <ul class="list-group system-metadata-items"></ul>
-        <ul class="list-group actionlog-items"></ul>
+        <div class="card system-metadata-items">
+            <div class="card-header">System metadata</div>
+            <div class="list-group"></div>
+            <div class="card-footer"></div>
+        </div>
+        <div class="card actionlog-items">
+            <div class="card-header">Provenance information</div>
+            <div class="list-group"></div>
+            <div class="card-footer"></div>
+        </div>
     </div>
 
     <div class="col-md-12">
