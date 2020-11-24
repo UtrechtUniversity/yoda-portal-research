@@ -632,24 +632,24 @@ function startBrowsing(items)
 
 function toggleLocksList(folder)
 {
-    var isVisible = $('.lock-items').is(":visible");
+    var isVisible = $('.lock').is(":visible");
 
     // toggle locks list
     if (isVisible) {
-        $('.lock-items').hide();
+        $('.lock').hide();
     } else {
         // Get locks
         Yoda.call('folder_get_locks',
                   {'coll':  Yoda.basePath + folder})
         .then((data) => {
-            $('.lock-items').hide();
+            $('.lock').hide();
 
             var html = '';
             $.each(data, function (index, value) {
                 html += '<a class="list-group-item list-group-item-action"><span class="browse" data-path="' + htmlEncode(value) + '">' + htmlEncode(value) + '</span></a>';
             });
-            $('.list-group > .lock-items').html(html);
-            $('.lock-items').show();
+            $('.lock-items').html(html);
+            $('.lock').show();
         });
     }
 }
@@ -668,8 +668,8 @@ function toggleActionLogList(folder)
 
 function buildActionLog(folder)
 {
-    let actionList = $('.actionlog-items');
-    let actionListItems = $('.actionlog-items > list-group');
+    let actionList = $('.actionlog');
+    let actionListItems = $('.actionlog-items');
 
     // Get provenance information
     Yoda.call('provenance_log',
@@ -698,8 +698,8 @@ function buildActionLog(folder)
 
 function toggleSystemMetadata(folder)
 {
-    let systemMetadata = $('.system-metadata-items');
-    let systemMetadataItems = $('.system-metadata-items > list-group');
+    let systemMetadata = $('.system-metadata');
+    let systemMetadataItems = $('.system-metadata-items');
 
     let isVisible = systemMetadata.is(":visible");
 
@@ -715,14 +715,14 @@ function toggleSystemMetadata(folder)
 
             if (data) {
                 $.each(data, function(index, value) {
-                    html += '<li class="list-group-item"><span><strong>' +
+                    html += '<a class="list-group-item list-group-item-action"><span>'
                         htmlEncode(index) +
                         '</strong>: ' +
                         htmlEncode(value) +
-                        '</span></li>';
+                        '</span></a>';
                 });
             } else {
-                html += '<li class="list-group-item">No system metadata present</li>';
+                html += '<a class="list-group-item list-group-item-action">No system metadata present</a>';
             }
             systemMetadataItems.html(html);
             systemMetadata.show();

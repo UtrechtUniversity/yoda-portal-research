@@ -211,19 +211,19 @@
             </div>
         </div>
 
-        <div class="card lock-items">
+        <div class="card lock">
             <div class="card-header">Locks</div>
-            <div class="list-group"></div>
+            <div class="list-group lock-items"></div>
             <div class="card-footer"></div>
         </div>
-        <div class="card system-metadata-items">
+        <div class="card system-metadata">
             <div class="card-header">System metadata</div>
-            <div class="list-group"></div>
+            <div class="list-group system-metadata-items"></div>
             <div class="card-footer"></div>
         </div>
-        <div class="card actionlog-items">
+        <div class="card actionlog">
             <div class="card-header">Provenance information</div>
-            <div class="list-group"></div>
+            <div class="list-group actionlog-items"></div>
             <div class="card-footer"></div>
         </div>
     </div>
