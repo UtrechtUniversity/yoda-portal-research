@@ -4,11 +4,11 @@
     var view = 'browse';
 </script>
 
-<div class="modal" id="showUnpreservableFiles">
+<div class="modal" tabindex="-1" role="dialog" id="showUnpreservableFiles">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-body">
-                <h3>File formats compliance with policy</h3>
+                <h3 class="modal-title">File formats compliance with policy</h3>
                 <div class="form-group">
                     <label for="file-formats-list">Select preservable file format list:</label>
                     <select class="form-control" id="file-formats-list">
@@ -28,7 +28,7 @@
             </div>
 
             <div class="modal-footer">
-                <button class="btn btn-default grey cancel" data-dismiss="modal">Close</button>
+                <button class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -88,59 +88,55 @@
                     <span class="input-group-text">New folder name</span>
                   </div>
                   <input type="hidden" id='org-folder-rename-name' value="">
-                  <input type="text" class="form-control" id='pfolder-rename-name' value="">
+                  <input type="text" class="form-control" id='folder-rename-name' value="">
                 </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                 <button class='btn btn-primary btn-confirm-folder-rename' data-collection="">Rename folder</button>
             </div>
-
         </div>
     </div>
 </div>
 
-<div class="modal" id="file-rename">
+<div class="modal" tabindex="-1" role="dialog" id="file-rename">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-body">
+                <h5 class="modal-title">Rename file in <span id="collection"></span></h5>
                 <div class="alert alert-warning" id="alert-panel-file-rename">
                     <span></span>
                 </div>
-
-                <h3>Rename file in <span id="collection"></span></h3>
-
-                <input type="hidden" id='org-file-rename-name' value="">
-                <input type="text" id='file-rename-name' value="" placeholder="New file name">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">New file name</span>
+                  </div>
+                  <input type="hidden" id='org-file-rename-name' value="">
+                  <input type="text" class="form-control" id='file-rename-name' value="">
+                </div>
             </div>
-
             <div class="modal-footer">
-                <button class="btn btn-default grey cancel" data-dismiss="modal">Cancel</button>
-                <button class='btn-confirm-file-rename btn btn-default' data-collection="">Rename file</button>
+                <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button class='btn btn-primary btn-confirm-file-rename' data-collection="">Rename file</button>
             </div>
-
         </div>
     </div>
 </div>
 
-<div class="modal" id="file-delete">
+<div class="modal" tabindex="-1" role="dialog" id="file-delete">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-body">
+                <h5 class="modal-title">Delete file in <span id="collection"></span></h5>
                 <div class="alert alert-warning" id="alert-panel-file-delete">
                     <span></span>
                 </div>
-
-                <h3>Delete file in <span id="collection"></span></h3>
-                <br />
-                Do you want to delete <span id="file-delete-name"></span>?
+                <p>Do you want to delete file <span id="file-delete-name"></span>?</p>
             </div>
-
             <div class="modal-footer">
-                <button class="btn btn-default grey cancel" data-dismiss="modal">Cancel</button>
-                <button class='btn-confirm-file-delete btn btn-default' data-collection="" data-name="">Delete file</button>
+                <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button class='btn btn-primary btn-confirm-file-delete' data-collection="" data-name="">Delete file</button>
             </div>
-
         </div>
     </div>
 </div>
