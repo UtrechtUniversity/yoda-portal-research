@@ -656,44 +656,40 @@ function toggleLocksList(folder)
 
 function toggleActionLogList(folder)
 {
-    let actionList = $('.actionlog-items');
-
-    // toggle locks list
-    if (actionList.is(":visible")) {
-        actionList.hide();
-    } else {
-        buildActionLog(folder);
-    }
-}
-
-function buildActionLog(folder)
-{
     let actionList = $('.actionlog');
     let actionListItems = $('.actionlog-items');
 
-    // Get provenance information
-    Yoda.call('provenance_log',
-              {coll: Yoda.basePath + folder}).then((data) => {
-        actionList.hide();
+    let isVisible = actionList.is(":visible");
 
-        var html = '';
-        var logItems = data;
-        if (logItems.length) {
-            $.each(logItems, function (index, value) {
-                html += '<a class="list-group-item list-group-item-action"><span>'
-                     + htmlEncode(value[2])
-                     + ' - <strong>'
-                     + htmlEncode(value[1])
-                     + '</strong> - '
-                     + htmlEncode(value[0])
-                     + '</span></a>';
-            });
-        } else {
-            html += '<a class="list-group-item list-group-item-action">No provenance information present</a>';
-        }
-        actionListItems.html(html)
-        actionList.show();
-    });
+    // toggle locks list
+    if (isVisible) {
+        actionList.hide();
+    } else {
+
+        // Get provenance information
+        Yoda.call('provenance_log',
+                  {coll: Yoda.basePath + folder}).then((data) => {
+            actionList.hide();
+
+            var html = '';
+            var logItems = data;
+            if (logItems.length) {
+                $.each(logItems, function (index, value) {
+                    html += '<a class="list-group-item list-group-item-action"><span>'
+                         + htmlEncode(value[2])
+                         + ' - <strong>'
+                         + htmlEncode(value[1])
+                         + '</strong> - '
+                         + htmlEncode(value[0])
+                         + '</span></a>';
+                });
+            } else {
+                html += '<a class="list-group-item list-group-item-action">No provenance information present</a>';
+            }
+            actionListItems.html(html)
+            actionList.show();
+        });
+    }
 }
 
 function toggleSystemMetadata(folder)
@@ -841,18 +837,18 @@ function topInformation(dir, showAlert)
             }
 
             // Lock icon
-            $('.lock-items').hide();
+            $('.lock').hide();
             var lockIcon = '';
             if (lockCount != '0' && typeof lockCount != 'undefined') {
                 lockIcon = `<i class="fa fa-exclamation-circle lock-icon" data-folder="${htmlEncode(dir)}" data-locks="${lockCount}" title="${lockCount} lock(s) found" aria-hidden="true"></i>`;
             }
 
             // Provenance action log
-            $('.actionlog-items').hide();
+            $('.actionlog').hide();
             let actionLogIcon = ` <i class="fa fa-book actionlog-icon" style="cursor:pointer" data-folder="${htmlEncode(dir)}" aria-hidden="true" title="Show provenance information"></i>`;
 
             // System metadata.
-            $('.system-metadata-items').hide();
+            $('.system-metadata').hide();
             let systemMetadataIcon = ` <i class="fa fa-info-circle system-metadata-icon" style="cursor:pointer" data-folder="${htmlEncode(dir)}" aria-hidden="true" title="Show system metadata"></i>`;
 
             $('.btn-group button.folder-status').attr('data-write', hasWriteRights);
@@ -940,27 +936,8 @@ async function lockFolder(folder)
     // Change folder status call
 
     try {
-        await Yoda.call('folder_lock',
-                        {'coll': Yoda.basePath + folder})
-        // Set actions
-        var actions = [];
-
-        if ($('.actionlog-items').is(":visible")) {
-            buildActionLog(folder);
-        }
-
+        await Yoda.call('folder_lock', {'coll': Yoda.basePath + folder})
         $('#statusBadge').text('Locked');
-        actions['unlock'] = 'Unlock';
-        actions['submit'] = 'Submit';
-
-        var totalLocks = $('.lock-icon').attr('data-locks');
-        if (totalLocks == '0') {
-            $('.lock-icon').removeClass('hide');
-            $('.lock-icon').attr('data-locks', 1);
-            $('.lock-icon').attr('title','1 lock(s) found');
-        }
-
-        handleActionsList(actions, folder);
     } catch (e) {
         $('#statusBadge').html(btnText);
     }
@@ -975,31 +952,8 @@ async function unlockFolder(folder)
     $('.btn-group button.folder-status').prop("disabled", true).next().prop("disabled", true);
 
     try {
-        await Yoda.call('folder_unlock',
-                        {'coll': Yoda.basePath + folder});
-        // Set actions
-        let actions = [];
-
-        if ($('.actionlog-items').is(":visible")) {
-            buildActionLog(folder);
-        }
-
+        await Yoda.call('folder_unlock', {'coll': Yoda.basePath + folder});
         $('#statusBadge').text('');
-        actions['lock'] = 'Lock';
-        actions['submit'] = 'Submit';
-
-        var totalLocks = $('.lock-icon').attr('data-locks');
-        if (totalLocks == '1') {
-            $('.lock-icon').addClass('hide');
-            $('.lock-icon').attr('data-locks', 0);
-        }
-
-        // unlocking -> hide lock-items as there are none
-        if ($('.lock-items').is(":visible")) {
-            $('.lock-items').hide();
-        }
-
-        handleActionsList(actions, folder);
     } catch (e) {
         $('#statusBadge').html(btnText);
     }
@@ -1020,22 +974,13 @@ async function submitToVault(folder)
         $('.btn-group button.folder-status').prop("disabled", true).next().prop("disabled", true);
 
         try {
-            let status = await Yoda.call('folder_submit',
-                                         {'coll': Yoda.basePath + folder})
+            let status = await Yoda.call('folder_submit', {'coll': Yoda.basePath + folder})
             if (status === 'SUBMITTED') {
                 $('#statusBadge').html('Submitted');
             } else if (status === 'ACCEPTED') {
                 $('#statusBadge').html('Accepted');
             } else {
                 $('#statusBadge').html(btnText);
-            }
-
-            // lock icon
-            let totalLocks = $('.lock-icon').attr('data-locks');
-            if (totalLocks == '0') {
-                $('.lock-icon').removeClass('hide');
-                $('.lock-icon').attr('data-locks', 1);
-                $('.lock-icon').attr('title', '1 lock(s) found');
             }
         } catch (e) {
             $('#statusBadge').html(btnText);
@@ -1051,8 +996,7 @@ async function unsubmitToVault(folder) {
         $('.btn-group button.folder-status').prop("disabled", true).next().prop("disabled", true);
 
         try {
-            let status = await Yoda.call('folder_unsubmit',
-                                         {'coll': Yoda.basePath + folder})
+            let status = await Yoda.call('folder_unsubmit', {'coll': Yoda.basePath + folder})
             $('#statusBadge').html('');
         } catch(e) {
             $('#statusBadge').html(btnText);
@@ -1068,8 +1012,7 @@ async function acceptFolder(folder)
     $('.btn-group button.folder-status').prop("disabled", true).next().prop("disabled", true);
 
     try {
-        await Yoda.call('folder_accept',
-                                  {'coll': Yoda.basePath + folder})
+        await Yoda.call('folder_accept', {'coll': Yoda.basePath + folder})
         $('#statusBadge').html('Accepted');
     } catch (e) {
         $('#statusBadge').html(btnText);
@@ -1084,8 +1027,7 @@ async function rejectFolder(folder)
     $('.btn-group button.folder-status').prop("disabled", true).next().prop("disabled", true);
 
     try {
-        await Yoda.call('folder_reject',
-                        {'coll': Yoda.basePath + folder})
+        await Yoda.call('folder_reject', {'coll': Yoda.basePath + folder})
         $('#statusBadge').html('Rejected');
     } catch (e) {
         $('#statusBadge').html(btnText);
