@@ -644,11 +644,11 @@ function toggleLocksList(folder)
         .then((data) => {
             $('.lock-items').hide();
 
-            var html = '<li class="list-group-item disabled">Locks:</li>';
+            var html = '';
             $.each(data, function (index, value) {
-                html += '<li class="list-group-item"><span class="browse" data-path="' + htmlEncode(value) + '">' + htmlEncode(value) + '</span></li>';
+                html += '<a class="list-group-item list-group-item-action"><span class="browse" data-path="' + htmlEncode(value) + '">' + htmlEncode(value) + '</span></a>';
             });
-            $('.lock-items').html(html);
+            $('.list-group .lock-items').html(html);
             $('.lock-items').show();
         });
     }

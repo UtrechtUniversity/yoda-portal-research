@@ -211,7 +211,11 @@
             </div>
         </div>
 
-        <ul class="list-group lock-items"></ul>
+        <div class="card lock-items">
+            <div class="card-header">Locks</div>
+            <div class="list-group"></div>
+            <div class="card-footer"></div>
+        </div>
         <ul class="list-group system-metadata-items"></ul>
         <ul class="list-group actionlog-items"></ul>
     </div>
