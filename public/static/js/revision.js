@@ -99,7 +99,7 @@ let getRevisionListContents = (() => {
             // Nope, load new data via the API.
             let j = ++i;
 
-            let result = await Yoda.call('research_revisions_search_on_filename',
+            let result = await Yoda.call('revisions_search_on_filename',
                 {'searchString':   currentSearchArg,   /// TOEVOEGEN SEARCH ARGUMENT
                     'offset':     args.start,
                     'limit':      batchSize});
@@ -169,13 +169,13 @@ async function clickFileForRevisionDetails(obj, dtTable) {
         return;
     }
 
-    let result = await Yoda.call('research_revision_list',
+    let result = await Yoda.call('revisions_list',
         {'path':   Yoda.basePath + '/' + path });
 
     var htmlDetailView = '';
     hmltDetailView = '<div class="col-md-12"><div class="row">';
 
-    if (!collection_exists)
+    if (collection_exists=='false')
         htmlDetailView += '<i class="fa fa-exclamation-circle"></i> This collection no longer exists.';
 
     htmlDetailView += '<table id="" class="table" ><thead><tr><th>Revision date</th><th>Owner</th><th>Size</th><th></th></tr></thead>';
@@ -211,6 +211,10 @@ async function clickFileForRevisionDetails(obj, dtTable) {
         var id = $(this).data('objectid'),
             path = decodeURIComponent($(this).data('path')),
             orgFileName = decodeURIComponent($(this).data('orgfilename'));
+       
+        // When the collection no longer exists, fall back to the root 
+        if (collection_exists == 'false')
+            path = '/' + path.split('/')[1]; 
         showFolderSelectDialog(id, path, orgFileName);
         //event.stopPropagation();
     });
@@ -560,7 +564,7 @@ async function restoreRevision(overwriteFlag)
         }
     }
 
-    let result = await Yoda.call('research_revision_restore',
+    let result = await Yoda.call('revisions_restore',
         {   revision_id: restorationObjectId,
             overwrite: overwriteFlag,
             coll_target: Yoda.basePath + revisionTargetColl,
