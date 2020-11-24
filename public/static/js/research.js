@@ -1022,8 +1022,10 @@ async function submitToVault(folder)
                                          {'coll': Yoda.basePath + folder})
             if (status === 'SUBMITTED') {
                 $('#statusBadge').html('Submitted');
-            } else {
+            } else if (status === 'ACCEPTED') {
                 $('#statusBadge').html('Accepted');
+            } else {
+                $('#statusBadge').html(btnText);
             }
 
             // lock icon
