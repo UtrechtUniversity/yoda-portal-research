@@ -668,7 +668,6 @@ function toggleActionLogList(folder)
             actionList.hide();
             var html = '';
             if (data.length) {
-                con
                 $.each(data, function (index, value) {
                     html += '<a class="list-group-item list-group-item-action"><span>'
                          + htmlEncode(value[2])
@@ -704,7 +703,7 @@ function toggleSystemMetadata(folder)
             var html = '';
             if (data) {
                 $.each(data, function(index, value) {
-                    html += '<a class="list-group-item list-group-item-action"><span>'
+                    html += '<a class="list-group-item list-group-item-action"><span>' +
                         htmlEncode(index) +
                         '</strong>: ' +
                         htmlEncode(value) +
