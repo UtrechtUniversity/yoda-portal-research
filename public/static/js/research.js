@@ -639,9 +639,7 @@ function toggleLocksList(folder)
         $('.lock').hide();
     } else {
         // Get locks
-        Yoda.call('folder_get_locks',
-                  {'coll':  Yoda.basePath + folder})
-        .then((data) => {
+        Yoda.call('folder_get_locks', {'coll':  Yoda.basePath + folder}).then((data) => {
             $('.lock').hide();
 
             var html = '';
@@ -665,16 +663,13 @@ function toggleActionLogList(folder)
     if (isVisible) {
         actionList.hide();
     } else {
-
         // Get provenance information
-        Yoda.call('provenance_log',
-                  {coll: Yoda.basePath + folder}).then((data) => {
+        Yoda.call('provenance_log', {coll: Yoda.basePath + folder}).then((data) => {
             actionList.hide();
-
             var html = '';
-            var logItems = data;
-            if (logItems.length) {
-                $.each(logItems, function (index, value) {
+            if (data.length) {
+                con
+                $.each(data, function (index, value) {
                     html += '<a class="list-group-item list-group-item-action"><span>'
                          + htmlEncode(value[2])
                          + ' - <strong>'
@@ -704,11 +699,9 @@ function toggleSystemMetadata(folder)
         systemMetadata.hide();
     } else {
         // Retrieve system metadata of folder.
-        Yoda.call('research_system_metadata',
-                  {coll: Yoda.basePath + folder}).then((data) => {
+        Yoda.call('research_system_metadata', {coll: Yoda.basePath + folder}).then((data) => {
             systemMetadata.hide();
             var html = '';
-
             if (data) {
                 $.each(data, function(index, value) {
                     html += '<a class="list-group-item list-group-item-action"><span>'
