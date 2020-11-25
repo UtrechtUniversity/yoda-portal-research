@@ -141,31 +141,28 @@
     </div>
 </div>
 
-<div class="modal" id="uploads">
+<div class="modal" tabindex="-1" role="dialog" id="uploads">
     <div class="modal-dialog">
         <div class="modal-content">
-
             <div class="modal-body">
-                <h3>Uploads</h3>
+                <h5 class="modal-title">Uploads</h5>
                 <div id="files"></div>
             </div>
-
             <div class="modal-footer">
-                <button class="btn btn-default grey cancel" data-dismiss="modal">Close</button>
+                <button class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
 </div>
 
-<div class="modal" id="viewMedia">
+<div class="modal" tabindex="-1" role="dialog" id="viewMedia">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-body">
                 <div id="viewer"></div>
             </div>
-
             <div class="modal-footer">
-                <button class="btn btn-default grey cancel" data-dismiss="modal">Close</button>
+                <button class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
