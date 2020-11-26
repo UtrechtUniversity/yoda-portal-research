@@ -189,7 +189,7 @@ async function clickFileForRevisionDetails(obj, dtTable) {
 
         htmlDetailView += '<td><div class="btn-group" role="group" aria-label="...">';
         // list of available revisions for given file. button for restoring purposes
-        htmlDetailView += '<button type="button" class="btn btn-secondary btn-revision-select-dialog" ' +
+        htmlDetailView += '<button type="button" class="btn btn-primary btn-revision-select-dialog" ' +
             //'data-toggle="modal" data-target="#select-folder" ' +
             'data-orgfilename="' + rawurlencode(result.revisions[i].org_original_data_name) + '" ' +
             'data-objectid="' + result.revisions[i].data_id + '"' +
@@ -582,7 +582,7 @@ async function restoreRevision(overwriteFlag)
     }
     else if (result.proc_status == 'ok') {
         html = 'Successfully made a copy of revision';
-        html += ' <a href="/research/?dir=' + dlgCurrentFolder + '">Go to research area</a>';
+        html += ' <a class="btn btn-primary" href="/research/?dir=' + dlgCurrentFolder + '">Go to research area</a>';
 
         dlgAlertShow(html);
         $('.cover').addClass('hide');
