@@ -156,7 +156,7 @@
 </div>
 
 <div class="modal" tabindex="-1" role="dialog" id="viewMedia">
-    <div class="modal-dialog">
+    <div class="modal-dialog mw-100 w-50">
         <div class="modal-content">
             <div class="modal-body">
                 <div id="viewer"></div>
