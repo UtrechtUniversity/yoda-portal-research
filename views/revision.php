@@ -92,7 +92,7 @@
 <div class="row">
     <div class="col-md-12">
         <div class="row d-block">
-            <div class="card card-default">
+            <div class="card">
                 <div class="card-header clearfix">
                     <h3 class="card-title pull-left">
                         Revisions
