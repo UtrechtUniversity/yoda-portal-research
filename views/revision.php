@@ -19,7 +19,7 @@
             <div class="modal-body">
                 <p class="alert-folder-select">ALERT SECTION</p>
 
-<!--- BREADCRUMS -->
+                <!--- BREADCRUMS -->
                 <div class="row d-block">
                     <nav aria-label="breadcrumb flex-column">
                         <ol class="breadcrumb dlg-breadcrumb">
@@ -27,7 +27,8 @@
                         </ol>
                     </nav>
                 </div>
-<!--- FOLDER SELECTION-->
+
+                <!--- FOLDER SELECTION-->
                 <div class="row d-block">
                     <table id="folder-browser" class="table yoda-table table-bordered">
                         <thead>
@@ -40,7 +41,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-outline-primary" id="btn-restore"><i class="fa fa-magic" aria-hidden="true"></i> Restore</button>
+                <button class="btn btn-primary" id="btn-restore"><i class="fa fa-magic" aria-hidden="true"></i> Restore</button>
             </div>
 
 <!--- CoverALL Second dialog for handling of duplicate situations -->
@@ -92,17 +93,17 @@
 
 <div class="col-md-12">
     <div class="row d-block">
-        <div class="panel panel-default">
-            <div class="panel-heading clearfix">
-                <h3 class="panel-title pull-left">
+        <div class="card card-default">
+            <div class="card-header clearfix">
+                <h3 class="card-title pull-left">
                     Revisions
                 </h3>
                 <div class="input-group-sm has-feedback pull-right">
                     <a class="btn btn-outline-secondary cancel" href="/research/browse">Close</a>
                 </div>
             </div>
-            <div class="panel-body">
-                <p class="alert-panel-main hide" style="color:green;">
+            <div class="card-body">
+                <p class="alert-card-main hide" style="color:green;">
                     <i class="fa fa-check"></i> Your file was successfully restored!
                 </p>
 
