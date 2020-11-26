@@ -1112,7 +1112,7 @@ function sendFile(id, path, file) {
 function logUpload(id, file) {
     let log = `<div class="row" id="${id}">
                   <div class="col-md-6" style="word-wrap: break-word;">${htmlEncode(file.name)}</div>
-                  <div class="col-md-3"><div class="progress"><div class="progress-bar progress-bar-striped"></div></div></div>
+                  <div class="col-md-3"><div class="progress"><div class="progress-bar progress-bar-striped bg-info"></div></div></div>
                   <div class="col-md-3 msg"><i class="fa fa-spinner fa-spin fa-fw"></i></div>
                </div>`;
     $('#files').append(log);
