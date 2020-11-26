@@ -91,30 +91,32 @@
 
 <?php echo $searchHtml; ?>
 
-<div class="col-md-12">
-    <div class="row d-block">
-        <div class="card card-default">
-            <div class="card-header clearfix">
-                <h3 class="card-title pull-left">
-                    Revisions
-                </h3>
-                <div class="input-group-sm has-feedback pull-right">
-                    <a class="btn btn-outline-secondary cancel" href="/research/browse">Close</a>
+<div class="row">
+    <div class="col-md-12">
+        <div class="row d-block">
+            <div class="card card-default">
+                <div class="card-header clearfix">
+                    <h3 class="card-title pull-left">
+                        Revisions
+                    </h3>
+                    <div class="input-group-sm has-feedback pull-right">
+                        <a class="btn btn-secondary cancel" href="/research/browse">Close</a>
+                    </div>
                 </div>
-            </div>
-            <div class="card-body">
-                <p class="alert-card-main hide" style="color:green;">
-                    <i class="fa fa-check"></i> Your file was successfully restored!
-                </p>
+                <div class="card-body">
+                    <p class="alert-card-main hide" style="color:green;">
+                        <i class="fa fa-check"></i> Your file was successfully restored!
+                    </p>
 
-                <table id="file-browser" class="table yoda-table dataTable no-footer" role="grid">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Number of revisions</th>
-                        </tr>
-                    </thead>
-                </table>
+                    <table id="file-browser" class="table yoda-table dataTable no-footer" role="grid">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Number of revisions</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
