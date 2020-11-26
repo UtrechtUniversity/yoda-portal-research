@@ -1083,19 +1083,19 @@ function sendFile(id, path, file) {
                     resolve(xhr.response);
                 } else {
                     $("#" + id + " .msg").html(response.statusInfo);
-                    $("#" + id + " progress").val(0);
+                    $("#" + id + " .progress-bar").css('width', '0%');
                     resolve(xhr.response);
                 }
             } else {
                 $("#" + id + " .msg").html("FAILED");
-                $("#" + id + " progress").val(0);
+                $("#" + id + " .progress-bar").css('width', '0%');
                 resolve(xhr.response);
             }
         }
 
         xhr.upload.addEventListener('progress', function(e) {
             var percent = parseInt((e.loaded / e.total) * 100);
-            $("#" + id + " progress").val(percent);
+            $("#" + id + " .progress-bar").css('width', percent + '%');
         });
 
         fd.append(Yoda.csrf.tokenName, Yoda.csrf.tokenValue);
@@ -1107,10 +1107,12 @@ function sendFile(id, path, file) {
     });
 }
 
+
+
 function logUpload(id, file) {
     let log = `<div class="row" id="${id}">
                   <div class="col-md-6" style="word-wrap: break-word;">${htmlEncode(file.name)}</div>
-                  <div class="col-md-3"><progress value="0" max="100"></progress></div>
+                  <div class="col-md-3"><div class="progress"><div class="progress-bar progress-bar-striped"></div></div></div>
                   <div class="col-md-3 msg"><i class="fa fa-spinner fa-spin fa-fw"></i></div>
                </div>`;
     $('#files').append(log);
