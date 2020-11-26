@@ -154,7 +154,6 @@ async function clickFileForRevisionDetails(obj, dtTable) {
     var tr = obj.closest('tr');
 
     var collection_exists = $('td:eq(0) span', tr).attr('data-collection-exists');
-    console.log(collection_exists);
 
     var path = decodeURIComponent($('td:eq(0) span', tr).attr('data-path'));
     //var collection_exists = $('td:eq(0) span', tr).attr('data-collection-exists');
@@ -190,7 +189,7 @@ async function clickFileForRevisionDetails(obj, dtTable) {
 
         htmlDetailView += '<td><div class="btn-group" role="group" aria-label="...">';
         // list of available revisions for given file. button for restoring purposes
-        htmlDetailView += '<button type="button" class="btn btn-outline-secondary btn-revision-select-dialog" ' +
+        htmlDetailView += '<button type="button" class="btn btn-secondary btn-revision-select-dialog" ' +
             //'data-toggle="modal" data-target="#select-folder" ' +
             'data-orgfilename="' + rawurlencode(result.revisions[i].org_original_data_name) + '" ' +
             'data-objectid="' + result.revisions[i].data_id + '"' +
@@ -207,14 +206,13 @@ async function clickFileForRevisionDetails(obj, dtTable) {
 
     // Button handling restore button: After opening sub windown give possibility to select folder for placement of selected revision
     $('.btn-revision-select-dialog').on('click', function(){
-        console.log('CKIKC')
         var id = $(this).data('objectid'),
             path = decodeURIComponent($(this).data('path')),
             orgFileName = decodeURIComponent($(this).data('orgfilename'));
-       
-        // When the collection no longer exists, fall back to the root 
+
+        // When the collection no longer exists, fall back to the root
         if (collection_exists == 'false')
-            path = '/' + path.split('/')[1]; 
+            path = '/' + path.split('/')[1];
         showFolderSelectDialog(id, path, orgFileName);
         //event.stopPropagation();
     });
@@ -231,10 +229,6 @@ function showFolderSelectDialog(restorationObjectId, path, orgFileName)
     $('#org_folder_select_filename').val(orgFileName);
 
     var decodedFileName = decodeURIComponent(orgFileName);
-
-    console.log(restorationObjectId);
-    console.log(path);
-    console.log(decodedFileName);
 
     // Dit moet allemaal naar de sub dlg Duplicate
     // $('#newFileName').val(orgFileName);  //val(decodedFileName); // Is in dialog where to enter a new name when duplicate
@@ -541,9 +535,6 @@ async function restoreRevision(overwriteFlag)
 {
     dlgAlreadyExistsAlert('')
 
-    console.log('restoreRevision()');
-    console.log(overwriteFlag);
-
     var restorationObjectId = $('#restoration-objectid').val(),
         newFileName = $('#newFileName').val();
 
@@ -663,4 +654,3 @@ function human_filesize(size) {
     }
     return (Math.floor(size*10)/10+'') + '&nbsp;' + szs[szi];
 }
-
