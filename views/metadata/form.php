@@ -2,9 +2,9 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header clearfix">
-                    <h3 class="card-title pull-left">
+                    <h5 class="card-title pull-left">
                         Metadata form - <?php echo str_replace(' ', '&nbsp;', htmlentities(trim($path))); ?>
-                    </h3>
+                    </h5>
                     <div class="input-group-sm has-feedback pull-right">
                         <a class="btn btn-secondary" href="/research/browse?dir=<?php echo rawurlencode($path); ?>">Close</a>
                     </div>
@@ -31,9 +31,9 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header clearfix">
-                    <h3 class="card-title pull-left">
+                    <h5 class="card-title pull-left">
                         Metadata form - <?php echo str_replace(' ', '&nbsp;', htmlentities(trim($path))); ?>
-                    </h3>
+                    </h5>
                     <div class="input-group-sm has-feedback pull-right close-button hide">
                         <a class="btn btn-secondary" href="/research/browse?dir=<?php echo rawurlencode($path); ?>">Close</a>
                     </div>
