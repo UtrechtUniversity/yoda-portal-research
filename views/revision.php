@@ -9,9 +9,6 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Select folder to restore revision</h5>
-                <div class="input-group-sm has-feedback pull-right">
-                    <button class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
-                </div>
                 <input type="hidden" id="restoration-objectid" value="">
                 <input type="hidden" id="org_folder_select_path" value="">
                 <input type="hidden" id="org_folder_select_filename" value="">
@@ -41,10 +38,11 @@
                 </div>
             </div>
             <div class="modal-footer">
+                <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                 <button class="btn btn-primary" id="btn-restore"><i class="fa fa-magic" aria-hidden="true"></i> Restore</button>
             </div>
 
-<!--- CoverALL Second dialog for handling of duplicate situations -->
+            <!--- CoverALL Second dialog for handling of duplicate situations -->
             <div id="coverAll" class="cover restore-exists hide">
                 <div class="card" style="width:100%;">
                     <div class="card-header">
@@ -73,14 +71,14 @@
                                     </div>
                                     <div class="row d-block">
                                             <input type="text"  class="form-control" placeholder="Enter new filename" id="newFileName">
-                                        <button  class="btn btn-outline-primary" id="btn-restore-next-to">Restore with a new filename</button>
+                                        <button  class="btn btn-primary" id="btn-restore-next-to">Restore with a new filename</button>
                                     </div>
                                 </form>
                             </div>
                         </div>
                         <div class="row">
                             <hr>
-                            <button class="btn btn-outline-secondary pull-right"  id="btn-cancel-overwrite-dialog" >Cancel</button>
+                            <button class="btn btn-secondary pull-right"  id="btn-cancel-overwrite-dialog">Cancel</button>
                         </div>
                     </div>
                 </div>
