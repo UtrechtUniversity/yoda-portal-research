@@ -59,7 +59,7 @@
                                     </div>
                                     <div class="row d-block">
                                         <p>
-                                            <button class="btn btn-outline-danger" id="btn-restore-overwrite">Overwrite</button>
+                                            <button class="btn btn-danger" id="btn-restore-overwrite">Overwrite</button>
                                         </p>
                                     </div>
                                 </form>
