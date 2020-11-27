@@ -298,6 +298,5 @@ function saveSearchRequest() {
                 showSearchResults();
             }
         });
-        showSearchResults();
     }
 }

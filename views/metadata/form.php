@@ -1,15 +1,15 @@
     <div id="form-errors" class="row hide">
         <div class="col-md-12">
-            <div class="panel panel-default">
-                <div class="panel-heading clearfix">
-                    <h3 class="panel-title pull-left">
+            <div class="card">
+                <div class="card-header clearfix">
+                    <h5 class="card-title pull-left">
                         Metadata form - <?php echo str_replace(' ', '&nbsp;', htmlentities(trim($path))); ?>
-                    </h3>
+                    </h5>
                     <div class="input-group-sm has-feedback pull-right">
-                        <a class="btn btn-default" href="/research/browse?dir=<?php echo rawurlencode($path); ?>">Close</a>
+                        <a class="btn btn-secondary" href="/research/browse?dir=<?php echo rawurlencode($path); ?>">Close</a>
                     </div>
                 </div>
-                <div class="panel-body">
+                <div class="card-body">
                     <p>
                         It is not possible to load this form as the yoda-metadata.json file is not
                         in accordance with the form definition.
@@ -29,16 +29,16 @@
 
     <div id="transformation" class="row hide">
         <div class="col-md-12">
-            <div class="panel panel-default">
-                <div class="panel-heading clearfix">
-                    <h3 class="panel-title pull-left">
+            <div class="card">
+                <div class="card-header clearfix">
+                    <h5 class="card-title pull-left">
                         Metadata form - <?php echo str_replace(' ', '&nbsp;', htmlentities(trim($path))); ?>
-                    </h3>
+                    </h5>
                     <div class="input-group-sm has-feedback pull-right close-button hide">
-                        <a class="btn btn-default" href="/research/browse?dir=<?php echo rawurlencode($path); ?>">Close</a>
+                        <a class="btn btn-secondary" href="/research/browse?dir=<?php echo rawurlencode($path); ?>">Close</a>
                     </div>
                 </div>
-                <div class="panel-body">
+                <div class="card-body">
                     <div id="transformation-text"></div>
                     <div id="transformation-buttons" class="hide">
                         <a class="transformation-reject btn btn-danger pull-right" href="/research/browse?dir=<?php echo rawurlencode($path); ?>">Postpone transformation</a>
@@ -53,7 +53,9 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    Metadata form - <?php echo str_replace(' ', '&nbsp;', htmlentities(trim($path))); ?>
+                    <h5 class="card-title pull-left">
+                        Metadata form - <?php echo str_replace(' ', '&nbsp;', htmlentities(trim($path))); ?>
+                    </h5>
                     <div class="input-group-sm has-feedback pull-right close-button">
                         <a class="btn btn-light btn-sm" href="/research/browse?dir=<?php echo rawurlencode($path); ?>">Close</a>
                     </div>

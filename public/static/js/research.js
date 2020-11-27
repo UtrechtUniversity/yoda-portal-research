@@ -570,8 +570,8 @@ const tableRenderer = {
             if (currentFolder.length==0) {
                 return '';
             }
-            actions.append(`<a href="#" class="dropdown-item" class="folder-rename" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}" title="Rename this folder" >Rename</a>`);
-            actions.append(`<a class="dropdown-item" href="#" class="folder-delete" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}" title="Delete this file">Delete</a>`);
+            actions.append(`<a href="#" class="dropdown-item folder-rename" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}" title="Rename this folder" >Rename</a>`);
+            actions.append(`<a href="#" class="dropdown-item folder-delete" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}" title="Delete this file">Delete</a>`);
         }
         else {
             // Render context menu for files.
@@ -593,7 +593,7 @@ const tableRenderer = {
             actions.append(`<a href="#" class="dropdown-item file-delete" data-collection="${htmlEncode(currentFolder)}" data-name="${htmlEncode(row.name)}" title="Delete this file">Delete</a>`);
         }
         let dropdown = $(`<div class="dropdown">
-                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-name="${htmlEncode(row.name)}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                               <i class="fa fa-ellipsis-h" aria-hidden="true"></i>
                             </button>`);
         dropdown.append(actions);
@@ -632,72 +632,65 @@ function startBrowsing(items)
 
 function toggleLocksList(folder)
 {
-    var isVisible = $('.lock-items').is(":visible");
+    var isVisible = $('.lock').is(":visible");
 
     // toggle locks list
     if (isVisible) {
-        $('.lock-items').hide();
+        $('.lock').hide();
     } else {
         // Get locks
-        Yoda.call('folder_get_locks',
-                  {'coll':  Yoda.basePath + folder})
-        .then((data) => {
-            $('.lock-items').hide();
+        Yoda.call('folder_get_locks', {'coll':  Yoda.basePath + folder}).then((data) => {
+            $('.lock').hide();
 
-            var html = '<li class="list-group-item disabled">Locks:</li>';
+            var html = '';
             $.each(data, function (index, value) {
-                html += '<li class="list-group-item"><span class="browse" data-path="' + htmlEncode(value) + '">' + htmlEncode(value) + '</span></li>';
+                html += '<a class="list-group-item list-group-item-action"><span class="browse" data-path="' + htmlEncode(value) + '">' + htmlEncode(value) + '</span></a>';
             });
             $('.lock-items').html(html);
-            $('.lock-items').show();
+            $('.lock').show();
         });
     }
 }
 
 function toggleActionLogList(folder)
 {
-    let actionList = $('.actionlog-items');
+    let actionList = $('.actionlog');
+    let actionListItems = $('.actionlog-items');
+
+    let isVisible = actionList.is(":visible");
 
     // toggle locks list
-    if (actionList.is(":visible")) {
+    if (isVisible) {
         actionList.hide();
     } else {
-        buildActionLog(folder);
+        // Get provenance information
+        Yoda.call('provenance_log', {coll: Yoda.basePath + folder}).then((data) => {
+            actionList.hide();
+            var html = '';
+            if (data.length) {
+                $.each(data, function (index, value) {
+                    html += '<a class="list-group-item list-group-item-action">'
+                         + htmlEncode(value[2])
+                         + ' - <strong>'
+                         + htmlEncode(value[1])
+                         + '</strong> - '
+                         + htmlEncode(value[0])
+                         + '</a>';
+                });
+            } else {
+                html += '<a class="list-group-item list-group-item-action">No provenance information present</a>';
+            }
+            actionListItems.html(html)
+            actionList.show();
+        });
     }
-}
-
-function buildActionLog(folder)
-{
-    let actionList = $('.actionlog-items');
-
-    // Get provenance information
-    Yoda.call('provenance_log',
-              {coll: Yoda.basePath + folder}).then((data) => {
-        actionList.hide();
-
-        var html = '<li class="list-group-item disabled">Provenance information:</li>';
-        var logItems = data;
-        if (logItems.length) {
-            $.each(logItems, function (index, value) {
-                html += '<li class="list-group-item"><span>'
-                     + htmlEncode(value[2])
-                     + ' - <strong>'
-                     + htmlEncode(value[1])
-                     + '</strong> - '
-                     + htmlEncode(value[0])
-                     + '</span></li>';
-            });
-        }
-        else {
-            html += '<li class="list-group-item">No provenance information present</li>';
-        }
-        actionList.html(html).show();
-    });
 }
 
 function toggleSystemMetadata(folder)
 {
-    let systemMetadata = $('.system-metadata-items');
+    let systemMetadata = $('.system-metadata');
+    let systemMetadataItems = $('.system-metadata-items');
+
     let isVisible = systemMetadata.is(":visible");
 
     // Toggle system metadata.
@@ -705,23 +698,22 @@ function toggleSystemMetadata(folder)
         systemMetadata.hide();
     } else {
         // Retrieve system metadata of folder.
-        Yoda.call('research_system_metadata',
-                  {coll: Yoda.basePath + folder}).then((data) => {
+        Yoda.call('research_system_metadata', {coll: Yoda.basePath + folder}).then((data) => {
             systemMetadata.hide();
-            var html = '<li class="list-group-item disabled">System metadata:</li>';
-
+            var html = '';
             if (data) {
                 $.each(data, function(index, value) {
-                    html += '<li class="list-group-item"><span><strong>' +
+                    html += '<a class="list-group-item list-group-item-action"><strong>' +
                         htmlEncode(index) +
                         '</strong>: ' +
                         htmlEncode(value) +
-                        '</span></li>';
+                        '</a>';
                 });
             } else {
-                html += '<li class="list-group-item">No system metadata present</li>';
+                html += '<a class="list-group-item list-group-item-action">No system metadata present</a>';
             }
-            systemMetadata.html(html).show();
+            systemMetadataItems.html(html);
+            systemMetadata.show();
         });
     }
 }
@@ -837,20 +829,18 @@ function topInformation(dir, showAlert)
             }
 
             // Lock icon
-            $('.lock-items').hide();
+            $('.lock').hide();
             var lockIcon = '';
             if (lockCount != '0' && typeof lockCount != 'undefined') {
                 lockIcon = `<i class="fa fa-exclamation-circle lock-icon" data-folder="${htmlEncode(dir)}" data-locks="${lockCount}" title="${lockCount} lock(s) found" aria-hidden="true"></i>`;
-            } else {
-                lockIcon = `<i class="fa fa-exclamation-circle lock-icon hide" data-folder="${htmlEncode(dir)}" data-locks="0" title="0 lock(s) found" aria-hidden="true"></i>`;
             }
 
             // Provenance action log
-            $('.actionlog-items').hide();
+            $('.actionlog').hide();
             let actionLogIcon = ` <i class="fa fa-book actionlog-icon" style="cursor:pointer" data-folder="${htmlEncode(dir)}" aria-hidden="true" title="Show provenance information"></i>`;
 
             // System metadata.
-            $('.system-metadata-items').hide();
+            $('.system-metadata').hide();
             let systemMetadataIcon = ` <i class="fa fa-info-circle system-metadata-icon" style="cursor:pointer" data-folder="${htmlEncode(dir)}" aria-hidden="true" title="Show system metadata"></i>`;
 
             $('.btn-group button.folder-status').attr('data-write', hasWriteRights);
@@ -872,7 +862,7 @@ function topInformation(dir, showAlert)
             }
 
             let folderName = htmlEncode(basename).replace(/ /g, "&nbsp;");
-            let statusBadge = '<span id="statusBadge" class="badge">' + statusText + '</span>';
+            let statusBadge = '<span id="statusBadge" class="ml-2 badge badge-pill badge-primary">' + statusText + '</span>';
 
             // Reset action dropdown.
             $('.btn-group button.folder-status').prop("disabled", false).next().prop("disabled", false);
@@ -938,27 +928,8 @@ async function lockFolder(folder)
     // Change folder status call
 
     try {
-        await Yoda.call('folder_lock',
-                        {'coll': Yoda.basePath + folder})
-        // Set actions
-        var actions = [];
-
-        if ($('.actionlog-items').is(":visible")) {
-            buildActionLog(folder);
-        }
-
+        await Yoda.call('folder_lock', {'coll': Yoda.basePath + folder})
         $('#statusBadge').text('Locked');
-        actions['unlock'] = 'Unlock';
-        actions['submit'] = 'Submit';
-
-        var totalLocks = $('.lock-icon').attr('data-locks');
-        if (totalLocks == '0') {
-            $('.lock-icon').removeClass('hide');
-            $('.lock-icon').attr('data-locks', 1);
-            $('.lock-icon').attr('title','1 lock(s) found');
-        }
-
-        handleActionsList(actions, folder);
     } catch (e) {
         $('#statusBadge').html(btnText);
     }
@@ -973,31 +944,8 @@ async function unlockFolder(folder)
     $('.btn-group button.folder-status').prop("disabled", true).next().prop("disabled", true);
 
     try {
-        await Yoda.call('folder_unlock',
-                        {'coll': Yoda.basePath + folder});
-        // Set actions
-        let actions = [];
-
-        if ($('.actionlog-items').is(":visible")) {
-            buildActionLog(folder);
-        }
-
+        await Yoda.call('folder_unlock', {'coll': Yoda.basePath + folder});
         $('#statusBadge').text('');
-        actions['lock'] = 'Lock';
-        actions['submit'] = 'Submit';
-
-        var totalLocks = $('.lock-icon').attr('data-locks');
-        if (totalLocks == '1') {
-            $('.lock-icon').addClass('hide');
-            $('.lock-icon').attr('data-locks', 0);
-        }
-
-        // unlocking -> hide lock-items as there are none
-        if ($('.lock-items').is(":visible")) {
-            $('.lock-items').hide();
-        }
-
-        handleActionsList(actions, folder);
     } catch (e) {
         $('#statusBadge').html(btnText);
     }
@@ -1018,20 +966,13 @@ async function submitToVault(folder)
         $('.btn-group button.folder-status').prop("disabled", true).next().prop("disabled", true);
 
         try {
-            let status = await Yoda.call('folder_submit',
-                                         {'coll': Yoda.basePath + folder})
+            let status = await Yoda.call('folder_submit', {'coll': Yoda.basePath + folder})
             if (status === 'SUBMITTED') {
                 $('#statusBadge').html('Submitted');
-            } else {
+            } else if (status === 'ACCEPTED') {
                 $('#statusBadge').html('Accepted');
-            }
-
-            // lock icon
-            let totalLocks = $('.lock-icon').attr('data-locks');
-            if (totalLocks == '0') {
-                $('.lock-icon').removeClass('hide');
-                $('.lock-icon').attr('data-locks', 1);
-                $('.lock-icon').attr('title', '1 lock(s) found');
+            } else {
+                $('#statusBadge').html(btnText);
             }
         } catch (e) {
             $('#statusBadge').html(btnText);
@@ -1047,8 +988,7 @@ async function unsubmitToVault(folder) {
         $('.btn-group button.folder-status').prop("disabled", true).next().prop("disabled", true);
 
         try {
-            let status = await Yoda.call('folder_unsubmit',
-                                         {'coll': Yoda.basePath + folder})
+            let status = await Yoda.call('folder_unsubmit', {'coll': Yoda.basePath + folder})
             $('#statusBadge').html('');
         } catch(e) {
             $('#statusBadge').html(btnText);
@@ -1064,8 +1004,7 @@ async function acceptFolder(folder)
     $('.btn-group button.folder-status').prop("disabled", true).next().prop("disabled", true);
 
     try {
-        await Yoda.call('folder_accept',
-                                  {'coll': Yoda.basePath + folder})
+        await Yoda.call('folder_accept', {'coll': Yoda.basePath + folder})
         $('#statusBadge').html('Accepted');
     } catch (e) {
         $('#statusBadge').html(btnText);
@@ -1080,8 +1019,7 @@ async function rejectFolder(folder)
     $('.btn-group button.folder-status').prop("disabled", true).next().prop("disabled", true);
 
     try {
-        await Yoda.call('folder_reject',
-                        {'coll': Yoda.basePath + folder})
+        await Yoda.call('folder_reject', {'coll': Yoda.basePath + folder})
         $('#statusBadge').html('Rejected');
     } catch (e) {
         $('#statusBadge').html(btnText);
@@ -1145,19 +1083,19 @@ function sendFile(id, path, file) {
                     resolve(xhr.response);
                 } else {
                     $("#" + id + " .msg").html(response.statusInfo);
-                    $("#" + id + " progress").val(0);
+                    $("#" + id + " .progress-bar").css('width', '0%');
                     resolve(xhr.response);
                 }
             } else {
                 $("#" + id + " .msg").html("FAILED");
-                $("#" + id + " progress").val(0);
+                $("#" + id + " .progress-bar").css('width', '0%');
                 resolve(xhr.response);
             }
         }
 
         xhr.upload.addEventListener('progress', function(e) {
             var percent = parseInt((e.loaded / e.total) * 100);
-            $("#" + id + " progress").val(percent);
+            $("#" + id + " .progress-bar").css('width', percent + '%');
         });
 
         fd.append(Yoda.csrf.tokenName, Yoda.csrf.tokenValue);
@@ -1169,10 +1107,12 @@ function sendFile(id, path, file) {
     });
 }
 
+
+
 function logUpload(id, file) {
     let log = `<div class="row" id="${id}">
                   <div class="col-md-6" style="word-wrap: break-word;">${htmlEncode(file.name)}</div>
-                  <div class="col-md-3"><progress value="0" max="100"></progress></div>
+                  <div class="col-md-3"><div class="progress"><div class="progress-bar progress-bar-striped bg-info"></div></div></div>
                   <div class="col-md-3 msg"><i class="fa fa-spinner fa-spin fa-fw"></i></div>
                </div>`;
     $('#files').append(log);

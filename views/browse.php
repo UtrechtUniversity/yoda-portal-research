@@ -4,11 +4,11 @@
     var view = 'browse';
 </script>
 
-<div class="modal" id="showUnpreservableFiles">
+<div class="modal" tabindex="-1" role="dialog" id="showUnpreservableFiles">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-body">
-                <h3>File formats compliance with policy</h3>
+                <h3 class="modal-title">File formats compliance with policy</h3>
                 <div class="form-group">
                     <label for="file-formats-list">Select preservable file format list:</label>
                     <select class="form-control" id="file-formats-list">
@@ -28,146 +28,141 @@
             </div>
 
             <div class="modal-footer">
-                <button class="btn btn-default grey cancel" data-dismiss="modal">Close</button>
+                <button class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
 </div>
 
-<div class="modal" id="folder-create">
+<div class="modal" tabindex="-1" role="dialog" id="folder-create">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-body">
+                <h5 class="modal-title">Create new folder in <span id="collection"></span></h5>
                 <div class="alert alert-warning" id="alert-panel-folder-create">
                     <span></span>
                 </div>
-
-                <h3>Create new folder in <span id="collection"></span></h3>
-                <input type="text" id='path-folder-create' value="" placeholder="Folder name ">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">Folder name</span>
+                  </div>
+                  <input type="text" class="form-control" id='path-folder-create' value="">
+                </div>
             </div>
-
             <div class="modal-footer">
-                <button class="btn btn-default grey cancel" data-dismiss="modal">Cancel</button>
-                <button class='btn-confirm-folder-create btn btn-default' data-path="">Create new folder</button>
+                <button class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button class='btn btn-primary btn-confirm-folder-create' data-path="">Create new folder</button>
             </div>
         </div>
     </div>
 </div>
 
-<div class="modal" id="folder-delete">
+<div class="modal" tabindex="-1" role="dialog" id="folder-delete">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-body">
+                <h5 class="modal-title">Delete folder in <span id="collection"></span></h5>
                 <div class="alert alert-warning" id="alert-panel-folder-delete">
                     <span></span>
                 </div>
-
-                <h3>Delete folder in <span id="collection"></span></h3>
-                <br />
-                Do you want to delete folder <span id="folder-delete-name"></span>?
+                <p>Do you want to delete folder <span id="folder-delete-name"></span>?</p>
             </div>
-
             <div class="modal-footer">
-                <button class="btn btn-default grey cancel" data-dismiss="modal">Cancel</button>
-                <button class='btn-confirm-folder-delete btn btn-default' data-collection="" data-name="">Delete folder</button>
+                <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button class='btn btn-primary btn-confirm-folder-delete' data-collection="" data-name="">Delete folder</button>
             </div>
         </div>
     </div>
 </div>
 
-<div class="modal" id="folder-rename">
+<div class="modal" tabindex="-1" role="dialog" id="folder-rename">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-body">
+                <h5 class="modal-title">Rename folder in <span id="collection"></span></h5>
                 <div class="alert alert-warning" id="alert-panel-folder-rename">
                     <span></span>
                 </div>
-
-                <h3>Rename folder in <span id="collection"></span></h3>
-
-                <input type="hidden" id='org-folder-rename-name' value="">
-                <input type="text" id='folder-rename-name' value="" placeholder="New folder name">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">New folder name</span>
+                  </div>
+                  <input type="hidden" id='org-folder-rename-name' value="">
+                  <input type="text" class="form-control" id='folder-rename-name' value="">
+                </div>
             </div>
-
             <div class="modal-footer">
-                <button class="btn btn-default grey cancel" data-dismiss="modal">Cancel</button>
-                <button class='btn-confirm-folder-rename btn btn-default' data-collection="">Rename folder</button>
+                <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button class='btn btn-primary btn-confirm-folder-rename' data-collection="">Rename folder</button>
             </div>
-
         </div>
     </div>
 </div>
 
-<div class="modal" id="file-rename">
+<div class="modal" tabindex="-1" role="dialog" id="file-rename">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-body">
+                <h5 class="modal-title">Rename file in <span id="collection"></span></h5>
                 <div class="alert alert-warning" id="alert-panel-file-rename">
                     <span></span>
                 </div>
-
-                <h3>Rename file in <span id="collection"></span></h3>
-
-                <input type="hidden" id='org-file-rename-name' value="">
-                <input type="text" id='file-rename-name' value="" placeholder="New file name">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">New file name</span>
+                  </div>
+                  <input type="hidden" id='org-file-rename-name' value="">
+                  <input type="text" class="form-control" id='file-rename-name' value="">
+                </div>
             </div>
-
             <div class="modal-footer">
-                <button class="btn btn-default grey cancel" data-dismiss="modal">Cancel</button>
-                <button class='btn-confirm-file-rename btn btn-default' data-collection="">Rename file</button>
+                <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button class='btn btn-primary btn-confirm-file-rename' data-collection="">Rename file</button>
             </div>
-
         </div>
     </div>
 </div>
 
-<div class="modal" id="file-delete">
+<div class="modal" tabindex="-1" role="dialog" id="file-delete">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-body">
+                <h5 class="modal-title">Delete file in <span id="collection"></span></h5>
                 <div class="alert alert-warning" id="alert-panel-file-delete">
                     <span></span>
                 </div>
-
-                <h3>Delete file in <span id="collection"></span></h3>
-                <br />
-                Do you want to delete <span id="file-delete-name"></span>?
+                <p>Do you want to delete file <span id="file-delete-name"></span>?</p>
             </div>
-
             <div class="modal-footer">
-                <button class="btn btn-default grey cancel" data-dismiss="modal">Cancel</button>
-                <button class='btn-confirm-file-delete btn btn-default' data-collection="" data-name="">Delete file</button>
+                <button class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                <button class='btn btn-primary btn-confirm-file-delete' data-collection="" data-name="">Delete file</button>
             </div>
-
         </div>
     </div>
 </div>
 
-<div class="modal" id="uploads">
-    <div class="modal-dialog">
+<div class="modal" tabindex="-1" role="dialog" id="uploads">
+    <div class="modal-dialog mw-100 w-50">
         <div class="modal-content">
-
             <div class="modal-body">
-                <h3>Uploads</h3>
+                <h5 class="modal-title">Uploads</h5>
                 <div id="files"></div>
             </div>
-
             <div class="modal-footer">
-                <button class="btn btn-default grey cancel" data-dismiss="modal">Close</button>
+                <button class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
 </div>
 
-<div class="modal" id="viewMedia">
-    <div class="modal-dialog">
+<div class="modal" tabindex="-1" role="dialog" id="viewMedia">
+    <div class="modal-dialog mw-100 w-50">
         <div class="modal-content">
-            <div class="modal-body">
+            <div class="modal-body text-center">
                 <div id="viewer"></div>
             </div>
-
             <div class="modal-footer">
-                <button class="btn btn-default grey cancel" data-dismiss="modal">Close</button>
+                <button class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -202,7 +197,7 @@
                         </div>
                         <div class="btn-group">
                             <div class="dropdown">
-                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="actionMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     Actions
                                 </button>
                                 <div class="dropdown-menu action-list" role="menu"></div>
@@ -213,9 +208,18 @@
             </div>
         </div>
 
-        <ul class="list-group lock-items"></ul>
-        <ul class="list-group system-metadata-items"></ul>
-        <ul class="list-group actionlog-items"></ul>
+        <div class="card lock">
+            <div class="card-header">Locks</div>
+            <div class="list-group lock-items"></div>
+        </div>
+        <div class="card system-metadata">
+            <div class="card-header">System metadata</div>
+            <div class="list-group system-metadata-items"></div>
+        </div>
+        <div class="card actionlog">
+            <div class="card-header">Provenance information</div>
+            <div class="list-group actionlog-items"></div>
+        </div>
     </div>
 
     <div class="col-md-12">

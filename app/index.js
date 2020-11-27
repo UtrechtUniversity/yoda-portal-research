@@ -156,7 +156,7 @@ class YodaButtons extends React.Component {
     }
 
     renderSaveButton() {
-        return (<button onClick={this.props.saveMetadata} type="submit" className="btn btn-primary">Save</button>);
+        return (<button onClick={this.props.saveMetadata} type="submit" className="btn btn-primary pull-left">Save</button>);
     }
 
     renderDeleteButton() {
@@ -168,7 +168,7 @@ class YodaButtons extends React.Component {
     }
 
     renderFormCompleteness() {
-        return (<span className="form-completeness" aria-hidden="true" data-toggle="tooltip" title=""></span>);
+        return (<div className="form-completeness progress pull-left ml-3 mt-2 w-25" data-toggle="tooltip" title=""><div className="progress-bar bg-success"></div></div>);
     }
 
     renderButtons() {
@@ -546,20 +546,22 @@ function ArrayFieldTemplate(props) {
     );
 }
 
-
 function updateCompleteness()
 {
-    const mandatoryTotal  = $('.fa-lock.safe:visible').length;
-    const mandatoryFilled = $('.fa-stack .checkmark-green-top-right:visible').length;
+    let mandatoryTotal = 0;
+    let mandatoryFilled = 0;
+    $(".form-control").each(function() {
+        if ($(this)[0].required) {
+            mandatoryTotal++;
+            if ($(this)[0].value != "") {
+                mandatoryFilled++;
+            }
+        }
+    });
 
-    const completeness = mandatoryTotal == 0 ? 1 : mandatoryFilled / mandatoryTotal;
-
-    const html = ' '
-               + '<i class="fa fa-check form-required-present"></i>'.repeat(  Math.floor(completeness*5))
-               + '<i class="fa fa-check form-required-missing"></i>'.repeat(5-Math.floor(completeness*5));
-
+    let percent = (mandatoryFilled / mandatoryTotal) * 100;
+    $(".form-completeness .progress-bar").css('width', percent + '%');
     $('.form-completeness').attr('title', `Required for the vault: ${mandatoryTotal}, currently filled required fields: ${mandatoryFilled}`);
-    $('.form-completeness').html(html);
 
     return mandatoryTotal == mandatoryFilled;
 }
