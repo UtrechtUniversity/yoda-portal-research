@@ -1,6 +1,9 @@
 import React, { Component } from "react";
 import { render } from "react-dom";
 import Form from "@rjsf/bootstrap-4";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
+import {Container as bscontainer} from "react-bootstrap/Container";
 import Select from 'react-select';
 import Geolocation from "./Geolocation";
 
@@ -131,8 +134,6 @@ class YodaForm extends React.Component {
               formData={this.state.formData}
               formContext={this.state.formContext}
               ArrayFieldTemplate={ArrayFieldTemplate}
-              ObjectFieldTemplate={ObjectFieldTemplate}
-              FieldTemplate={CustomFieldTemplate}
               liveValidate={true}
               noValidate={false}
               noHtml5Validate={true}
@@ -470,56 +471,79 @@ function ObjectFieldTemplate(props) {
 }
 
 function ArrayFieldTemplate(props) {
-    let array = props.items;
-    let canRemove = array.length !== 1;
-    let output = props.items.map((element, i, array) => {
-        // Read only view
-        if (props.readonly || props.disabled) {
-            return element.children;
-        }
+    const { DescriptionField } = props;
 
-        let item = props.items[i];
-        if (array.length - 1 === i) {
-            // Render "add" button only on the last item.
+    return (
+        <fieldset>
+            {(props.title) && (
+                <legend>{props.title}</legend>
+            )}
 
-            let btnCount = 1 + canRemove;
+            {props.description && (
+                <DescriptionField
+                    id={`${props.idSchema.$id}__description`}
+                    description={props.description}
+                    formContext={props.formContext}
+                />
+            )}
 
-            return (
-                <div key={i} className="has-btn">
-                    {element.children}
-                    <div className={"btn-controls btn-group btn-count-" + btnCount} role="group">
-                        {canRemove &&
-                        <button type="button" className="clone-btn btn btn-outline-secondary" onClick={item.onDropIndexClick(item.index)}>
-                            <i className="fa fa-minus" aria-hidden="true"></i>
-                        </button>}
-                        <button type="button" className="clone-btn btn btn-outline-secondary" onClick={props.onAddClick}>
-                            <i className="fa fa-plus" aria-hidden="true"></i>
+            {props.canAdd && (
+                <div className="row">
+                    <p className="col-xs-3 col-xs-offset-9 array-item-add text-right">
+                        <button className="btn btn-primary" onClick={props.onAddClick} type="button">
+                            Add
                         </button>
-                    </div>
+                    </p>
                 </div>
-            );
-        } else {
-            if (canRemove) {
-                return (
-                    <div key={i} className="has-btn">
-                        {element.children}
-                        <div className="btn-controls">
-                            <button type="button" className="clone-btn btn btn-outline-secondary" onClick={item.onDropIndexClick(item.index)}>
-                                <i className="fa fa-minus" aria-hidden="true"></i>
-                            </button>
+            )}
+
+            {props.items &&
+            props.items.map(element => (
+                <div key={element.key} className={element.className}>
+                    <div className="col-lg-9 col-9">{element.children}</div>
+                    <div className="py-4 col-lg-3 col-3">
+                        <div className="d-flex flex-row">
+                            {element.hasMoveUp && (
+                            <div className="m-0 p-0">
+                                <button
+                                    className="btn btn-light btn-sm"
+                                    onClick={element.onReorderClick(
+                                        element.index,
+                                        element.index - 1
+                                    )}>
+                                    Up
+                                </button>
+                            </div>
+                            )}
+
+                            {element.hasMoveDown && (
+                                <div className="m-0 p-0">
+                                    <button
+                                        className="btn btn-light btn-sm"
+                                        onClick={element.onReorderClick(
+                                            element.index,
+                                            element.index + 1
+                                        )}>
+                                        Down
+                                    </button>
+                                </div>
+                            )}
+
+                            {element.hasRemove && (
+                            <div className="m-0 p-0">
+                                <button
+                                    className="btn btn-light btn-sm"
+                                    onClick={element.onDropIndexClick(element.index)}>
+                                    Delete
+                                </button>
+                            </div>
+                            )}
                         </div>
                     </div>
-                )
-            }
-
-            return element.children;
-        }
-    });
-
-    if (props.disabled)
-        return (<div className="hide">{output}</div>);
-    else
-        return (<div>{output}</div>);
+                </div>
+            ))}
+        </fieldset>
+    );
 }
 
 
