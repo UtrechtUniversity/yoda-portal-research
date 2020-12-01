@@ -134,6 +134,8 @@ class YodaForm extends React.Component {
               formData={this.state.formData}
               formContext={this.state.formContext}
               ArrayFieldTemplate={ArrayFieldTemplate}
+              ObjectFieldTemplate={ObjectFieldTemplate}
+              FieldTemplate={CustomFieldTemplate}
               liveValidate={true}
               noValidate={false}
               noHtml5Validate={true}
@@ -380,17 +382,18 @@ function CustomFieldTemplate(props) {
         return children;
     }
 
-    const hasErrors = Array.isArray(errors.props.errors);
-
     // Only show error messages after submit.
     if (formContext.saving) {
       return (
-        <div className={classNames}>
-          <div className={'col-sm-11 field-wrapper'}>
-            <div className={'row'}>
-              <div className={'col-sm-12'}>
-                {description}
+        <div className={classNames + ' row'}>
+          <div className={'col-12 field-wrapper'}>
+            <div className={'form-group mb-0'}>
+              <div className={'mb-0 form-group'}>
                 {children}
+                  {help && (
+                      <small className="text-muted form-text">{help}</small>
+                  )}
+                {description}
               </div>
             </div>
             {errors}
@@ -399,12 +402,15 @@ function CustomFieldTemplate(props) {
       );
     } else {
        return (
-        <div className={classNames}>
-          <div className={'col-sm-9 field-wrapper'}>
-            <div className={'row'}>
-              <div className={'col-sm-12'}>
-                {description}
+        <div className={classNames+ ' row'}>
+          <div className={'col-12 field-wrapper'}>
+            <div className={'form-group mb-0'}>
+              <div className={'mb-0 form-group'}>
                 {children}
+                  {help && (
+                      <small className="text-muted form-text">{help}</small>
+                  )}
+                {description}
               </div>
             </div>
           </div>
@@ -424,31 +430,23 @@ function ObjectFieldTemplate(props) {
     }
 
     if (structure === 'compound') {
-        var array = props.properties;
-        var output = props.properties.map((prop, i, array) => {
+        let output = props.properties.map((prop, i) => {
             return (
-                <div key={i} className="col-sm-6 field compound-field">
+                <div key={i} className="col compound-field">
                     {prop.content}
                 </div>
             );
         });
 
         return (
-            <div className={`form-group ${structureClass}`}>
-                <label className="col-sm-2 combined-main-label control-label">
-                    <span data-toggle="tooltip" title={props.uiSchema["ui:help"]}>{props.title}</span>
-                </label>
-                <div className="col-sm-11">
-                    <div className="form-group row">
-                        {output}
-                    </div>
-                </div>
+            <div className={`form-row ${structureClass}`}>
+                {output}
             </div>
         );
     }
 
     return (
-        <fieldset className={structureClass}>
+        <fieldset>
             {(props.uiSchema["ui:title"] || props.title) && (
                 <TitleField
                     id={`${props.idSchema.$id}__title`}
@@ -464,87 +462,105 @@ function ObjectFieldTemplate(props) {
                     formContext={props.formContext}
                 />
             )}
-            {props.properties.map(prop => prop.content)}
+            <div className="container-fluid p-0">
+                {props.properties.map(prop => (
+                    <div className="col-xs-12" key={prop.content.key}>
+                        {prop.content}
+                    </div>
+                ))}
+            </div>
         </fieldset>
     );
-
 }
 
 function ArrayFieldTemplate(props) {
-    const { DescriptionField } = props;
+    const { DescriptionField, readonly, disabled } = props;
 
-    return (
-        <fieldset>
-            {(props.title) && (
-                <legend>{props.title}</legend>
-            )}
+    if (readonly || disabled) {
+        let output = props.items.map((element, i) => {
+            // Read only view
+            if (readonly || disabled) {
+                return element.children;
+            }
+        });
+        return (<div className="hide">{output}</div>);
+    } else {
+        return (
+            <fieldset className="yoda-array-field">
+                {(props.title) && (
+                    <legend>{props.title}</legend>
+                )}
 
-            {props.description && (
-                <DescriptionField
-                    id={`${props.idSchema.$id}__description`}
-                    description={props.description}
-                    formContext={props.formContext}
-                />
-            )}
+                {props.description && (
+                    <DescriptionField
+                        id={`${props.idSchema.$id}__description`}
+                        description={props.description}
+                        formContext={props.formContext}
+                    />
+                )}
 
-            {props.canAdd && (
-                <div className="row">
-                    <p className="col-xs-3 col-xs-offset-9 array-item-add text-right">
-                        <button className="btn btn-primary" onClick={props.onAddClick} type="button">
-                            Add
-                        </button>
-                    </p>
-                </div>
-            )}
+                {props.canAdd && (
+                    <div className="row">
+                        <p className="col-xs-3 col-xs-offset-9 array-item-add text-right text-right offset-md-11">
+                            <button className="btn btn-outline-secondary btn-sm" onClick={props.onAddClick} type="button">
+                                Add
+                            </button>
+                        </p>
+                    </div>
+                )}
 
-            {props.items &&
-            props.items.map(element => (
-                <div key={element.key} className={element.className}>
-                    <div className="col-lg-9 col-9">{element.children}</div>
-                    <div className="py-4 col-lg-3 col-3">
-                        <div className="d-flex flex-row">
-                            {element.hasMoveUp && (
-                            <div className="m-0 p-0">
-                                <button
-                                    className="btn btn-light btn-sm"
-                                    onClick={element.onReorderClick(
-                                        element.index,
-                                        element.index - 1
-                                    )}>
-                                    Up
-                                </button>
+                {props.items &&
+                props.items.map(el => (
+                    <div key={el.key} className="d-flex">
+                        <div className="col-lg-9 col-9">
+                            {el.children}
+                        </div>
+                        <div className="py-4 col-lg-3 col-3 mt-2">
+                            <div className="d-flex flex-row">
+                                {el.hasMoveUp && (
+                                    <div className="m-0 p-0">
+                                        <button
+                                            className="btn btn-light btn-sm"
+                                            onClick={el.onReorderClick(
+                                                el.index,
+                                                el.index - 1
+                                            )}>
+                                            Up
+                                        </button>
+                                    </div>
+                                )}
+
+                                {el.hasMoveDown && (
+                                    <div className="m-0 p-0">
+                                        <button
+                                            className="btn btn-light btn-sm"
+                                            onClick={el.onReorderClick(
+                                                el.index,
+                                                el.index + 1
+                                            )}>
+                                            Down
+                                        </button>
+                                    </div>
+                                )}
+
+                                {el.hasRemove && (
+                                    <div className="m-0 p-0">
+                                        <button
+                                            className="btn btn-light btn-sm"
+                                            onClick={el.onDropIndexClick(el.index)}>
+                                            Delete
+                                        </button>
+                                    </div>
+                                )}
                             </div>
-                            )}
-
-                            {element.hasMoveDown && (
-                                <div className="m-0 p-0">
-                                    <button
-                                        className="btn btn-light btn-sm"
-                                        onClick={element.onReorderClick(
-                                            element.index,
-                                            element.index + 1
-                                        )}>
-                                        Down
-                                    </button>
-                                </div>
-                            )}
-
-                            {element.hasRemove && (
-                            <div className="m-0 p-0">
-                                <button
-                                    className="btn btn-light btn-sm"
-                                    onClick={element.onDropIndexClick(element.index)}>
-                                    Delete
-                                </button>
-                            </div>
-                            )}
                         </div>
                     </div>
-                </div>
-            ))}
-        </fieldset>
-    );
+                ))}
+            </fieldset>
+        );
+    }
 }
+
 
 function updateCompleteness()
 {
