@@ -21,8 +21,7 @@ let saving = false;
 let form = document.getElementById('form');
 
 const customStyles = {
-    control: styles => ({...styles, borderRadius: '0px', minHeight: '15px', height: '33.5px'}),
-    placeholder: () => ({color: '#555'})
+    control: styles => ({...styles})
 };
 
 const enumWidget = (props) => {
