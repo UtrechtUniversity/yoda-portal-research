@@ -455,12 +455,10 @@ function ObjectFieldTemplate(props) {
                     formContext={props.formContext}
                 />
             )}
-            {props.description && (
-                <DescriptionField
-                    id={`${props.idSchema.$id}__description`}
-                    description={props.description}
-                    formContext={props.formContext}
-                />
+            {(props.uiSchema["ui:description"] || props.schema.description) && (
+                <small className="col-xs-12 text-muted form-text">
+                    {props.uiSchema["ui:description"] || props.schema.description}
+                </small>
             )}
             <div className="container-fluid p-0">
                 {props.properties.map(prop => (
@@ -485,29 +483,32 @@ function ArrayFieldTemplate(props) {
         });
         return (<div className="hide">{output}</div>);
     } else {
+        let buttonClass = "col-sm-2 offset-sm-10 array-item-add text-right";
+        if (props.uiSchema["ui:description"] || props.schema.description) {
+            buttonClass = "col-sm-2 array-item-add text-right";
+        }
+
         return (
             <fieldset className="yoda-array-field">
                 {(props.title) && (
                     <legend>{props.title}</legend>
                 )}
 
-                {props.description && (
-                    <DescriptionField
-                        id={`${props.idSchema.$id}__description`}
-                        description={props.description}
-                        formContext={props.formContext}
-                    />
-                )}
+                <div className="d-flex">
+                    {(props.uiSchema["ui:description"] || props.schema.description) && (
+                        <small className="col-sm-10 text-muted form-text">
+                            {props.uiSchema["ui:description"] || props.schema.description}
+                        </small>
+                    )}
 
-                {props.canAdd && (
-                    <div className="row">
-                        <p className="col-xs-3 col-xs-offset-9 array-item-add text-right text-right offset-md-11">
+                    {props.canAdd && (
+                    <p className={buttonClass}>
                             <button className="btn btn-outline-secondary btn-sm" onClick={props.onAddClick} type="button">
                                 <i className="fa fa-plus" aria-hidden="true"></i>
                             </button>
                         </p>
-                    </div>
-                )}
+                    )}
+                </div>
 
                 {props.items &&
                 props.items.map(el => (
