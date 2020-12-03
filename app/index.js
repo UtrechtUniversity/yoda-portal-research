@@ -35,17 +35,23 @@ const enumWidget = (props) => {
     let i = enumArray.indexOf(props['value']);
     let placeholder = enumNames[i] == null ? ' ' : enumNames[i];
 
-    return (<Select className={'select-box'}
+    return (
+        <div>
+            <label className="form-label">{props.label || props.uiSchema["ui:title"]}</label>
+            <Select className={'select-box'}
                     placeholder={placeholder}
                     required={props.required}
                     isDisabled={props.readonly}
                     onChange={(event) => props.onChange(event.value)}
                     options={props['options']['enumOptions']}
-                    styles={customStyles} />);
+                    styles={customStyles} />
+        </div>
+    );
 };
 
+
 const widgets = {
-    //SelectWidget: enumWidget
+    SelectWidget: enumWidget
 };
 
 const fields = {
