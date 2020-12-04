@@ -287,7 +287,6 @@ function deleteMetadata() {
 
 function loadForm(properties) {
     formProperties = properties;
-    console.log('Form properties:', formProperties);
 
     // Inhibit "loading" text.
     formLoaded = true;
@@ -501,7 +500,7 @@ function ArrayFieldTemplate(props) {
 
                 <div className="d-flex">
                     {(props.uiSchema["ui:description"] || props.schema.description) && (
-                        <small className="col-sm-10 text-muted form-text">
+                        <small className="col-sm-10 text-muted form-text mb-2">
                             {props.uiSchema["ui:description"] || props.schema.description}
                         </small>
                     )}
