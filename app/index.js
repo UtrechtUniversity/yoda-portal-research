@@ -493,7 +493,7 @@ function ArrayFieldTemplate(props) {
         }
 
         return (
-            <fieldset className="yoda-array-field border mb-3">
+            <fieldset className="yoda-array-field border mb-4">
                 {(props.title) && (
                     <legend>{props.title}</legend>
                 )}
