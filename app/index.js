@@ -450,7 +450,7 @@ function ObjectFieldTemplate(props) {
     }
 
     return (
-        <fieldset>
+        <fieldset className="mb-3">
             {(props.uiSchema["ui:title"] || props.title) && (
                 <TitleField
                     id={`${props.idSchema.$id}__title`}
