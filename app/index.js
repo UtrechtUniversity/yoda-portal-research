@@ -479,10 +479,10 @@ function ObjectFieldTemplate(props) {
 function ArrayFieldTemplate(props) {
     const { DescriptionField, readonly, disabled } = props;
 
-    if (readonly || disabled) {
+    if (disabled) {
         let output = props.items.map((element, i) => {
-            // Read only view
-            if (readonly || disabled) {
+            // Disabled view
+            if (disabled) {
                 return element.children;
             }
         });
@@ -506,8 +506,8 @@ function ArrayFieldTemplate(props) {
                         </small>
                     )}
 
-                    {props.canAdd && (
-                    <p className={buttonClass}>
+                    {(!readonly && props.canAdd) && (
+                        <p className={buttonClass}>
                             <button className="btn btn-outline-secondary btn-sm" onClick={props.onAddClick} type="button">
                                 <i className="fa fa-plus" aria-hidden="true"></i>
                             </button>
@@ -521,52 +521,50 @@ function ArrayFieldTemplate(props) {
                         <div className="col-lg-10 col-10">
                             {el.children}
                         </div>
-                        <div className="py-4 col-lg-2 col-2 mt-2">
-                            <div className="d-flex flex-row">
-                                {el.hasMoveUp && (
-                                    <div className="m-0 p-0">
-                                        <button
-                                            className="btn btn-light btn-sm"
-                                            onClick={el.onReorderClick(
-                                                el.index,
-                                                el.index - 1
-                                            )}>
-                                            <i className="fa fa-arrow-up" aria-hidden="true"></i>
-                                        </button>
-                                    </div>
-                                )}
+                        {!readonly && (
+                            <div className="py-4 col-lg-2 col-2 mt-2">
+                                <div className="d-flex flex-row">
+                                    {el.hasMoveUp && (
+                                        <div className="m-0 p-0">
+                                            <button className="btn btn-light btn-sm"
+                                                onClick={el.onReorderClick(
+                                                    el.index,
+                                                    el.index - 1
+                                                )}>
+                                                <i className="fa fa-arrow-up" aria-hidden="true"></i>
+                                            </button>
+                                        </div>
+                                    )}
 
-                                {el.hasMoveDown && (
-                                    <div className="m-0 p-0">
-                                        <button
-                                            className="btn btn-light btn-sm"
-                                            onClick={el.onReorderClick(
-                                                el.index,
-                                                el.index + 1
-                                            )}>
-                                            <i className="fa fa-arrow-down" aria-hidden="true"></i>
-                                        </button>
-                                    </div>
-                                )}
+                                    {el.hasMoveDown && (
+                                        <div className="m-0 p-0">
+                                            <button className="btn btn-light btn-sm"
+                                                onClick={el.onReorderClick(
+                                                    el.index,
+                                                    el.index + 1
+                                                )}>
+                                                <i className="fa fa-arrow-down" aria-hidden="true"></i>
+                                            </button>
+                                        </div>
+                                    )}
 
-                                {el.hasRemove && (
-                                    <div className="m-0 p-0">
-                                        <button
-                                            className="btn btn-light btn-sm"
-                                            onClick={el.onDropIndexClick(el.index)}>
-                                            <i className="fa fa-trash" aria-hidden="true"></i>
-                                        </button>
-                                    </div>
-                                )}
+                                    {el.hasRemove && (
+                                        <div className="m-0 p-0">
+                                            <button className="btn btn-light btn-sm"
+                                                onClick={el.onDropIndexClick(el.index)}>
+                                                <i className="fa fa-trash" aria-hidden="true"></i>
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </div>
                 ))}
             </fieldset>
         );
     }
 }
-
 
 function updateCompleteness()
 {
