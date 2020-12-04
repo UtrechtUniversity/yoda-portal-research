@@ -141,7 +141,7 @@ const tableRenderer = {
         name: (name, _, row) => {
             //let tgt = `${dlgCurrentFolder}/${name}`;
             //return row.revision_count;
-            return `<span data-path="${encodeURIComponent(row.original_coll_name)}" data-collection-exists="${row.collection_exists}" >/${htmlEncode(row.original_coll_name)}</span>`
+            return `<a data-path="${encodeURIComponent(row.original_coll_name)}" data-collection-exists="${row.collection_exists}" >/${htmlEncode(row.original_coll_name)}</a>`
         },
         count: (count, _, row) => {
             return htmlEncode(count);
