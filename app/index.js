@@ -108,19 +108,19 @@ class YodaForm extends React.Component {
             // Show error list only on save.
             if (formContext.saving) {
                 return (
-                  <div className="panel panel-warning errors">
-                    <div className="panel-heading">
-                      <h3 className="panel-title">Validation warnings</h3>
-                    </div>
-                    <ul className="list-group">
-                      {errors.map((error, i) => {
-                        return (
-                          <li key={i} className="list-group-item text-warning">
-                            {error.stack}
-                          </li>
-                        );
-                      })}
-                    </ul>
+                    <div className="mb-4 card border-danger">
+                        <div className="alert-danger card-header">Validation warnings</div>
+                        <div className="p-0 card-body">
+                            <div className="list-group">
+                              {errors.map((error, i) => {
+                                return (
+                                    <div key={i} className="border-0 list-group-item">
+                                        <span>{error.stack}</span>
+                                    </div>
+                                );
+                              })}
+                          </div>
+                      </div>
                   </div>
                 );
             } else {
