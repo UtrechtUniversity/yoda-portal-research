@@ -153,18 +153,14 @@ const tableRenderer = {
 async function clickFileForRevisionDetails(obj, dtTable) {
     var tr = obj.closest('tr');
 
-    var collection_exists = $('td:eq(0) span', tr).attr('data-collection-exists');
-
-    var path = decodeURIComponent($('td:eq(0) span', tr).attr('data-path'));
-    //var collection_exists = $('td:eq(0) span', tr).attr('data-collection-exists');
-
+    var collection_exists = $('td:eq(0) a', tr).attr('data-collection-exists');
+    var path = decodeURIComponent($('td:eq(0) a', tr).attr('data-path'));
     var row = $('#file-browser').DataTable().row(tr);
 
     if ( row.child.isShown() ) {
         // This row is already open - close it
         row.child.hide();
         tr.removeClass('shown');
-
         return;
     }
 
