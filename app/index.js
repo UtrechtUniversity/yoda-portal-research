@@ -1,12 +1,8 @@
 import React, { Component } from "react";
 import { render } from "react-dom";
 import Form from "@rjsf/bootstrap-4";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
-import {Container as bscontainer} from "react-bootstrap/Container";
 import Select from 'react-select';
 import Geolocation from "./Geolocation";
-
 
 const path = $('#form').attr('data-path');
 
