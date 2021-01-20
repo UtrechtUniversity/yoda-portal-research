@@ -274,17 +274,16 @@ async function handleFolderAdd(new_folder, collection) {
         {   coll: Yoda.basePath +  collection,
             new_folder_name: new_folder
         },
-        {'quiet': true}
+        {'quiet': true, 'rawResult': true}
     );
 
-    if (result.proc_status=='ok') {
+    if (result.status == 'ok') {
         setMessage('success', 'Successfully added new folder: ' + new_folder + ' to ' + collection );
         browse(collection, true);
-
         $('#folder-create').modal('hide');
     }
     else {
-        fileMgmtDialogAlert('folder-create', result.proc_status_info);
+        fileMgmtDialogAlert('folder-create', result.status_info);
     }
 }
 
@@ -300,17 +299,16 @@ async function handleFolderRename(new_folder_name, collection, org_folder_name) 
             coll: Yoda.basePath +  collection,
             org_folder_name: org_folder_name
         },
-        {'quiet': true}
+        {'quiet': true, 'rawResult': true}
     );
 
-    if (result.proc_status=='ok') {
+    if (result.status == 'ok') {
         setMessage('success', 'Successfully renamed folder to ' + new_folder_name );
         browse(collection, true);
-
         $('#folder-rename').modal('hide');
     }
     else {
-        fileMgmtDialogAlert('folder-rename', result.proc_status_info);
+        fileMgmtDialogAlert('folder-rename', result.status_info);
     }
 }
 
@@ -321,17 +319,16 @@ async function handleFolderDelete(collection, folder_name) {
             coll: Yoda.basePath +  collection,
             folder_name: folder_name
         },
-        {'quiet': true}
+        {'quiet': true, 'rawResult': true}
     );
 
-    if (result.proc_status=='ok') {
+    if (result.status == 'ok') {
         setMessage('success', 'Successfully deleted folder ' + folder_name );
         browse(collection, true);
-
         $('#folder-delete').modal('hide');
     }
     else {
-        fileMgmtDialogAlert('folder-delete', result.proc_status_info);
+        fileMgmtDialogAlert('folder-delete', result.status_info);
     }
 }
 
@@ -346,17 +343,16 @@ async function handleFileRename(new_file_name, collection, org_file_name) {
             coll: Yoda.basePath +  collection,
             org_file_name: org_file_name
         },
-        {'quiet': true}
+        {'quiet': true, 'rawResult': true}
     );
 
-    if (result.proc_status=='ok') {
+    if (result.status == 'ok') {
         setMessage('success', 'Successfully renamed file to ' + new_file_name );
         browse(collection, true);
-
         $('#file-rename').modal('hide');
     }
     else {
-        fileMgmtDialogAlert('file-rename', result.proc_status_info);
+        fileMgmtDialogAlert('file-rename', result.status_info);
     }
 }
 
@@ -366,17 +362,16 @@ async function handleFileDelete(collection, file_name) {
             coll: Yoda.basePath +  collection,
             file_name: file_name
         },
-        {'quiet': true}
+        {'quiet': true, 'rawResult': true}
     );
 
-    if (result.proc_status=='ok') {
+    if (result.status == 'ok') {
         setMessage('success', 'Successfully deleted file ' + file_name );
         browse(collection, true);
-
         $('#file-delete').modal('hide');
     }
     else {
-        fileMgmtDialogAlert('file-delete', result.proc_status_info);
+        fileMgmtDialogAlert('file-delete', result.status_info);
     }
 }
 
