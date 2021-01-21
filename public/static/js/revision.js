@@ -557,7 +557,7 @@ async function restoreRevision(overwriteFlag)
             coll_target: Yoda.basePath + revisionTargetColl,
             new_filename: newFileName
         },
-        {'quiet': true}
+        {'quiet': true, 'rawResult': true}
     );
 
     // In restore-next-to mode different things can go wrong.
