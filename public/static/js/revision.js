@@ -564,7 +564,7 @@ async function restoreRevision(overwriteFlag)
     // 1) Another  duplicate name can be entered
     // 2) An illegal filename containing / or \
     // Case 2 is dealt with in the backend but does not require to be treated here. The above javascript already protects for this
-    if (result.proc_status=="ok_duplicate") { // hier differentieren naar verschillende types response-process-statussen
+    if (result.status == "error_duplicate_file") { // hier differentieren naar verschillende types response-process-statussen
         if (overwriteFlag == 'restore_next_to') {
             // Error reporting within overwrite/new name dialog box
             dlgAlreadyExistsAlert('The new file name <b>' + newFileName + '</b> (location: ' + revisionTargetColl + ') already exists')
@@ -576,7 +576,7 @@ async function restoreRevision(overwriteFlag)
         $('.mode-dlg-exists').removeClass('hide');
         $('#form-restore-overwrite').removeClass('hide');
     }
-    else if (result.proc_status == 'ok') {
+    else if (result.status == 'ok') {
         html = 'Successfully made a copy of revision';
         html += ' <a class="btn btn-primary" href="/research/?dir=' + dlgCurrentFolder + '">Go to research area</a>';
 
@@ -585,7 +585,7 @@ async function restoreRevision(overwriteFlag)
         $('.revision-restore-dialog').removeClass('hide');
     }
     else { // non api error - simply present the error in the main-revision-restore dialog
-        dlgAlertShow(result.proc_status_info);
+        dlgAlertShow(result.status_info);
         $('.cover').addClass('hide');
         $('.revision-restore-dialog').removeClass('hide');
     }
