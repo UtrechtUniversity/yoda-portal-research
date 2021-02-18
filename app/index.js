@@ -30,9 +30,17 @@ const enumWidget = (props) => {
     let i = enumArray.indexOf(props['value']);
     let placeholder = enumNames[i] == null ? ' ' : enumNames[i];
 
+    let title = props.label || props.uiSchema["ui:title"]
+    let label = <label className="form-label">{title}</label>
+    if (props.required && props.value == null) {
+        label = <label className="text-danger form-label">{title}*</label>
+    } else if (props.required) {
+        label = <label className="form-label">{title}*</label>
+    }
+
     return (
         <div>
-            <label className="form-label">{props.label || props.uiSchema["ui:title"]}</label>
+            {label}
             <Select className={'select-box'}
                     placeholder={placeholder}
                     required={props.required}
@@ -43,7 +51,6 @@ const enumWidget = (props) => {
         </div>
     );
 };
-
 
 const widgets = {
     SelectWidget: enumWidget
