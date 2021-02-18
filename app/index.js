@@ -33,12 +33,12 @@ const enumWidget = (props) => {
         control: styles => ({...styles})
     };
     if (props.required && props.value == null) {
-        label = <label className="text-danger form-label">{title}*</label>
+        label = <label className="text-danger form-label select-required">{title}*</label>
         customStyles = {
             control: styles => ({...styles, borderColor: '#dc3545'})
         };
     } else if (props.required) {
-        label = <label className="form-label">{title}*</label>
+        label = <label className="form-label select-required select-filled">{title}*</label>
     }
 
     return (
@@ -582,6 +582,13 @@ function updateCompleteness()
                 mandatoryFilled++;
             }
         }
+    });
+
+    $(".select-required").each(function() {
+        mandatoryTotal++;
+    });
+    $(".select-filled").each(function() {
+        mandatoryFilled++;
     });
 
     let percent = (mandatoryFilled / mandatoryTotal) * 100;
