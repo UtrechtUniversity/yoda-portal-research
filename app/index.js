@@ -16,9 +16,6 @@ let saving = false;
 
 let form = document.getElementById('form');
 
-const customStyles = {
-    control: styles => ({...styles})
-};
 
 const enumWidget = (props) => {
     let enumArray = props['schema']['enum'];
@@ -32,8 +29,14 @@ const enumWidget = (props) => {
 
     let title = props.label || props.uiSchema["ui:title"]
     let label = <label className="form-label">{title}</label>
+    let customStyles = {
+        control: styles => ({...styles})
+    };
     if (props.required && props.value == null) {
         label = <label className="text-danger form-label">{title}*</label>
+        customStyles = {
+            control: styles => ({...styles, borderColor: '#dc3545'})
+        };
     } else if (props.required) {
         label = <label className="form-label">{title}*</label>
     }
