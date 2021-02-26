@@ -40,7 +40,9 @@ const enumWidget = (props) => {
         })
     };
 
-    if (props.required && props.value == null) {
+    let error = "should be equal to one of the allowed values";
+    
+    if((props.rawErrors !== undefined && props.rawErrors.indexOf(error) >= 0) || (props.required && props.value == null)) {
         label = <label className="text-danger form-label select-required">{title}*</label>
         customStyles = {
             control: styles => ({
@@ -114,8 +116,9 @@ class YodaForm extends React.Component {
 
     transformErrors(errors) {
         // Strip errors when saving.
-        if (saving)
-            return errors.filter((e) => e.name !== 'required' && e.name !== 'dependencies');
+        if (saving) {
+            return errors.filter((e) => e.name !== 'required' && e.name !== 'dependencies' && e.name !== 'enum' && e.name !== 'type');
+        }
         return errors;
     }
 
@@ -384,6 +387,20 @@ $(_ => loadForm(JSON.parse(atob($('#form-properties').text()))));
 async function submitData(data) {
     // Disable buttons.
     $('.yodaButtons button').attr('disabled', true);
+  
+    // Remove empty arrays and array items when saving. 
+    for (const property in data) {
+        if (Array.isArray(data[property])) {
+            var unfiltered = data[property];
+           var filtered = unfiltered.filter(e => e != null);
+
+           if (filtered.length === 0) {
+               delete data[property];
+           } else {
+                data[property] = filtered;
+           }
+        }
+    }
 
     // Save.
     try {
