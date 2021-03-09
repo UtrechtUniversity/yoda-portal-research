@@ -41,7 +41,7 @@ const enumWidget = (props) => {
     };
 
     let error = "should be equal to one of the allowed values";
-    
+
     if((props.rawErrors !== undefined && props.rawErrors.indexOf(error) >= 0) || (props.required && props.value == null)) {
         label = <label className="text-danger form-label select-required">{title}*</label>
         customStyles = {
@@ -387,8 +387,8 @@ $(_ => loadForm(JSON.parse(atob($('#form-properties').text()))));
 async function submitData(data) {
     // Disable buttons.
     $('.yodaButtons button').attr('disabled', true);
-  
-    // Remove empty arrays and array items when saving. 
+
+    // Remove empty arrays and array items when saving.
     for (const property in data) {
         if (Array.isArray(data[property])) {
             var unfiltered = data[property];
@@ -480,11 +480,18 @@ function ObjectFieldTemplate(props) {
             );
         });
 
-        return (
-            <div className={`form-row ${structureClass}`}>
-                {output}
-            </div>
-        );
+        if(props.title) {
+            return (
+                <fieldset className="yoda-array-field border rounded mb-4">
+                    <legend>{props.title}</legend>
+                    <div className="d-flex">{output} </div>
+                </fieldset>
+            );
+        } else {
+            return (
+                <div className="d-flex">{output}</div>
+            );
+        }
     }
 
     return (
